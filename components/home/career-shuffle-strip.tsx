@@ -129,9 +129,11 @@ function EmptyBanner({ onShuffle, shufflePending }: { onShuffle: () => void; shu
   return (
     <div className="flex flex-col items-center gap-4 text-center md:flex-row md:text-left">
       <div className="min-w-0 flex-1">
-        <p className="text-base font-semibold">You&apos;ve rated everyone with a photo — nice work.</p>
+        <p className="text-base font-semibold">
+          You&apos;ve rated every top-league player in the pool — nice work.
+        </p>
         <p className="mt-1 text-sm text-primary-foreground/80">
-          Browse players or check back when the catalog grows.
+          Browse players or check back when squads refresh.
         </p>
       </div>
       <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
@@ -196,7 +198,7 @@ export function CareerShuffleStrip({ isLoggedIn }: CareerShuffleStripProps) {
       <div className="mb-3">
         <h2 className="h3">Shuffle ratings</h2>
         <p className="body-sm mt-1 text-muted-foreground">
-          Rate careers for players you haven&apos;t scored yet.
+          Rate top-league careers for players you haven&apos;t scored yet.
         </p>
       </div>
 
