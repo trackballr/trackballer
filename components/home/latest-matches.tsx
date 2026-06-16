@@ -28,7 +28,7 @@ export function LatestMatches({ fixtures }: LatestMatchesProps) {
       ) : (
         <MatchRowList className="overflow-hidden rounded-lg border border-border bg-card lg:sticky lg:top-20">
           {fixtures.map((fixture) => (
-            <MatchRow key={fixture.id} fixture={fixture} aligned showContext />
+            <MatchRow key={fixture.id} fixture={fixture} aligned showContext crestFlags />
           ))}
         </MatchRowList>
       )}

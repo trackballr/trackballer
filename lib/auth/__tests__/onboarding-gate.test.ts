@@ -7,6 +7,7 @@ describe("isOnboardingBypassPath", () => {
     expect(isOnboardingBypassPath("/")).toBe(true)
     expect(isOnboardingBypassPath("/match/123")).toBe(true)
     expect(isOnboardingBypassPath("/player/456")).toBe(true)
+    expect(isOnboardingBypassPath("/country/26")).toBe(true)
   })
 
   it("allows onboarding and login for incomplete users", () => {

@@ -10,7 +10,7 @@ import type {
 } from "@/lib/player/types"
 import { createClient } from "@/lib/supabase/server"
 
-const TEAM_SELECT = "id, name, logo_url, code"
+const TEAM_SELECT = "id, name, logo_url, code, is_national"
 
 type TeamRow = TeamSummary | null
 
@@ -95,6 +95,7 @@ function mapTeam(row: TeamRow): TeamSummary | null {
     name: row.name,
     logo_url: row.logo_url,
     code: row.code,
+    is_national: row.is_national,
   }
 }
 
@@ -248,8 +249,8 @@ async function loadRecentMatches(
     home_goals_pen,
     away_goals_pen,
     round_name,
-    home_team:teams!fixtures_home_team_id_fkey(id, name, logo_url, code),
-    away_team:teams!fixtures_away_team_id_fkey(id, name, logo_url, code)
+    home_team:teams!fixtures_home_team_id_fkey(id, name, logo_url, code, is_national),
+    away_team:teams!fixtures_away_team_id_fkey(id, name, logo_url, code, is_national)
   `
 
   const [{ data: fixtures, error: fixturesError }, { data: matchAggRows }] = await Promise.all([

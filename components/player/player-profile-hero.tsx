@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import Link from "next/link"
 
 import { CareerRing } from "@/components/player/career-ring"
 import { PlayerCareerRatingCta } from "@/components/player/player-career-rating-cta"
@@ -88,7 +89,16 @@ export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroP
             <StatCell label="Country">
               <span className="inline-flex items-center gap-1.5">
                 {profile.nationalTeam ? <TeamFlag team={profile.nationalTeam} size="sm" /> : null}
-                <span>{profile.nationalTeam?.name ?? profile.nationality}</span>
+                {profile.nationalTeam ? (
+                  <Link
+                    href={`/country/${profile.nationalTeam.id}`}
+                    className="hover:underline"
+                  >
+                    {profile.nationalTeam.name}
+                  </Link>
+                ) : (
+                  <span>{profile.nationality}</span>
+                )}
               </span>
             </StatCell>
           ) : null}

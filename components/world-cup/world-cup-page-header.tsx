@@ -1,4 +1,5 @@
 import { CatalogImage } from "@/components/catalog-image"
+import { formatFixtureRoundLabel } from "@/lib/world-cup/round-label"
 
 type WorldCupPageHeaderProps = {
   logoUrl: string | null
@@ -6,6 +7,7 @@ type WorldCupPageHeaderProps = {
 }
 
 export function WorldCupPageHeader({ logoUrl, activeRound }: WorldCupPageHeaderProps) {
+  const roundLabel = formatFixtureRoundLabel(activeRound) ?? activeRound
   return (
     <>
       <div className="mb-2 flex items-center gap-3">
@@ -24,7 +26,7 @@ export function WorldCupPageHeader({ logoUrl, activeRound }: WorldCupPageHeaderP
         </span>
         <h1 className="h-display">World Cup 2026</h1>
       </div>
-      <p className="body-sm mb-6 text-muted-foreground"><span className="font-semibold text-black">Ongoing Round:</span> {activeRound}</p>
+      <p className="body-sm mb-6 text-muted-foreground"><span className="font-semibold text-black">Ongoing Round:</span> {roundLabel}</p>
     </>
   )
 }

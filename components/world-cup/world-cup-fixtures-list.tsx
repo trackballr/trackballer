@@ -62,6 +62,7 @@ export function WorldCupFixturesList({ fixtures }: WorldCupFixturesListProps) {
                 aligned
                 compact
                 localTime
+                crestFlags
               />
             ))}
           </MatchRowList>

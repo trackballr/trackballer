@@ -198,7 +198,7 @@ export function CareerShuffleStrip({ isLoggedIn }: CareerShuffleStripProps) {
       <div className="mb-3">
         <h2 className="h3">Shuffle ratings</h2>
         <p className="body-sm mt-1 text-muted-foreground">
-          Rate top-league careers for players you haven&apos;t scored yet.
+          Rate careers for players you haven&apos;t scored yet.
         </p>
       </div>
 

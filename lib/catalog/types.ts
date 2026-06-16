@@ -5,7 +5,7 @@ export type TeamRow = Database["public"]["Tables"]["teams"]["Row"]
 export type SeasonRow = Database["public"]["Tables"]["seasons"]["Row"]
 export type RoundRow = Database["public"]["Tables"]["rounds"]["Row"]
 
-export type TeamSummary = Pick<TeamRow, "id" | "name" | "logo_url" | "code">
+export type TeamSummary = Pick<TeamRow, "id" | "name" | "logo_url" | "code" | "is_national">
 
 export type FixtureWithTeams = FixtureRow & {
   home_team: TeamSummary

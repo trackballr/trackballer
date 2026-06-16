@@ -32,10 +32,9 @@ describe("MatchRow", () => {
   it("renders teams, score, FT status, and match link", () => {
     render(<MatchRow fixture={matchRowFixture({ id: 855736 })} />)
 
-    expect(screen.getByRole("link")).toHaveAttribute("href", "/match/855736")
-    expect(screen.getByText("Brazil")).toBeInTheDocument()
-    expect(screen.getByText("Serbia")).toBeInTheDocument()
-    expect(screen.getByText("2 - 1")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Brazil" })).toHaveAttribute("href", "/country/1")
+    expect(screen.getByRole("link", { name: "Serbia" })).toHaveAttribute("href", "/country/2")
+    expect(screen.getByRole("link", { name: "2 - 1 FT" })).toHaveAttribute("href", "/match/855736")
     expect(screen.getByText("FT")).toBeInTheDocument()
   })
 

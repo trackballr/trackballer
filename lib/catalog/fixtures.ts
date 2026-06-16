@@ -32,8 +32,8 @@ export const FIXTURE_TEAM_SELECT = `
   ratings_unlocked_at,
   lineups_synced_at,
   appearances_synced_at,
-  home_team:teams!fixtures_home_team_id_fkey(id, name, logo_url, code),
-  away_team:teams!fixtures_away_team_id_fkey(id, name, logo_url, code)
+  home_team:teams!fixtures_home_team_id_fkey(id, name, logo_url, code, is_national),
+  away_team:teams!fixtures_away_team_id_fkey(id, name, logo_url, code, is_national)
 `
 
 const TERMINAL_LIST = [...TERMINAL_STATUSES]

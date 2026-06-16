@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { CatalogImage } from "@/components/catalog-image"
 import { useState } from "react"
@@ -161,14 +162,15 @@ export function WorldCupStandingsPanel({
                           style={{ width: flagSize, height: flagSize }}
                         />
                       )}
-                      <span
+                      <Link
+                        href={`/country/${row.teamId}`}
                         className={cn(
-                          "truncate font-medium",
+                          "min-w-0 truncate font-medium hover:underline",
                           compact ? "text-[10px]" : "text-xs",
                         )}
                       >
                         {row.teamName}
-                      </span>
+                      </Link>
                     </span>
                   </td>
                   <td className={tdClass}>{row.played}</td>

@@ -2,6 +2,7 @@ import { CatalogImage } from "@/components/catalog-image"
 import { MatchKickoffDateTime } from "@/components/match/match-kickoff-datetime"
 import { MatchRedCardsRow } from "@/components/match/match-red-cards-row"
 import { MatchScorersRow } from "@/components/match/match-scorers-row"
+import { NationalTeamNameLink } from "@/components/national-team-name-link"
 import { TeamFlag } from "@/components/team-flag"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
 import type { MatchHeroScore } from "@/lib/match/hero-score"
@@ -95,9 +96,10 @@ export function MatchHero({ fixture, detail, heroScore, className }: MatchHeroPr
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-6">
           <div className="flex min-w-0 items-center justify-end gap-2 md:gap-3">
             <div className="min-w-0 text-right">
-              <p className="truncate font-display text-base font-bold md:text-xl">
-                {fixture.home_team.name}
-              </p>
+              <NationalTeamNameLink
+                team={fixture.home_team}
+                className="block truncate font-display text-base font-bold md:text-xl"
+              />
             </div>
             <TeamFlag team={fixture.home_team} size="md" className="shrink-0" />
           </div>
@@ -121,9 +123,10 @@ export function MatchHero({ fixture, detail, heroScore, className }: MatchHeroPr
           <div className="flex min-w-0 items-center gap-2 md:gap-3">
             <TeamFlag team={fixture.away_team} size="md" className="shrink-0" />
             <div className="min-w-0 text-left">
-              <p className="truncate font-display text-base font-bold md:text-xl">
-                {fixture.away_team.name}
-              </p>
+              <NationalTeamNameLink
+                team={fixture.away_team}
+                className="block truncate font-display text-base font-bold md:text-xl"
+              />
             </div>
           </div>
         </div>

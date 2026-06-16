@@ -1,9 +1,11 @@
 import Link from "next/link"
 
 import { MatchRowScoreBlock } from "@/components/match/match-row-score-block"
+import { NationalTeamNameLink } from "@/components/national-team-name-link"
 import { TeamFlag } from "@/components/team-flag"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
 import { formatMatchKickoffDate, formatMatchScore } from "@/lib/match/score"
+import { formatFixtureRoundLabel } from "@/lib/world-cup/round-label"
 import { cn } from "@/lib/utils"
 
 type MatchRowProps = {
@@ -16,6 +18,8 @@ type MatchRowProps = {
   compact?: boolean
   /** Show kickoff time in the viewer's local timezone (browser-only island). */
   localTime?: boolean
+  /** Square crest flags — home / World Cup fixture tables. */
+  crestFlags?: boolean
   /** Use parent `MatchRowList` subgrid so columns align across rows. */
   aligned?: boolean
   className?: string
@@ -27,22 +31,32 @@ export const matchRowGridClass =
 
 const FRIENDLY_STATUS_LABELS = new Set(["Yet to start"])
 
+const teamNameClass = (compact: boolean, align: "left" | "right") =>
+  cn(
+    "block w-full min-w-0 font-semibold",
+    align === "right" ? "text-right" : "text-left",
+    compact ? "text-[12px]" : "text-[15px]",
+  )
+
 export function MatchRow({
   fixture,
   showContext = false,
   showKickoff = false,
   compact = false,
   localTime = false,
+  crestFlags = false,
   aligned = false,
   className,
 }: MatchRowProps) {
   const { scoreline, statusLabel, isLive } = formatMatchScore(fixture)
   const shouldUppercase =
     !statusLabel.startsWith("PEN (") && !FRIENDLY_STATUS_LABELS.has(statusLabel)
+  const matchHref = `/match/${fixture.id}`
+  const flagVariant = crestFlags ? "crest" : "circle"
+  const roundLabel = formatFixtureRoundLabel(fixture.round_name)
 
   return (
-    <Link
-      href={`/match/${fixture.id}`}
+    <div
       className={cn(
         aligned
           ? "col-span-full grid grid-cols-subgrid items-center"
@@ -53,24 +67,23 @@ export function MatchRow({
         className,
       )}
     >
-      <span
-        className={cn(
-          "block w-full min-w-0 truncate text-right font-semibold",
-          compact ? "text-[12px]" : "text-[15px]",
-        )}
-      >
-        {fixture.home_team.name}
-      </span>
+      <NationalTeamNameLink
+        team={fixture.home_team}
+        className={teamNameClass(compact, "right")}
+      />
       <TeamFlag
         team={fixture.home_team}
         size={compact ? "sm" : "md"}
+        variant={flagVariant}
         className="justify-self-end"
       />
 
       {localTime ? (
-        <MatchRowScoreBlock fixture={fixture} compact={compact} />
+        <Link href={matchHref} className="contents">
+          <MatchRowScoreBlock fixture={fixture} compact={compact} />
+        </Link>
       ) : (
-        <>
+        <Link href={matchHref} className="contents">
           <span
             className={cn(
               "justify-self-center px-3 font-bold tracking-tight tabular-nums",
@@ -90,22 +103,19 @@ export function MatchRow({
           >
             {statusLabel}
           </span>
-        </>
+        </Link>
       )}
 
       <TeamFlag
         team={fixture.away_team}
         size={compact ? "sm" : "md"}
+        variant={flagVariant}
         className="justify-self-start"
       />
-      <span
-        className={cn(
-          "block w-full min-w-0 truncate text-left font-semibold",
-          compact ? "text-[12px]" : "text-[15px]",
-        )}
-      >
-        {fixture.away_team.name}
-      </span>
+      <NationalTeamNameLink
+        team={fixture.away_team}
+        className={teamNameClass(compact, "left")}
+      />
 
       {showKickoff ? (
         <p
@@ -118,12 +128,12 @@ export function MatchRow({
         </p>
       ) : (
         showContext &&
-        fixture.round_name && (
+        roundLabel && (
           <p className="col-span-5 row-start-3 mt-1 text-left text-[11px] text-muted-foreground">
-            {fixture.round_name}
+            {roundLabel}
           </p>
         )
       )}
-    </Link>
+    </div>
   )
 }

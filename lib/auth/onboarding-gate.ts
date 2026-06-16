@@ -11,6 +11,7 @@ const PREFIX_ALLOWLIST = [
   "/auth/",
   "/_next/",
   "/player/",
+  "/country/",
   "/match/",
   "/league/",
   "/world-cup",

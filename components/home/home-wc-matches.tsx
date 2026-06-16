@@ -32,6 +32,7 @@ function MatchBlock({
             compact
             localTime={localTime}
             showContext
+            crestFlags
           />
         ))}
       </MatchRowList>

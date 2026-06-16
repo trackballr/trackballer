@@ -22,8 +22,8 @@ const matchRowDefaults: Omit<FixtureWithTeams, "id"> = {
   appearances_synced_at: null,
   created_at: "2026-01-01T00:00:00.000Z",
   updated_at: "2026-01-01T00:00:00.000Z",
-  home_team: { id: 1, name: "Brazil", logo_url: null, code: "BRA" },
-  away_team: { id: 2, name: "Serbia", logo_url: null, code: "SRB" },
+  home_team: { id: 1, name: "Brazil", logo_url: null, code: "BRA", is_national: true },
+  away_team: { id: 2, name: "Serbia", logo_url: null, code: "SRB", is_national: true },
 }
 
 /** Minimal fixture row for MatchRow / score tests */
