@@ -2,6 +2,7 @@
 
 import { ArrowDownLeft } from "lucide-react"
 
+import { MatchContributionBadgesInline } from "@/components/match/match-event-badge"
 import { PlayerAvatar } from "@/components/player-avatar"
 import { RatingChip } from "@/components/rating/rating-chip"
 import type { MatchLineupPlayer } from "@/lib/match/types"
@@ -23,6 +24,11 @@ export function SubstitutionListRow({
   const canInteract = !disabled && player.isRateable
   const hasSubMinute = player.subOnMinute != null
   const hasReplaced = Boolean(player.subReplacedPlayerName)
+  const hasContributions =
+    player.goalCount > 0 ||
+    player.assistCount > 0 ||
+    player.yellowCardCount > 0 ||
+    player.redCardCount > 0
 
   return (
     <button
@@ -48,8 +54,16 @@ export function SubstitutionListRow({
           {player.shirtNumber != null ? `${player.shirtNumber} ` : ""}
           {player.name}
         </span>
-        {(hasSubMinute || hasReplaced) && (
-          <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+        {(hasSubMinute || hasReplaced || hasContributions) && (
+          <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+            {hasContributions && (
+              <MatchContributionBadgesInline
+                goalCount={player.goalCount}
+                assistCount={player.assistCount}
+                yellowCardCount={player.yellowCardCount}
+                redCardCount={player.redCardCount}
+              />
+            )}
             {hasSubMinute && (
               <span className="inline-flex items-center gap-1 font-mono font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
                 <ArrowDownLeft className="size-3.5 shrink-0" aria-hidden />

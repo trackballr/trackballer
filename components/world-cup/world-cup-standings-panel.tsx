@@ -2,15 +2,15 @@
 
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { CatalogImage } from "@/components/catalog-image"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
+import { CatalogImage } from "@/components/catalog-image"
+import type { StandingsPayload } from "@/lib/catalog/standings-types"
+import { cn } from "@/lib/utils"
 import {
   wcSidebarCardClass,
   wcSidebarTitleClass,
 } from "@/lib/world-cup/layout"
-import type { StandingsPayload } from "@/lib/catalog/standings-types"
-import { cn } from "@/lib/utils"
 
 type WorldCupStandingsPanelProps = {
   data: StandingsPayload | null
@@ -30,6 +30,10 @@ export function WorldCupStandingsPanel({
 }: WorldCupStandingsPanelProps) {
   const [groupIndex, setGroupIndex] = useState(0)
   const compact = variant === "sidebar"
+
+  useEffect(() => {
+    setGroupIndex(0)
+  }, [data])
 
   const thClass = compact
     ? "px-0.5 py-1.5 text-center text-[0.58rem] font-semibold uppercase tracking-wide text-muted-foreground first:pl-1.5 last:pr-1.5"
@@ -136,10 +140,10 @@ export function WorldCupStandingsPanel({
                 <th className={thClass}>P</th>
               </tr>
             </thead>
-            <tbody>
-              {group.teams.map((row) => (
+            <tbody key={group.name}>
+              {group.teams.map((row, index) => (
                 <tr
-                  key={row.teamId}
+                  key={`${group.name}-${row.teamId}-${index}`}
                   className="border-b border-border/60 last:border-0"
                 >
                   <td className={cn(tdClass, "text-left text-muted-foreground")}>

@@ -77,7 +77,7 @@ export function MatchSubstitutesSection({
   const away = playersForSide(substitutesOn, "away")
 
   return (
-    <section className="mb-6">
+    <section className="mt-4 mb-6">
       {hasCoaches && (
         <>
           <h3 className="mb-2 text-center text-sm font-semibold text-foreground">

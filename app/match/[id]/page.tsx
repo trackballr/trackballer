@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation"
 
 import { MatchView } from "@/components/match/match-view"
-import { getMatchDetail } from "@/lib/match/detail"
 import { getComments } from "@/lib/comment/queries"
 import { getServerAuth } from "@/lib/auth/server-session"
+import { getMatchDetail } from "@/lib/match/detail"
+import { buildMatchTopRatedPayload } from "@/lib/match/match-top-rated"
+import { getMatchTrendingComments } from "@/lib/match/match-trending-comments"
 import { createClient } from "@/lib/supabase/server"
 
 type PageProps = {
@@ -28,12 +30,22 @@ export default async function MatchPage({ params }: PageProps) {
 
   const commentsPage = await getComments("match", fixtureId, auth?.userId ?? null)
 
+  const topRated = buildMatchTopRatedPayload(
+    detail.starters,
+    detail.substitutesOn,
+    detail.fixture.home_team.id,
+    detail.fixture.away_team.id,
+  )
+  const trendingComments = await getMatchTrendingComments(fixtureId)
+
   return (
     <MatchView
       detail={detail}
       isLoggedIn={auth != null}
       commentsPage={commentsPage}
       currentUserId={auth?.userId ?? null}
+      topRated={topRated}
+      trendingComments={trendingComments}
     />
   )
 }

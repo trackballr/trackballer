@@ -155,23 +155,38 @@ export function MatchRedCardIcon({ className }: { className?: string }) {
   return <RedCardIcon className={className} />
 }
 
-/** Inline goal then assist, for bench/sub rows (left of sub-on minute). */
+/** Inline goal, assist, and cards for bench/sub rows. */
 export function MatchContributionBadgesInline({
   goalCount,
   assistCount,
+  yellowCardCount = 0,
+  redCardCount = 0,
 }: {
   goalCount: number
   assistCount: number
+  yellowCardCount?: number
+  redCardCount?: number
 }) {
-  if (goalCount < 1 && assistCount < 1) return null
+  const hasGoals = goalCount > 0
+  const hasAssists = assistCount > 0
+  const hasYellow = yellowCardCount > 0
+  const hasRed = redCardCount > 0
+
+  if (!hasGoals && !hasAssists && !hasYellow && !hasRed) return null
 
   return (
     <span className="flex shrink-0 items-center gap-1">
-      {goalCount > 0 && (
+      {hasGoals && (
         <EventBadgePill iconSrc={GOAL_ICON} label="goal" count={goalCount} />
       )}
-      {assistCount > 0 && (
+      {hasAssists && (
         <EventBadgePill iconSrc={ASSIST_ICON} label="assist" count={assistCount} />
+      )}
+      {hasYellow && (
+        <CardBadgePill kind="yellow" label="Yellow card" />
+      )}
+      {hasRed && (
+        <CardBadgePill kind="red" label="Red card" />
       )}
     </span>
   )

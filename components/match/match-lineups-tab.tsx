@@ -2,6 +2,7 @@
 
 import { LineupMobileSection } from "@/components/match/lineup-mobile-section"
 import { LineupPitch } from "@/components/match/lineup-pitch"
+import { MatchLineupFormationHeader } from "@/components/match/match-lineup-formation-header"
 import {
   MatchSubstitutesSection,
   MatchUnusedBenchSection,
@@ -34,14 +35,10 @@ export function MatchLineupsTab({
 }: MatchLineupsTabProps) {
   return (
     <div>
-      <div className="mb-3 flex items-baseline justify-between gap-3 md:hidden">
-        <h2 className="h3">Lineups</h2>
-        {(detail.homeFormation || detail.awayFormation) && (
-          <span className="font-mono text-xs tabular-nums text-muted-foreground">
-            {detail.homeFormation ?? "?"} · {detail.awayFormation ?? "?"}
-          </span>
-        )}
-      </div>
+      <MatchLineupFormationHeader
+        homeFormation={detail.homeFormation}
+        awayFormation={detail.awayFormation}
+      />
 
       <div className="md:hidden">
         <LineupMobileSection
@@ -60,14 +57,6 @@ export function MatchLineupsTab({
       </div>
 
       <div className="hidden md:block">
-        <div className="mb-3 flex items-baseline justify-between gap-3">
-          <h2 className="h3">Lineups</h2>
-          {(detail.homeFormation || detail.awayFormation) && (
-            <span className="font-mono text-xs tabular-nums text-muted-foreground">
-              {detail.homeFormation ?? "?"} · {detail.awayFormation ?? "?"}
-            </span>
-          )}
-        </div>
         {!detail.hasLineups ? (
           <p className="body-sm text-muted-foreground">
             Lineups are not available yet. Check back closer to kickoff.

@@ -24,7 +24,11 @@ export function MatchBenchPlayerRow({
   const canInteract = !disabled && player.isRateable
   const hasSubMinute = player.subOnMinute != null
   const hasReplaced = Boolean(player.subReplacedPlayerName)
-  const hasContributions = player.goalCount > 0 || player.assistCount > 0
+  const hasContributions =
+    player.goalCount > 0 ||
+    player.assistCount > 0 ||
+    player.yellowCardCount > 0 ||
+    player.redCardCount > 0
   const showSubColumn = showSubInfo && (hasSubMinute || hasReplaced || hasContributions)
 
   return (
@@ -70,6 +74,8 @@ export function MatchBenchPlayerRow({
               <MatchContributionBadgesInline
                 goalCount={player.goalCount}
                 assistCount={player.assistCount}
+                yellowCardCount={player.yellowCardCount}
+                redCardCount={player.redCardCount}
               />
               {hasContributions && hasSubMinute && (
                 <span className="text-xs text-muted-foreground" aria-hidden>

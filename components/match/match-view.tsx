@@ -8,21 +8,29 @@ import { MatchPageTabs } from "@/components/match/match-page-tabs"
 import { PenaltyShootoutSection } from "@/components/match/penalty-shootout-section"
 import { MatchRatingUI } from "@/components/rating/match-rating-ui"
 import { formatMatchHeroScore } from "@/lib/match/hero-score"
-import type { MatchDetail, MatchLineupPlayer } from "@/lib/match/types"
 import type { CommentsPageData } from "@/lib/comment/queries"
+import type { MatchTopRatedPayload } from "@/lib/match/match-top-rated"
+import type { MatchTrendingCommentCard } from "@/lib/match/match-trending-comments"
+import type { MatchDetail, MatchLineupPlayer } from "@/lib/match/types"
 import { submitMatchRating } from "@/lib/rating/submit-match-rating"
+import { formatFixtureRoundLabel } from "@/lib/world-cup/round-label"
 
 type MatchViewProps = {
   detail: MatchDetail
   isLoggedIn: boolean
   commentsPage?: CommentsPageData
   currentUserId?: string | null
+  topRated: MatchTopRatedPayload | null
+  trendingComments: MatchTrendingCommentCard[]
 }
 
 function matchContextLabel(detail: MatchDetail): string {
   const { fixture } = detail
   const vs = `${fixture.home_team.name} vs ${fixture.away_team.name}`
-  return fixture.round_name ? `${vs} · ${fixture.round_name}` : vs
+  const round = fixture.round_name
+    ? (formatFixtureRoundLabel(fixture.round_name) ?? fixture.round_name)
+    : null
+  return round ? `${vs} · ${round}` : vs
 }
 
 function updatePlayerInList(
@@ -42,6 +50,8 @@ export function MatchView({
   isLoggedIn,
   commentsPage,
   currentUserId = null,
+  topRated,
+  trendingComments,
 }: MatchViewProps) {
   const router = useRouter()
   const [detail, setDetail] = useState(initialDetail)
@@ -187,6 +197,8 @@ export function MatchView({
         commentsPage={commentsPage}
         currentUserId={currentUserId}
         errorMessage={errorMessage}
+        topRated={topRated}
+        trendingComments={trendingComments}
         onRateAll={handleRateAll}
         onPlayerClick={(player) => openRatingSheet(player)}
       />

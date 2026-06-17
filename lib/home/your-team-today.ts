@@ -2,7 +2,6 @@ import { cache } from "react"
 
 import { FIXTURE_TEAM_SELECT, getWorldCupSeason, mapFixtureRow } from "@/lib/catalog/fixtures"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
-import { formatMatchKickoffDateTime } from "@/lib/match/score"
 import { createClient } from "@/lib/supabase/server"
 
 import { utcDayBounds } from "./dates"
@@ -147,7 +146,3 @@ export const getYourTeamToday = cache(
     return items
   },
 )
-
-export function formatYourTeamKickoff(iso: string): string {
-  return formatMatchKickoffDateTime(iso)
-}
