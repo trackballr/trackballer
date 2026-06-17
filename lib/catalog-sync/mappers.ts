@@ -11,6 +11,10 @@ import type {
 } from "@/lib/api-football/types";
 import { filterDisplayFixtureEvents } from "@/lib/match/fixture-event-filters";
 import { TERMINAL_STATUSES } from "./constants";
+import {
+  isValidLineupPlayerId,
+  lineupPlayerOverrideKey,
+} from "./lineup-audit";
 
 type TeamInsert = Database["public"]["Tables"]["teams"]["Insert"];
 type PlayerInsert = Database["public"]["Tables"]["players"]["Insert"];
@@ -142,16 +146,43 @@ export function mapFixtureRow(
   };
 }
 
+export type SkippedLineupSlot = {
+  teamId: number;
+  playerName: string;
+  reason: "missing_player_id";
+};
+
+function resolveCatalogPlayerId(
+  teamId: number,
+  player: { id: unknown; name: string },
+  overrides: Map<string, number>,
+): number | null {
+  if (isValidLineupPlayerId(player.id)) {
+    return typeof player.id === "number" ? player.id : Number(player.id);
+  }
+
+  return overrides.get(lineupPlayerOverrideKey(teamId, player.name)) ?? null;
+}
+
+function resolveLineupPlayerId(
+  teamId: number,
+  entry: ApiLineupPlayer,
+  playerIdOverrides: Map<string, number>,
+): number | null {
+  return resolveCatalogPlayerId(teamId, entry.player, playerIdOverrides);
+}
+
 function mapLineupPlayer(
   fixtureId: number,
   teamId: number,
   entry: ApiLineupPlayer,
   isStarter: boolean,
+  playerId: number,
 ): LineupInsert {
   return {
     fixture_id: fixtureId,
     team_id: teamId,
-    player_id: entry.player.id,
+    player_id: playerId,
     is_starter: isStarter,
     shirt_number: entry.player.number ?? null,
     formation_position: entry.player.pos ?? null,
@@ -162,33 +193,54 @@ function mapLineupPlayer(
 export function mapLineups(
   fixtureId: number,
   lineups: ApiLineupItem[],
-): { lineups: LineupInsert[]; playerStubs: PlayerInsert[] } {
+  options?: { playerIdOverrides?: Map<string, number> },
+): {
+  lineups: LineupInsert[];
+  playerStubs: PlayerInsert[];
+  skipped: SkippedLineupSlot[];
+} {
   const lineupsOut: LineupInsert[] = [];
   const playerStubs: PlayerInsert[] = [];
+  const skipped: SkippedLineupSlot[] = [];
+  const overrides = options?.playerIdOverrides ?? new Map<string, number>();
 
   for (const teamLineup of lineups) {
     const teamId = teamLineup.team.id;
     for (const entry of teamLineup.startXI) {
-      lineupsOut.push(
-        mapLineupPlayer(fixtureId, teamId, entry, true),
-      );
+      const playerId = resolveLineupPlayerId(teamId, entry, overrides);
+      if (playerId == null) {
+        skipped.push({
+          teamId,
+          playerName: entry.player.name,
+          reason: "missing_player_id",
+        });
+        continue;
+      }
+      lineupsOut.push(mapLineupPlayer(fixtureId, teamId, entry, true, playerId));
       playerStubs.push({
-        id: entry.player.id,
+        id: playerId,
         name: entry.player.name,
       });
     }
     for (const entry of teamLineup.substitutes) {
-      lineupsOut.push(
-        mapLineupPlayer(fixtureId, teamId, entry, false),
-      );
+      const playerId = resolveLineupPlayerId(teamId, entry, overrides);
+      if (playerId == null) {
+        skipped.push({
+          teamId,
+          playerName: entry.player.name,
+          reason: "missing_player_id",
+        });
+        continue;
+      }
+      lineupsOut.push(mapLineupPlayer(fixtureId, teamId, entry, false, playerId));
       playerStubs.push({
-        id: entry.player.id,
+        id: playerId,
         name: entry.player.name,
       });
     }
   }
 
-  return { lineups: lineupsOut, playerStubs };
+  return { lineups: lineupsOut, playerStubs, skipped };
 }
 
 export function mapCoaches(
@@ -212,24 +264,45 @@ export function mapCoaches(
 export function mapAppearances(
   fixtureId: number,
   teams: ApiFixturePlayersItem[],
-): { appearances: AppearanceInsert[]; playerStubs: PlayerInsert[] } {
+  options?: { playerIdOverrides?: Map<string, number> },
+): {
+  appearances: AppearanceInsert[];
+  playerStubs: PlayerInsert[];
+  skipped: SkippedLineupSlot[];
+} {
   const appearances: AppearanceInsert[] = [];
   const playerStubs: PlayerInsert[] = [];
+  const skipped: SkippedLineupSlot[] = [];
+  const overrides = options?.playerIdOverrides ?? new Map<string, number>();
+  const seenPlayerIds = new Set<number>();
 
   for (const teamBlock of teams) {
+    const teamId = teamBlock.team.id;
     for (const row of teamBlock.players) {
+      const playerId = resolveCatalogPlayerId(teamId, row.player, overrides);
+      if (playerId == null) {
+        skipped.push({
+          teamId,
+          playerName: row.player.name,
+          reason: "missing_player_id",
+        });
+        continue;
+      }
+      if (seenPlayerIds.has(playerId)) continue;
+      seenPlayerIds.add(playerId);
+
       const stats = row.statistics[0]?.games;
       const minutes = stats?.minutes ?? 0;
       appearances.push({
         fixture_id: fixtureId,
-        team_id: teamBlock.team.id,
-        player_id: row.player.id,
+        team_id: teamId,
+        player_id: playerId,
         minutes_played: minutes,
         is_starter: stats?.substitute === false,
         position: normalizePosition(stats?.position) ?? stats?.position ?? null,
       });
       playerStubs.push({
-        id: row.player.id,
+        id: playerId,
         name: row.player.name,
         photo_url: row.player.photo ?? null,
         primary_position: normalizePosition(stats?.position),
@@ -237,7 +310,7 @@ export function mapAppearances(
     }
   }
 
-  return { appearances, playerStubs };
+  return { appearances, playerStubs, skipped };
 }
 
 /** Subst events: API-Football `player` leaves, `assist` enters (stored as player_id / assist_player_id). */

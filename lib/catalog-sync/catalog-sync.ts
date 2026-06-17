@@ -11,6 +11,14 @@ import {
   mapTeamFromFixtureSide,
   mapTeamFromLeague,
 } from "./mappers";
+import {
+  auditApiAppearancePlayerIds,
+  auditApiLineupIds,
+  mergePlayerIdIssues,
+  summarizeApiLineups,
+  type LineupIdIssue,
+} from "./lineup-audit";
+import { buildLineupPlayerIdOverrides } from "./lineup-player-resolve";
 import { TERMINAL_STATUSES } from "./constants";
 import {
   syncDailyWindow as runDailyWindow,
@@ -704,6 +712,53 @@ export class CatalogSync {
     const lineups = lineupsRes?.response ?? [];
     const playerBlocks = playersRes?.response ?? [];
     const events = eventsRes.response;
+    const lineupIdIssues =
+      fetchLineups && lineups.length > 0 ? auditApiLineupIds(lineups) : [];
+    const appearanceIdIssues =
+      scope === "full" && playerBlocks.length > 0
+        ? auditApiAppearancePlayerIds(playerBlocks)
+        : [];
+    const playerIdGaps = mergePlayerIdIssues(lineupIdIssues, appearanceIdIssues);
+
+    if (lineupIdIssues.length > 0) {
+      for (const issue of lineupIdIssues) {
+        syncLog(`fixture ${fixtureId} — invalid lineup slot`, {
+          team: issue.teamName,
+          role: issue.role,
+          playerName: issue.playerName,
+          rawPlayerJson: JSON.stringify(issue.rawPlayer),
+        });
+      }
+      syncLog(`fixture ${fixtureId} — API lineups player ids`, {
+        teams: summarizeApiLineups(lineups),
+        invalidIdCount: lineupIdIssues.length,
+      });
+    }
+
+    if (appearanceIdIssues.length > 0) {
+      for (const issue of appearanceIdIssues) {
+        syncLog(`fixture ${fixtureId} — invalid appearance player id`, {
+          team: issue.teamName,
+          playerName: issue.playerName,
+          rawPlayerJson: JSON.stringify(issue.rawPlayer),
+        });
+      }
+    }
+
+    let playerIdOverrides = new Map<string, number>();
+    if (playerIdGaps.length > 0) {
+      const { overrides, resolved, unresolved } = await buildLineupPlayerIdOverrides(
+        this.db,
+        playerIdGaps,
+      );
+      playerIdOverrides = overrides;
+      for (const row of resolved) {
+        syncLog(`fixture ${fixtureId} — resolved player id from DB`, row);
+      }
+      for (const row of unresolved) {
+        syncLog(`fixture ${fixtureId} — could not resolve player id from DB`, row);
+      }
+    }
 
     result.apiResponseCounts = {
       lineups: lineups.length,
@@ -712,7 +767,17 @@ export class CatalogSync {
     };
 
     if (fetchLineups && lineups.length > 0) {
-      const { lineups: lineupRows, playerStubs } = mapLineups(fixtureId, lineups);
+      const { lineups: lineupRows, playerStubs, skipped } = mapLineups(
+        fixtureId,
+        lineups,
+        { playerIdOverrides },
+      );
+      if (skipped.length > 0) {
+        syncLog(`fixture ${fixtureId} — skipped lineup slots after mapping`, {
+          count: skipped.length,
+          skipped,
+        });
+      }
       const coachRows = mapCoaches(fixtureId, lineups);
       syncLog(`fixture ${fixtureId} — writing lineups`, {
         lineupRows: lineupRows.length,
@@ -767,10 +832,17 @@ export class CatalogSync {
     }
 
     if (scope === "full" && playerBlocks.length > 0) {
-      const { appearances, playerStubs } = mapAppearances(
+      const { appearances, playerStubs, skipped } = mapAppearances(
         fixtureId,
         playerBlocks,
+        { playerIdOverrides },
       );
+      if (skipped.length > 0) {
+        syncLog(`fixture ${fixtureId} — skipped appearances (no player id)`, {
+          count: skipped.length,
+          skipped,
+        });
+      }
       syncLog(`fixture ${fixtureId} — writing appearances`, {
         appearances: appearances.length,
         playerStubs: playerStubs.length,
