@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google"
 import { Figtree, Geist_Mono, Outfit } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
 
@@ -49,6 +50,9 @@ export default function RootLayout({
         />
         <AppShell>{children}</AppShell>
       </body>
+      {process.env.NEXT_PUBLIC_GA_ID ? (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      ) : null}
     </html>
   )
 }
