@@ -1,5 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { Figtree, Geist_Mono, Outfit } from "next/font/google"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import NextTopLoader from "nextjs-toploader"
 
 import "./globals.css"
@@ -49,6 +50,7 @@ export default function RootLayout({
           shadow={false}
         />
         <AppShell>{children}</AppShell>
+        <SpeedInsights />
       </body>
       {process.env.NEXT_PUBLIC_GA_ID ? (
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
