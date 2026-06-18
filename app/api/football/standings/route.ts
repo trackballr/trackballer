@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { getStandingsPayload } from "@/lib/catalog/standings-fetch"
 
-export const revalidate = 600
+export const revalidate = 3600
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json(payload, {
     headers: {
-      "Cache-Control": "public, s-maxage=600, stale-while-revalidate=120",
+      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=120",
     },
   })
 }

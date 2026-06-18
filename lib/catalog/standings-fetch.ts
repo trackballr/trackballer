@@ -2,7 +2,7 @@ import { getCatalogLeagueId, getCatalogSeasonYear } from "@/lib/catalog/config"
 import { parseStandingsResponse } from "@/lib/catalog/standings-parse"
 import type { StandingsPayload } from "@/lib/catalog/standings-types"
 
-const REVALIDATE_SECONDS = 600
+const REVALIDATE_SECONDS = 3600
 
 /** Server-only fetch — cached 10 minutes. */
 export async function getStandingsPayload(
