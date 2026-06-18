@@ -1,6 +1,8 @@
 export type PlayerListItem = {
   id: number
   displayName: string
+  /** Short catalog name (FotMob-style), e.g. "Messi". */
+  catalogName: string
   photoUrl: string | null
   nationality: string | null
   position: string | null

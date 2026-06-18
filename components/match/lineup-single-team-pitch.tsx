@@ -45,10 +45,16 @@ function FormationLineRow({
 function SingleTeamPitchMarkings() {
   return (
     <>
-      <div className="pointer-events-none absolute inset-2 rounded-lg border border-[var(--pitch-line)]" />
-      <div className="pointer-events-none absolute right-3 bottom-3 left-3 h-px bg-[var(--pitch-line)]" />
-      <div className="pointer-events-none absolute bottom-[18%] left-1/2 size-14 -translate-x-1/2 rounded-full border border-[var(--pitch-line)]" />
-      <div className="pointer-events-none absolute bottom-3 left-1/2 h-16 w-[42%] -translate-x-1/2 rounded-t-sm border border-b-0 border-[var(--pitch-line)]" />
+      {/* Outer boundary — square corners so the halfway line meets the sides cleanly */}
+      <div className="pointer-events-none absolute inset-2 border border-primary/30" />
+      {/* Halfway line (top of this half) */}
+      <div className="pointer-events-none absolute inset-x-2 top-2 h-px bg-primary/30" />
+      {/* Centre circle straddling the halfway line + centre spot */}
+      <div className="pointer-events-none absolute left-1/2 top-2 size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/30" />
+      <div className="pointer-events-none absolute left-1/2 top-2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/40" />
+      {/* Penalty box + goal area at the keeper's end (bottom) */}
+      <div className="pointer-events-none absolute bottom-2 left-1/2 h-[18%] w-3/5 -translate-x-1/2 rounded-t-md border border-b-0 border-primary/30" />
+      <div className="pointer-events-none absolute bottom-2 left-1/2 h-[8%] w-2/5 -translate-x-1/2 rounded-t-sm border border-b-0 border-primary/30" />
     </>
   )
 }

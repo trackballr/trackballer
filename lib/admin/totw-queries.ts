@@ -44,6 +44,7 @@ function mapAssignment(row: PlayerRow): TotwSlotAssignment {
   return {
     playerId: row.id,
     displayName: formatPlayerDisplayName(row.firstname, row.lastname, row.name),
+    catalogName: row.name,
     photoUrl: row.photo_url,
   }
 }

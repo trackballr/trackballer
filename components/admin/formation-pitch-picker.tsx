@@ -11,6 +11,7 @@ import type { PlayerListItem } from "@/lib/search/types"
 export type SlotAssignment = {
   playerId: number
   displayName: string
+  catalogName: string
   photoUrl: string | null
 }
 
@@ -66,6 +67,7 @@ export function playerToSlotAssignment(player: PlayerListItem): SlotAssignment {
   return {
     playerId: player.id,
     displayName: player.displayName,
+    catalogName: player.catalogName,
     photoUrl: player.photoUrl,
   }
 }

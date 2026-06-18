@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import {
   featureTeamOfTheStage,
   publishTeamOfTheStage,
+  unfeatureTeamOfTheStage,
 } from "@/lib/admin/actions/totw"
 import {
   countFilledSlots,
@@ -209,6 +210,21 @@ export function TotwEditor({
     })
   }
 
+  function hideFromSite() {
+    if (!totwId) return
+
+    startTransition(async () => {
+      const result = await unfeatureTeamOfTheStage({ seasonId, totwId })
+      if (!result.ok) {
+        setMessage(result.error)
+        return
+      }
+      setFeaturedTotwId((current) => (current === totwId ? null : current))
+      setMessage("Hidden from home and World Cup.")
+      router.refresh()
+    })
+  }
+
   if (rounds.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -303,12 +319,6 @@ export function TotwEditor({
             </p>
           ) : null}
 
-          {isLiveOnSite ? (
-            <p className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-foreground">
-              Live on home and World Cup
-            </p>
-          ) : null}
-
           <Button
             type="button"
             disabled={!canPublish}
@@ -318,15 +328,32 @@ export function TotwEditor({
             {pending ? "Saving…" : totwId ? "Update published team" : "Publish team"}
           </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            disabled={!canFeature}
-            onClick={setLiveOnSite}
-            className="w-full"
-          >
-            Show on home &amp; World Cup
-          </Button>
+          {isLiveOnSite ? (
+            <div className="space-y-2">
+              <p className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-foreground">
+                Live on home and World Cup
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={pending}
+                onClick={hideFromSite}
+                className="w-full"
+              >
+                Hide from site
+              </Button>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!canFeature}
+              onClick={setLiveOnSite}
+              className="w-full"
+            >
+              Show on home &amp; World Cup
+            </Button>
+          )}
         </aside>
       </div>
     </div>

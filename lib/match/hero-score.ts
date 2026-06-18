@@ -5,6 +5,8 @@ export type MatchHeroScore = {
   penLine: string | null
   statusText: string
   isLive: boolean
+  /** True when the match hasn't kicked off — mainScore is the kickoff time. */
+  isUpcoming: boolean
 }
 
 function formatGoals(home: number, away: number): string {
@@ -41,6 +43,7 @@ export function formatMatchHeroScore(fixture: MatchScoreFixture): MatchHeroScore
       penLine: null,
       statusText: status,
       isLive: false,
+      isUpcoming: true,
     }
   }
 
@@ -52,6 +55,7 @@ export function formatMatchHeroScore(fixture: MatchScoreFixture): MatchHeroScore
       penLine: null,
       statusText: status === "HT" ? "HT" : "LIVE",
       isLive: true,
+      isUpcoming: false,
     }
   }
 
@@ -69,6 +73,7 @@ export function formatMatchHeroScore(fixture: MatchScoreFixture): MatchHeroScore
             : null,
         statusText: "PEN",
         isLive: false,
+        isUpcoming: false,
       }
     }
   }
@@ -81,6 +86,7 @@ export function formatMatchHeroScore(fixture: MatchScoreFixture): MatchHeroScore
         penLine: null,
         statusText: "AET",
         isLive: false,
+        isUpcoming: false,
       }
     }
   }
@@ -93,6 +99,7 @@ export function formatMatchHeroScore(fixture: MatchScoreFixture): MatchHeroScore
       penLine: null,
       statusText: status,
       isLive: false,
+      isUpcoming: false,
     }
   }
 
@@ -101,5 +108,6 @@ export function formatMatchHeroScore(fixture: MatchScoreFixture): MatchHeroScore
     penLine: null,
     statusText: status,
     isLive: false,
+    isUpcoming: false,
   }
 }

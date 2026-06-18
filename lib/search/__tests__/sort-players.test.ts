@@ -7,6 +7,7 @@ function player(id: number, score: number, name: string): PlayerListItem {
   return {
     id,
     displayName: name,
+    catalogName: name,
     photoUrl: null,
     nationality: null,
     position: null,

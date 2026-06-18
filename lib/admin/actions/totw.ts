@@ -12,7 +12,23 @@ import { FEATURED_MIGRATION_HINT, isMissingFeaturedColumn } from "@/lib/admin/to
 
 import { createClient } from "@/lib/supabase/server"
 
-const formationIds = ["4-3-3", "4-4-2", "3-5-2"] as const
+const formationIds = [
+  "4-3-3",
+  "4-4-2",
+  "3-5-2",
+  "4-2-3-1",
+  "4-1-2-1-2",
+  "4-3-1-2",
+  "3-4-3",
+  "3-4-2-1",
+  "3-4-1-2",
+  "5-3-2",
+  "5-4-1",
+  "5-2-3",
+  "4-5-1",
+  "4-2-2-2",
+  "4-1-4-1",
+] as const
 
 const publishTotwSchema = z.object({
   seasonId: z.number().int().positive(),
@@ -210,6 +226,38 @@ export async function featureTeamOfTheStage(
       return { ok: false, error: FEATURED_MIGRATION_HINT }
     }
     return { ok: false, error: featureError.message || "Could not set live team." }
+  }
+
+  revalidateTotwPaths()
+  return { ok: true }
+}
+
+/** Hide a stage from home and World Cup by clearing its featured flag. */
+export async function unfeatureTeamOfTheStage(
+  input: unknown,
+): Promise<FeatureTotwResult> {
+  const gate = await assertAdminAction()
+  if (!gate.ok) return gate
+
+  const parsed = featureTotwSchema.safeParse(input)
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid team selection." }
+  }
+
+  const { seasonId, totwId } = parsed.data
+  const supabase = await createClient()
+
+  const { error: clearError } = await supabase
+    .from("team_of_the_week")
+    .update({ featured_at: null })
+    .eq("id", totwId)
+    .eq("season_id", seasonId)
+
+  if (clearError) {
+    if (isMissingFeaturedColumn(clearError.message)) {
+      return { ok: false, error: FEATURED_MIGRATION_HINT }
+    }
+    return { ok: false, error: "Could not hide this team." }
   }
 
   revalidateTotwPaths()

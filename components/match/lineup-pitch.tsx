@@ -39,11 +39,25 @@ function FormationLineColumn({
 function PitchMarkings() {
   return (
     <>
-      <div className="pointer-events-none absolute inset-3 rounded-lg border border-[var(--pitch-line)]" />
-      <div className="pointer-events-none absolute top-3 bottom-3 left-1/2 w-px -translate-x-1/2 bg-[var(--pitch-line)]" />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 size-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--pitch-line)]" />
-      <div className="pointer-events-none absolute top-1/2 left-3 h-24 w-10 -translate-y-1/2 rounded-sm border border-[var(--pitch-line)]" />
-      <div className="pointer-events-none absolute top-1/2 right-3 h-24 w-10 -translate-y-1/2 rounded-sm border border-[var(--pitch-line)]" />
+      {/* Outer boundary */}
+      <div className="pointer-events-none absolute inset-3 rounded-lg border border-primary/30" />
+      {/* Halfway line */}
+      <div className="pointer-events-none absolute top-3 bottom-3 left-1/2 w-px -translate-x-1/2 bg-primary/30" />
+      {/* Centre circle + spot */}
+      <div className="pointer-events-none absolute top-1/2 left-1/2 size-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/30" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/40" />
+      {/* Penalty boxes (18-yard) */}
+      <div className="pointer-events-none absolute top-1/2 left-3 h-[55%] w-[16%] -translate-y-1/2 rounded-sm border border-primary/30" />
+      <div className="pointer-events-none absolute top-1/2 right-3 h-[55%] w-[16%] -translate-y-1/2 rounded-sm border border-primary/30" />
+      {/* Goal areas (6-yard) */}
+      <div className="pointer-events-none absolute top-1/2 left-3 h-[26%] w-[6%] -translate-y-1/2 rounded-sm border border-primary/30" />
+      <div className="pointer-events-none absolute top-1/2 right-3 h-[26%] w-[6%] -translate-y-1/2 rounded-sm border border-primary/30" />
+      {/* Penalty spots */}
+      <div className="pointer-events-none absolute top-1/2 left-[11%] size-1 -translate-y-1/2 rounded-full bg-primary/40" />
+      <div className="pointer-events-none absolute top-1/2 right-[11%] size-1 -translate-y-1/2 rounded-full bg-primary/40" />
+      {/* Penalty arcs (the "D") at the box edge */}
+      <div className="pointer-events-none absolute top-1/2 left-[calc(0.75rem_+_16%)] h-[22%] w-[5%] -translate-y-1/2 rounded-r-full border border-l-0 border-primary/30" />
+      <div className="pointer-events-none absolute top-1/2 right-[calc(0.75rem_+_16%)] h-[22%] w-[5%] -translate-y-1/2 rounded-l-full border border-r-0 border-primary/30" />
     </>
   )
 }

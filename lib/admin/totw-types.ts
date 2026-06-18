@@ -3,6 +3,8 @@ import type { FormationId } from "@/lib/admin/formation-slots"
 export type TotwSlotAssignment = {
   playerId: number
   displayName: string
+  /** Short catalog name shown on the pitch puck. */
+  catalogName: string
   photoUrl: string | null
 }
 

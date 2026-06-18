@@ -20,19 +20,18 @@ export function TeamOfTheStageStrip({
       {
         playerId: player.playerId,
         displayName: player.displayName,
+        catalogName: player.catalogName,
         photoUrl: player.photoUrl,
       },
     ]),
   )
 
   return (
-    <section>
+    <section className="pt-6 sm:pt-8">
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <div>
-          <h2 className="h3">Team of the Stage</h2>
-          <p className="text-xs text-muted-foreground">
-            {team.title} · {team.formation}
-          </p>
+          <h2 className="h3">The Star Performers</h2>
+          <p className="text-xs text-muted-foreground">{team.title}</p>
         </div>
         {showWorldCupLink ? (
           <Link

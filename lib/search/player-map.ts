@@ -37,6 +37,7 @@ export function mapPlayerBrowseRow(row: PlayerBrowseRow): PlayerListItem {
   return {
     id: row.id,
     displayName: formatPlayerDisplayName(row.firstname, row.lastname, row.name),
+    catalogName: row.name,
     photoUrl: row.photo_url,
     nationality: row.nationality,
     position: row.primary_position,

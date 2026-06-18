@@ -1,4 +1,5 @@
 import { CatalogImage } from "@/components/catalog-image"
+import { MatchKickoffClock } from "@/components/match/match-kickoff-clock"
 import { MatchKickoffDateTime } from "@/components/match/match-kickoff-datetime"
 import { MatchRedCardsRow } from "@/components/match/match-red-cards-row"
 import { MatchScorersRow } from "@/components/match/match-scorers-row"
@@ -106,7 +107,14 @@ export function MatchHero({ fixture, detail, heroScore, className }: MatchHeroPr
 
           <div className="text-center">
             <p className="font-display text-3xl font-bold tabular-nums tracking-tight md:text-4xl">
-              {heroScore.mainScore}
+              {heroScore.isUpcoming && fixture.kickoff_at ? (
+                <MatchKickoffClock
+                  iso={fixture.kickoff_at}
+                  fallback={heroScore.mainScore}
+                />
+              ) : (
+                heroScore.mainScore
+              )}
             </p>
             {heroScore.penLine && (
               <p className="mt-0.5 text-xs font-medium text-muted-foreground md:text-sm">

@@ -69,6 +69,15 @@ export function formatMatchKickoffLocal(iso: string): string {
   )
 }
 
+/** Viewer-local 24h kickoff clock — e.g. "16:00" for the match hero. */
+export function formatKickoffClockLocal(iso: string): string {
+  return new Intl.DateTimeFormat(KICKOFF_LOCALE, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(iso))
+}
+
 /** Viewer-local kickoff time only — e.g. "12:30 am" for fixture list rows. */
 export function formatKickoffTimeLocal(iso: string): string {
   return new Intl.DateTimeFormat(KICKOFF_LOCALE, {

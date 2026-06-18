@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 export type FormationSlotView = {
   playerId?: number
   displayName: string
+  catalogName: string
   photoUrl: string | null
 }
 
@@ -40,9 +41,41 @@ function PitchSurface({
     <>
       {orientation === "vertical" ? (
         <>
-          <div className="absolute inset-x-4 top-1/2 h-px bg-border/80" aria-hidden />
+          {/* Outer boundary */}
           <div
-            className="absolute left-1/2 top-1/2 size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/80"
+            className="pointer-events-none absolute inset-3 rounded-lg border border-primary/30"
+            aria-hidden
+          />
+          {/* Halfway line */}
+          <div
+            className="pointer-events-none absolute inset-x-3 top-1/2 h-px -translate-y-1/2 bg-primary/30"
+            aria-hidden
+          />
+          {/* Centre circle + spot */}
+          <div
+            className="pointer-events-none absolute left-1/2 top-1/2 size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/30"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute left-1/2 top-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/40"
+            aria-hidden
+          />
+          {/* Top penalty box + goal area */}
+          <div
+            className="pointer-events-none absolute left-1/2 top-3 h-[14%] w-2/5 -translate-x-1/2 rounded-b-md border border-t-0 border-primary/30"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute left-1/2 top-3 h-[6%] w-1/5 -translate-x-1/2 rounded-b-sm border border-t-0 border-primary/30"
+            aria-hidden
+          />
+          {/* Bottom penalty box + goal area */}
+          <div
+            className="pointer-events-none absolute bottom-3 left-1/2 h-[14%] w-2/5 -translate-x-1/2 rounded-t-md border border-b-0 border-primary/30"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute bottom-3 left-1/2 h-[6%] w-1/5 -translate-x-1/2 rounded-t-sm border border-b-0 border-primary/30"
             aria-hidden
           />
         </>
@@ -86,9 +119,9 @@ function PitchSurface({
           mode === "display" && assigned?.playerId && "hover:border-primary",
         )
 
-        const label = assigned?.displayName ? (
+        const label = assigned?.catalogName ? (
           <span className="mt-1 max-w-[4.5rem] truncate text-center text-[0.6rem] font-semibold leading-tight">
-            {assigned.displayName.split(" ").pop()}
+            {assigned.catalogName}
           </span>
         ) : null
 
@@ -161,9 +194,9 @@ export function FormationPitch({
 
   return (
     <div className={cn("w-full", className)}>
-      {/* Mobile: vertical pitch */}
+      {/* Vertical (portrait) pitch on every breakpoint */}
       <div
-        className={cn(pitchClass, "aspect-[3/4] w-full max-w-md md:hidden")}
+        className={cn(pitchClass, "mx-auto aspect-[3/4] w-full max-w-md")}
         role="group"
         aria-label="Formation pitch"
       >
@@ -174,22 +207,6 @@ export function FormationPitch({
           activeSlot={activeSlot}
           onSlotClick={onSlotClick}
           orientation="vertical"
-        />
-      </div>
-
-      {/* Tablet/desktop: horizontal pitch */}
-      <div
-        className={cn(pitchClass, "hidden aspect-[4/3] w-full max-w-3xl md:block")}
-        role="group"
-        aria-label="Formation pitch"
-      >
-        <PitchSurface
-          formation={formation}
-          assignments={assignments}
-          mode={mode}
-          activeSlot={activeSlot}
-          onSlotClick={onSlotClick}
-          orientation="horizontal"
         />
       </div>
     </div>
