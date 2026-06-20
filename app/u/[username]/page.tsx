@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: PageProps) {
   const profile = await getProfileByUsername(username)
   return {
     title: profile
-      ? `${profile.displayName} (@${profile.username}) | Trackballer`
-      : "Profile | Trackballer",
+      ? `${profile.displayName} (@${profile.username}) | Trackballr`
+      : "Profile | Trackballr",
   }
 }
 

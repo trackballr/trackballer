@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Privacy Policy | Trackballer",
+  title: "Privacy Policy | Trackballr",
   description: "How we collect, use, and protect your data.",
 }
 
@@ -10,12 +10,12 @@ export default function PrivacyPage() {
       
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6 text-muted-foreground">
         <p>
-          Welcome to Trackballer. We believe in keeping things simple and transparent. This policy explains what data we collect, why we collect it, and the third-party services we use to run the platform.
+          Welcome to Trackballr. We believe in keeping things simple and transparent. This policy explains what data we collect, why we collect it, and the third-party services we use to run the platform.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">1. Information We Collect</h2>
         <p>
-          When you use Trackballer, we collect the following information:
+          When you use Trackballr, we collect the following information:
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
         </ul>
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">2. How We Use Your Information</h2>
-        <p>We use your data strictly to run and improve Trackballer:</p>
+        <p>We use your data strictly to run and improve Trackballr:</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>To create and manage your public profile.</li>
           <li>To calculate community player and match ratings.</li>

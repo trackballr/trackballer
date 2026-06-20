@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 
 import { SocialAuthButtons } from "@/components/login/social-auth-buttons"
@@ -12,12 +13,19 @@ export function LoginView({ authError }: LoginViewProps) {
       <div className="mb-8 text-center">
         <Link
           href="/"
-          className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-primary"
-          aria-label="Trackballer home"
+          className="mx-auto mb-4 flex size-12 items-center justify-center"
+          aria-label="Trackballr home"
         >
-          <span className="relative size-6 rounded-full bg-primary-foreground before:absolute before:inset-[5px] before:rounded-full before:bg-[conic-gradient(var(--primary)_0_20%,transparent_20%_40%,var(--primary)_40%_60%,transparent_60%_80%,var(--primary)_80%_100%)] before:opacity-90" />
+          <Image
+            src="/logo.png"
+            alt="Trackballr"
+            width={48}
+            height={48}
+            className="size-12 object-contain"
+            priority
+          />
         </Link>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Trackballer</h1>
+        <h1 className="font-display text-[26px] font-bold tracking-tight">Trackballr</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Your hub to track your favorite players and teams
         </p>

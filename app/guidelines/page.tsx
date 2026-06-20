@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Community Guidelines | Trackballer",
-  description: "How to be a good fan on Trackballer.",
+  title: "Community Guidelines | Trackballr",
+  description: "How to be a good fan on Trackballr.",
 }
 
 export default function GuidelinesPage() {
@@ -10,7 +10,7 @@ export default function GuidelinesPage() {
       
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6 text-muted-foreground">
         <p className="text-lg text-foreground font-medium">
-          Trackballer is a platform for football fans to rate, debate, and celebrate the beautiful game. To keep the community enjoyable for everyone, we ask that you follow these simple rules.
+          Trackballr is a platform for football fans to rate, debate, and celebrate the beautiful game. To keep the community enjoyable for everyone, we ask that you follow these simple rules.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">1. Attack the Ball, Not the Player (or the Fan)</h2>
@@ -30,12 +30,12 @@ export default function GuidelinesPage() {
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">3. No Spam or Self-Promotion</h2>
         <p>
-          Trackballer is not a billboard. Do not post links to your own website, YouTube channel, or affiliate products in the comments. Automated botting, spamming the same comment repeatedly, or artificially manipulating ratings will result in an immediate ban.
+          Trackballr is not a billboard. Do not post links to your own website, YouTube channel, or affiliate products in the comments. Automated botting, spamming the same comment repeatedly, or artificially manipulating ratings will result in an immediate ban.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">4. Rate Honestly</h2>
         <p>
-          The value of Trackballer comes from genuine fan consensus. While bias is a natural part of football, please try to rate players based on their actual performance on the pitch. Coordinated campaigns to review-bomb a player artificially ruin the experience for everyone.
+          The value of Trackballr comes from genuine fan consensus. While bias is a natural part of football, please try to rate players based on their actual performance on the pitch. Coordinated campaigns to review-bomb a player artificially ruin the experience for everyone.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">How We Enforce the Rules</h2>

@@ -9,7 +9,7 @@ import { getServerAuth } from "@/lib/auth/server-session"
 import { createClient } from "@/lib/supabase/server"
 
 export const metadata = {
-  title: "Your profile | Trackballer",
+  title: "Your profile | Trackballr",
 }
 
 export default async function OwnProfilePage() {

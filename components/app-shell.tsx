@@ -12,7 +12,7 @@ function Footer() {
     <footer className="mt-auto border-t border-border bg-background py-8">
       <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-4 sm:flex-row">
         <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Trackballer. All rights reserved.
+          © {new Date().getFullYear()} Trackballr. All rights reserved.
         </p>
         <nav className="flex gap-6 text-sm text-muted-foreground">
           <Link

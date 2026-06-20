@@ -53,7 +53,9 @@ export function SocialAuthButtons({ className }: SocialAuthButtonsProps) {
         </p>
       )}
 
-      {oauthProviders.map((provider) => {
+      {oauthProviders
+        .filter((provider) => provider.enabled)
+        .map((provider) => {
         const Icon = oauthProviderIcons[provider.id]
         const isPending = pendingProvider === provider.id
         const disabled = !provider.enabled || pendingProvider !== null

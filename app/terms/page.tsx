@@ -1,8 +1,8 @@
 import Link from "next/link"
 
 export const metadata = {
-  title: "Terms of Service | Trackballer",
-  description: "The rules for using Trackballer.",
+  title: "Terms of Service | Trackballr",
+  description: "The rules for using Trackballr.",
 }
 
 export default function TermsPage() {
@@ -12,7 +12,7 @@ export default function TermsPage() {
       
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6 text-muted-foreground">
         <p>
-          Welcome to Trackballer. By using our website and services, you agree to these Terms of Service. Please read them carefully.
+          Welcome to Trackballr. By using our website and services, you agree to these Terms of Service. Please read them carefully.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">1. Your Account</h2>
@@ -22,7 +22,7 @@ export default function TermsPage() {
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">2. User-Generated Content</h2>
         <p>
-          You retain ownership of the ratings and comments you post on Trackballer. However, by posting content, you grant us a worldwide, royalty-free license to display, distribute, and use that content across the platform (for example, to calculate aggregate player scores or show trending comments).
+          You retain ownership of the ratings and comments you post on Trackballr. However, by posting content, you grant us a worldwide, royalty-free license to display, distribute, and use that content across the platform (for example, to calculate aggregate player scores or show trending comments).
         </p>
         <p>
           You agree not to post content that is illegal, abusive, harassing, spam, or otherwise violates our Community Guidelines. We have the right (but not the obligation) to remove any content at our sole discretion.
@@ -30,11 +30,11 @@ export default function TermsPage() {
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">3. Football Data and Accuracy</h2>
         <p>
-          The match fixtures, lineups, scores, and player statistics on Trackballer are provided by a third-party service (API-Football). While we strive for accuracy, we cannot guarantee that all match data is perfectly real-time or error-free. The platform is for entertainment and informational purposes only.
+          The match fixtures, lineups, scores, and player statistics on Trackballr are provided by a third-party service (API-Football). While we strive for accuracy, we cannot guarantee that all match data is perfectly real-time or error-free. The platform is for entertainment and informational purposes only.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">4. Acceptable Use</h2>
-        <p>When using Trackballer, you agree not to:</p>
+        <p>When using Trackballr, you agree not to:</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>Use bots, scrapers, or automated scripts to submit ratings or comments.</li>
           <li>Attempt to manipulate player or match ratings artificially.</li>
@@ -44,12 +44,12 @@ export default function TermsPage() {
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">5. Disclaimer of Warranties</h2>
         <p>
-          Trackballer is provided "as is" without any warranties, express or implied. We do not guarantee that the site will always be available, secure, or free from bugs.
+          Trackballr is provided "as is" without any warranties, express or implied. We do not guarantee that the site will always be available, secure, or free from bugs.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">6. Limitation of Liability</h2>
         <p>
-          To the maximum extent permitted by law, Trackballer and its creators shall not be liable for any indirect, incidental, or consequential damages arising from your use of the platform.
+          To the maximum extent permitted by law, Trackballr and its creators shall not be liable for any indirect, incidental, or consequential damages arising from your use of the platform.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">7. Changes to the Terms</h2>

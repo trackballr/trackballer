@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -45,14 +46,19 @@ export function AdminShell({ children }: AdminShellProps) {
       <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border/80 bg-background/90 px-4 backdrop-blur-md">
         <Link
           href="/admin"
-          className="flex shrink-0 items-center gap-2"
+          className="flex shrink-0 items-center gap-0"
           aria-label="Admin home"
         >
-          <span className="flex size-7 items-center justify-center rounded-md bg-primary">
-            <span className="relative size-3.5 rounded-full bg-primary-foreground before:absolute before:inset-[3px] before:rounded-full before:bg-[conic-gradient(var(--primary)_0_20%,transparent_20%_40%,var(--primary)_40%_60%,transparent_60%_80%,var(--primary)_80%_100%)] before:opacity-90" />
-          </span>
-          <span className="font-display text-[17px] font-bold tracking-tight">
-            Trackballer
+          <Image
+            src="/logo.png"
+            alt="Trackballr"
+            width={28}
+            height={28}
+            className="size-7 shrink-0 object-contain"
+            priority
+          />
+          <span className="font-display text-[19px] font-bold tracking-tight">
+            Trackballr
           </span>
         </Link>
 

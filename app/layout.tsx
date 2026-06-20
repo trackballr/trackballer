@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata = {
-  title: "Trackballer",
+  title: "Trackballr",
   description: "Your hub to track your favorite players and teams",
 }
 
