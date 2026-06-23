@@ -6,10 +6,7 @@ import { useState } from "react"
 import { XIcon } from "@/components/login/oauth-provider-icons"
 import { Button } from "@/components/ui/button"
 import { getOAuthRedirectUrl } from "@/lib/auth/oauth-providers"
-import {
-  buildAvatarCacheUpdate,
-  type AvatarSource,
-} from "@/lib/profile/display-avatar"
+import { disconnectXProfile } from "@/lib/profile/actions/disconnect-x"
 import { createClient } from "@/lib/supabase/client"
 
 type ConnectXButtonProps = {
@@ -49,58 +46,12 @@ export function ConnectXButton({
     setError(null)
     setPending(true)
 
-    const supabase = createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    const xIdentity = user?.identities?.find(
-      (identity) => identity.provider === "x" || identity.provider === "twitter",
-    )
-
-    if (xIdentity) {
-      const { error: unlinkError } = await supabase.auth.unlinkIdentity(xIdentity)
-      if (unlinkError) {
-        setPending(false)
-        setError(unlinkError.message)
-        return
-      }
-    }
-
-    const { data: existing } = await supabase
-      .from("profiles")
-      .select("avatar_source, google_avatar_url, x_avatar_url, avatar_url")
-      .eq("id", user?.id ?? "")
-      .maybeSingle()
-
-    const nextSource: AvatarSource | null =
-      existing?.avatar_source === "x"
-        ? "google"
-        : existing?.avatar_source === "google"
-          ? "google"
-          : null
-
-    const avatarCache = buildAvatarCacheUpdate({
-      avatar_source: nextSource ?? null,
-      google_avatar_url: existing?.google_avatar_url,
-      x_avatar_url: null,
-      avatar_url: existing?.avatar_url,
-    })
-
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({
-        twitter_handle: null,
-        twitter_verified_at: null,
-        x_avatar_url: null,
-        ...avatarCache,
-      })
-      .eq("id", user?.id ?? "")
+    const result = await disconnectXProfile()
 
     setPending(false)
 
-    if (updateError) {
-      setError("Could not disconnect X. Try again.")
+    if (!result.ok) {
+      setError(result.error)
       return
     }
 

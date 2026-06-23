@@ -1,3 +1,4 @@
+import { readIsAdmin } from "@/lib/auth/rpc-gates"
 import { getServerAuth } from "@/lib/auth/server-session"
 import { createClient } from "@/lib/supabase/server"
 
@@ -18,13 +19,8 @@ export async function assertAdminAction(): Promise<
     return { ok: false, error: "Sign in to continue." }
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", auth.userId)
-    .single()
-
-  if (!profile?.is_admin) {
+  const isAdmin = await readIsAdmin(supabase)
+  if (!isAdmin) {
     return { ok: false, error: "You do not have admin access." }
   }
 

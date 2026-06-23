@@ -2,6 +2,7 @@
 
 import { getServerAuth } from "@/lib/auth/server-session"
 import { completeOnboardingSchema } from "@/lib/onboarding/types"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 
 export type CompleteOnboardingResult =
@@ -32,7 +33,7 @@ export async function completeOnboarding(
     favouriteNationalTeamId,
   } = parsed.data
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await createAdminClient()
     .from("profiles")
     .update({
       username,

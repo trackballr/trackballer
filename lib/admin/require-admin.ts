@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 
+import { readIsAdmin } from "@/lib/auth/rpc-gates"
 import { getServerAuth } from "@/lib/auth/server-session"
 import { createClient } from "@/lib/supabase/server"
 
@@ -14,13 +15,8 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 
   if (!auth) return null
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", auth.userId)
-    .single()
-
-  if (!profile?.is_admin) return null
+  const isAdmin = await readIsAdmin(supabase)
+  if (!isAdmin) return null
 
   return { userId: auth.userId }
 }
@@ -34,13 +30,8 @@ export async function requireAdmin(): Promise<AdminSession> {
     redirect("/login")
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", auth.userId)
-    .single()
-
-  if (!profile?.is_admin) {
+  const isAdmin = await readIsAdmin(supabase)
+  if (!isAdmin) {
     redirect("/")
   }
 

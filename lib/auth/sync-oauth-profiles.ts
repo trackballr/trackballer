@@ -8,6 +8,7 @@ import {
 import { normalizeXAvatarUrl } from "@/lib/profile/normalize-x-avatar-url"
 import { normalizeSocialHandle } from "@/lib/profile/validate-social-handles"
 import type { Database } from "@/lib/database.types"
+import { createAdminClient } from "@/lib/supabase/admin"
 
 type AuthUser = User
 
@@ -91,7 +92,9 @@ export async function syncOAuthProfilesFromAuth(
 
   if (!googleAvatar && !xAvatar && !xHandle) return
 
-  const { data: existing } = await supabase
+  const admin = createAdminClient()
+
+  const { data: existing } = await admin
     .from("profiles")
     .select(
       "avatar_url, google_avatar_url, x_avatar_url, avatar_source, twitter_handle, twitter_verified_at",
@@ -107,7 +110,9 @@ export async function syncOAuthProfilesFromAuth(
 
   if (xHandle) {
     updates.twitter_handle = xHandle
-    updates.twitter_verified_at = new Date().toISOString()
+    if (!existing?.twitter_verified_at) {
+      updates.twitter_verified_at = new Date().toISOString()
+    }
   }
 
   if (xAvatar) {
@@ -134,5 +139,5 @@ export async function syncOAuthProfilesFromAuth(
 
   if (Object.keys(updates).length === 0) return
 
-  await supabase.from("profiles").update(updates).eq("id", user.id)
+  await admin.from("profiles").update(updates).eq("id", user.id)
 }

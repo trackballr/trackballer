@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { normalizeCommentRow } from "@/lib/comment/normalize"
+import { readIsAdmin, readIsBanned } from "@/lib/auth/rpc-gates"
 import { requireServerAuth } from "@/lib/auth/server-session"
 import type { Database } from "@/lib/database.types"
 import { createClient } from "@/lib/supabase/server"
@@ -36,13 +37,7 @@ export async function submitComment(input: unknown): Promise<SubmitCommentResult
 
   const { userId } = gate.auth
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("is_banned")
-    .eq("id", userId)
-    .single()
-
-  if (profileError || !profile || profile.is_banned) {
+  if (await readIsBanned(supabase)) {
     return { ok: false, error: "You cannot comment at this time." }
   }
 
@@ -141,13 +136,7 @@ export async function deleteComment(input: unknown): Promise<DeleteCommentResult
     return { ok: false, error: "Comment not found." }
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", userId)
-    .single()
-
-  const isAdmin = profile?.is_admin ?? false
+  const isAdmin = await readIsAdmin(supabase)
   const isOwner = comment.user_id === userId
 
   if (!isOwner && !isAdmin) {

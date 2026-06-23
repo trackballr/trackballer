@@ -2,6 +2,7 @@ import { getOnboardingOptions } from "@/lib/onboarding/options"
 import { resolveDisplayAvatar, type AvatarSource } from "@/lib/profile/display-avatar"
 import { normalizeXAvatarUrl } from "@/lib/profile/normalize-x-avatar-url"
 import { createClient } from "@/lib/supabase/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
 
 import type {
   ProfilePageData,
@@ -23,7 +24,6 @@ const PROFILE_SELECT = `
   country_code,
   created_at,
   twitter_handle,
-  twitter_verified_at,
   instagram_handle,
   favourite_club:teams!profiles_favourite_club_id_fkey(id, name, logo_url, code),
   favourite_national:teams!profiles_favourite_national_team_id_fkey(id, name, logo_url, code)
@@ -44,7 +44,10 @@ function mapTeam(raw: unknown): ProfileTeam | null {
   }
 }
 
-function mapProfileRow(row: Record<string, unknown>): ProfileView {
+function mapProfileRow(
+  row: Record<string, unknown>,
+  twitterVerifiedAt: string | null,
+): ProfileView {
   const googleAvatarUrl =
     typeof row.google_avatar_url === "string" ? row.google_avatar_url : null
   const xAvatarUrl =
@@ -74,11 +77,25 @@ function mapProfileRow(row: Record<string, unknown>): ProfileView {
     favouriteClub: mapTeam(row.favourite_club),
     favouriteNationalTeam: mapTeam(row.favourite_national),
     twitterHandle: typeof row.twitter_handle === "string" ? row.twitter_handle : null,
-    twitterVerifiedAt:
-      typeof row.twitter_verified_at === "string" ? row.twitter_verified_at : null,
+    twitterVerifiedAt,
     instagramHandle:
       typeof row.instagram_handle === "string" ? row.instagram_handle : null,
   }
+}
+
+async function fetchTwitterVerifiedAt(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<string | null> {
+  const { data, error } = await (supabase as SupabaseClient).rpc(
+    "get_profile_twitter_verified_at",
+    { p_user_id: userId },
+  )
+  if (error) {
+    console.error("fetchTwitterVerifiedAt failed:", error.message)
+    return null
+  }
+  return typeof data === "string" ? data : null
 }
 
 export async function getProfileById(userId: string): Promise<ProfileView | null> {
@@ -94,7 +111,8 @@ export async function getProfileById(userId: string): Promise<ProfileView | null
     return null
   }
 
-  return mapProfileRow(data as Record<string, unknown>)
+  const twitterVerifiedAt = await fetchTwitterVerifiedAt(supabase, userId)
+  return mapProfileRow(data as Record<string, unknown>, twitterVerifiedAt)
 }
 
 export async function getProfileByUsername(
@@ -112,7 +130,10 @@ export async function getProfileByUsername(
     return null
   }
 
-  return mapProfileRow(data as Record<string, unknown>)
+  const row = data as Record<string, unknown>
+  const profileId = typeof row.id === "string" ? row.id : String(row.id)
+  const twitterVerifiedAt = await fetchTwitterVerifiedAt(supabase, profileId)
+  return mapProfileRow(row, twitterVerifiedAt)
 }
 
 export async function getProfileStats(userId: string): Promise<ProfileStats> {
