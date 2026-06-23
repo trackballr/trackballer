@@ -18,6 +18,11 @@ describe("search query helpers", () => {
     expect(normalizeSearchQuery("  ka  ")).toBe("ka")
   })
 
+  it("normalizeSearchQuery truncates overly long input", () => {
+    const long = "a".repeat(100)
+    expect(normalizeSearchQuery(long)).toHaveLength(64)
+  })
+
   it("escapeIlikePattern escapes wildcards", () => {
     expect(escapeIlikePattern("100%_")).toBe("100\\%\\_")
     expect(buildIlikePattern("100%_")).toBe("%100\\%\\_%")

@@ -1,6 +1,7 @@
 import type { BrowseFilters, PlayerBrowseSort } from "./types"
 
 export const SEARCH_MIN_LENGTH = 1
+export const SEARCH_MAX_LENGTH = 64
 export const BROWSE_PAGE_SIZE = 50
 export const SEARCH_RESULTS_LIMIT = 20
 
@@ -12,7 +13,7 @@ export function escapeIlikePattern(raw: string): string {
 export function normalizeSearchQuery(raw: string | null | undefined): string | null {
   const trimmed = raw?.trim() ?? ""
   if (trimmed.length < SEARCH_MIN_LENGTH) return null
-  return trimmed
+  return trimmed.slice(0, SEARCH_MAX_LENGTH)
 }
 
 export function buildIlikePattern(query: string): string {
