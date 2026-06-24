@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  EVENTS_REPULL_WINDOW_MS,
   planMatchdaySync,
   shouldBatchRefreshFixture,
 } from "@/lib/catalog-sync/matchday-sync-plan";
@@ -74,6 +75,71 @@ describe("planMatchdaySync", () => {
     expect(plan.liveSnapshotIds).toEqual([]);
     expect(plan.fullDetailIds).toEqual([10]);
     expect(plan.fullDetailRemaining).toBe(1);
+  });
+
+  it("re-pulls events for a recently-finished fixture to catch late subs", () => {
+    const kickoff = "2026-06-12T18:00:00.000Z";
+    const now = new Date("2026-06-12T20:30:00.000Z"); // 2.5h after kickoff, within window
+    const plan = planMatchdaySync(
+      [
+        {
+          id: 20,
+          status_short: "FT",
+          kickoff_at: kickoff,
+          lineups_synced_at: "2026-06-12T20:00:00.000Z",
+          appearances_synced_at: "2026-06-12T20:00:00.000Z",
+        },
+      ],
+      15,
+      now,
+    );
+
+    expect(plan.eventsOnlyIds).toEqual([20]);
+    expect(plan.fullDetailIds).toEqual([]);
+  });
+
+  it("stops re-pulling events once a finished fixture leaves the grace window", () => {
+    const kickoff = "2026-06-12T18:00:00.000Z";
+    const now = new Date(
+      new Date(kickoff).getTime() + EVENTS_REPULL_WINDOW_MS + 60_000,
+    );
+    const plan = planMatchdaySync(
+      [
+        {
+          id: 21,
+          status_short: "FT",
+          kickoff_at: kickoff,
+          lineups_synced_at: "2026-06-12T20:00:00.000Z",
+          appearances_synced_at: "2026-06-12T20:00:00.000Z",
+        },
+      ],
+      15,
+      now,
+    );
+
+    expect(plan.eventsOnlyIds).toEqual([]);
+    expect(plan.fullDetailIds).toEqual([]);
+  });
+
+  it("still prefers full detail when a finished fixture is missing appearances", () => {
+    const kickoff = "2026-06-12T18:00:00.000Z";
+    const now = new Date("2026-06-12T20:30:00.000Z");
+    const plan = planMatchdaySync(
+      [
+        {
+          id: 22,
+          status_short: "FT",
+          kickoff_at: kickoff,
+          lineups_synced_at: "2026-06-12T20:00:00.000Z",
+          appearances_synced_at: null,
+        },
+      ],
+      15,
+      now,
+    );
+
+    expect(plan.eventsOnlyIds).toEqual([]);
+    expect(plan.fullDetailIds).toEqual([22]);
   });
 });
 
