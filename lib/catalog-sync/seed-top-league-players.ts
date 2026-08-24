@@ -10,7 +10,7 @@ import {
 import {
   TOP_LEAGUE_CLUBS,
   type TopLeagueDefinition,
-} from "@/lib/catalog-sync/seed-top-league-clubs";
+} from "@/lib/catalog/top-leagues";
 
 type Db = SupabaseClient<Database>;
 

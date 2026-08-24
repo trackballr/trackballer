@@ -1,26 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 
 import type { ApiFootballClient } from "@/lib/api-football/client"
+import {
+  TOP_LEAGUE_CLUBS,
+  type TopLeagueDefinition,
+} from "@/lib/catalog/top-leagues"
 import type { Database } from "@/lib/database.types"
 import { mapClubFromLeague } from "@/lib/catalog-sync/mappers"
 
 type Db = SupabaseClient<Database>
 
-export type TopLeagueDefinition = {
-  id: number
-  name: string
-  slug: string
-  country: string
-}
-
-/** API-Football league ids for onboarding club pickers (stable in v3). */
-export const TOP_LEAGUE_CLUBS: TopLeagueDefinition[] = [
-  { id: 39, name: "Premier League", slug: "premier-league", country: "England" },
-  { id: 140, name: "La Liga", slug: "la-liga", country: "Spain" },
-  { id: 135, name: "Serie A", slug: "serie-a", country: "Italy" },
-  { id: 78, name: "Bundesliga", slug: "bundesliga", country: "Germany" },
-  { id: 61, name: "Ligue 1", slug: "ligue-1", country: "France" },
-]
+export type { TopLeagueDefinition }
+export { TOP_LEAGUE_CLUBS }
 
 export type TopLeagueClubsSeedResult = {
   seasonYear: number

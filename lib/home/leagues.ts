@@ -1,18 +1,10 @@
 import { cache } from "react"
 
+import { TOP_LEAGUE_CLUBS } from "@/lib/catalog/top-leagues"
 import type { CompetitionStrip, CompetitionStripItem } from "@/lib/home/types"
 import { createClient } from "@/lib/supabase/server"
 
-const T5_SLUG_ORDER = [
-  "premier-league",
-  "la-liga",
-  "serie-a",
-  "bundesliga",
-  "ligue-1",
-] as const
-
 const SHORT_LABELS: Record<string, string> = {
-  "world-cup": "WC",
   "premier-league": "PL",
   "la-liga": "LL",
   "serie-a": "SA",
@@ -32,26 +24,26 @@ function shortLabel(slug: string): string {
   return SHORT_LABELS[slug] ?? slug.slice(0, 2).toUpperCase()
 }
 
-function mapStripItem(row: LeagueRow, featured: boolean): CompetitionStripItem {
-  const href = row.slug === "world-cup" ? "/world-cup" : `/league/${row.slug}`
+function mapStripItem(row: LeagueRow): CompetitionStripItem {
   return {
     id: row.id,
     name: row.name,
     slug: row.slug,
     shortLabel: shortLabel(row.slug),
-    href,
-    isFeatured: featured,
+    href: `/league/${row.slug}`,
+    isFeatured: false,
     logoUrl: row.logo_url,
   }
 }
 
 export const getCompetitionStrip = cache(async (): Promise<CompetitionStrip> => {
+  const slugs = TOP_LEAGUE_CLUBS.map((league) => league.slug)
   const supabase = await createClient()
 
   const { data, error } = await supabase
     .from("leagues")
     .select("id, name, slug, is_active, logo_url")
-    .in("slug", ["world-cup", ...T5_SLUG_ORDER])
+    .in("slug", slugs)
 
   if (error) {
     console.error("getCompetitionStrip failed:", error.message)
@@ -59,46 +51,34 @@ export const getCompetitionStrip = cache(async (): Promise<CompetitionStrip> => 
   }
 
   const bySlug = new Map((data ?? []).map((row) => [row.slug, row as LeagueRow]))
-  const wcRow = bySlug.get("world-cup")
 
-  const featured = wcRow
-    ? mapStripItem(wcRow, true)
-    : {
-        id: 1,
-        name: "FIFA World Cup",
-        slug: "world-cup",
-        shortLabel: "WC",
-        href: "/world-cup",
-        isFeatured: true,
-        logoUrl: null,
-      }
-
-  const others = T5_SLUG_ORDER.map((slug) => bySlug.get(slug))
+  const items = TOP_LEAGUE_CLUBS.map((league) => bySlug.get(league.slug))
     .filter((row): row is LeagueRow => row != null)
-    .map((row) => mapStripItem(row, false))
+    .map(mapStripItem)
 
-  return { featured, others }
+  if (items.length === 0) {
+    return fallbackStrip()
+  }
+
+  return {
+    featured: items[0],
+    others: items.slice(1),
+  }
 })
 
 function fallbackStrip(): CompetitionStrip {
+  const items = TOP_LEAGUE_CLUBS.map((league, index) => ({
+    id: league.id,
+    name: league.name,
+    slug: league.slug,
+    shortLabel: shortLabel(league.slug),
+    href: `/league/${league.slug}`,
+    isFeatured: index === 0,
+    logoUrl: null,
+  }))
+
   return {
-    featured: {
-      id: 1,
-      name: "FIFA World Cup",
-      slug: "world-cup",
-      shortLabel: "WC",
-      href: "/world-cup",
-      isFeatured: true,
-      logoUrl: null,
-    },
-    others: T5_SLUG_ORDER.map((slug, index) => ({
-      id: index + 2,
-      name: slug,
-      slug,
-      shortLabel: shortLabel(slug),
-      href: `/league/${slug}`,
-      isFeatured: false,
-      logoUrl: null,
-    })),
+    featured: { ...items[0], isFeatured: true },
+    others: items.slice(1).map((item) => ({ ...item, isFeatured: false })),
   }
 }

@@ -1,4 +1,6 @@
 import { PlayerResultRow } from "@/components/search/player-result-row"
+import { TrendingPlayers } from "@/components/home/trending-players"
+import type { TrendingPlayerCard } from "@/lib/home/types"
 import type { BrowseFilterOptions, BrowseFilters, BrowsePlayersResult } from "@/lib/search/types"
 
 import { PlayersFiltersForm } from "./players-filters-form"
@@ -8,12 +10,18 @@ type PlayersDirectoryProps = {
   filters: BrowseFilters
   options: BrowseFilterOptions
   result: BrowsePlayersResult
+  trendingPlayers: TrendingPlayerCard[]
 }
 
-export function PlayersDirectory({ filters, options, result }: PlayersDirectoryProps) {
+export function PlayersDirectory({
+  filters,
+  options,
+  result,
+  trendingPlayers,
+}: PlayersDirectoryProps) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-4 lg:py-5">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr] lg:items-start">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_minmax(0,1fr)_220px] lg:items-start">
         <aside className="hidden lg:block">
           <div className="sticky top-16 rounded-lg border border-border bg-card p-4">
             <PlayersFiltersForm
@@ -54,6 +62,12 @@ export function PlayersDirectory({ filters, options, result }: PlayersDirectoryP
             />
           </div>
         </div>
+
+        <aside className="hidden lg:block">
+          <div className="sticky top-16 rounded-lg border border-border bg-card p-4">
+            <TrendingPlayers players={trendingPlayers} variant="sidebar" />
+          </div>
+        </aside>
       </div>
     </div>
   )

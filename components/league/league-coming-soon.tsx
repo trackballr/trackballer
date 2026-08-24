@@ -15,13 +15,13 @@ export function LeagueComingSoon({ league }: LeagueComingSoonProps) {
       <div className="rounded-xl border border-border bg-card px-6 py-10">
         <p className="text-lg font-semibold">Coming soon</p>
         <p className="body-sm mt-2 text-muted-foreground">
-          Player ratings for this competition launch after the World Cup.
+          This competition is not available yet.
         </p>
       </div>
 
       <p className="body-sm mt-8">
-        <Link href="/world-cup" className="text-primary underline-offset-4 hover:underline">
-          Back to World Cup
+        <Link href="/" className="text-primary underline-offset-4 hover:underline">
+          Back to home
         </Link>
       </p>
     </div>

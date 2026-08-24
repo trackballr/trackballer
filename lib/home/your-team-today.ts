@@ -1,6 +1,8 @@
 import { cache } from "react"
 
-import { FIXTURE_TEAM_SELECT, getWorldCupSeason, mapFixtureRow } from "@/lib/catalog/fixtures"
+import { getT5SeasonYear } from "@/lib/catalog/config"
+import { FIXTURE_TEAM_SELECT, getSeasonByLeagueId, mapFixtureRow } from "@/lib/catalog/fixtures"
+import { TOP_LEAGUE_CLUBS } from "@/lib/catalog/top-leagues"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
 import { createClient } from "@/lib/supabase/server"
 
@@ -11,9 +13,6 @@ type ProfileTeams = {
   clubId: number | null
   clubName: string | null
   clubLogoUrl: string | null
-  nationalId: number | null
-  nationalName: string | null
-  nationalLogoUrl: string | null
 }
 
 async function loadProfileTeams(userId: string): Promise<ProfileTeams | null> {
@@ -23,9 +22,7 @@ async function loadProfileTeams(userId: string): Promise<ProfileTeams | null> {
     .from("profiles")
     .select(`
       favourite_club_id,
-      favourite_national_team_id,
-      club:teams!profiles_favourite_club_id_fkey(id, name, logo_url),
-      national:teams!profiles_favourite_national_team_id_fkey(id, name, logo_url)
+      club:teams!profiles_favourite_club_id_fkey(id, name, logo_url)
     `)
     .eq("id", userId)
     .maybeSingle()
@@ -38,15 +35,11 @@ async function loadProfileTeams(userId: string): Promise<ProfileTeams | null> {
   if (!data) return null
 
   const club = data.club as { id: number; name: string; logo_url: string | null } | null
-  const national = data.national as { id: number; name: string; logo_url: string | null } | null
 
   return {
     clubId: club?.id ?? data.favourite_club_id,
     clubName: club?.name ?? null,
     clubLogoUrl: club?.logo_url ?? null,
-    nationalId: national?.id ?? data.favourite_national_team_id,
-    nationalName: national?.name ?? null,
-    nationalLogoUrl: national?.logo_url ?? null,
   }
 }
 
@@ -71,27 +64,33 @@ function mapFixtureToYourTeamItem(
   }
 }
 
-async function fetchFixturesForTeamsToday(
-  seasonId: number,
-  teamIds: number[],
+async function getTopLeagueSeasonIds(seasonYear: number): Promise<number[]> {
+  const seasons = await Promise.all(
+    TOP_LEAGUE_CLUBS.map((league) => getSeasonByLeagueId(league.id, seasonYear)),
+  )
+  return seasons.filter((season) => season != null).map((season) => season.id)
+}
+
+async function fetchClubFixturesToday(
+  seasonIds: number[],
+  clubId: number,
 ): Promise<FixtureWithTeams[]> {
-  if (teamIds.length === 0) return []
+  if (seasonIds.length === 0) return []
 
   const supabase = await createClient()
   const { start, end } = utcDayBounds()
-  const idList = teamIds.join(",")
 
   const { data, error } = await supabase
     .from("fixtures")
     .select(FIXTURE_TEAM_SELECT)
-    .eq("season_id", seasonId)
+    .in("season_id", seasonIds)
     .gte("kickoff_at", start)
     .lt("kickoff_at", end)
-    .or(`home_team_id.in.(${idList}),away_team_id.in.(${idList})`)
+    .or(`home_team_id.eq.${clubId},away_team_id.eq.${clubId}`)
     .order("kickoff_at", { ascending: true })
 
   if (error) {
-    console.error("fetchFixturesForTeamsToday failed:", error.message)
+    console.error("fetchClubFixturesToday failed:", error.message)
     return []
   }
 
@@ -104,45 +103,19 @@ export const getYourTeamToday = cache(
   async (userId: string | null): Promise<YourTeamTodayItem[]> => {
     if (!userId) return []
 
-    const [profileTeams, season] = await Promise.all([
-      loadProfileTeams(userId),
-      getWorldCupSeason(),
-    ])
+    const profileTeams = await loadProfileTeams(userId)
+    if (!profileTeams?.clubId || !profileTeams.clubName) return []
 
-    if (!profileTeams || !season) return []
+    const seasonIds = await getTopLeagueSeasonIds(getT5SeasonYear())
+    const fixtures = await fetchClubFixturesToday(seasonIds, profileTeams.clubId)
 
-    const teamEntries: Array<{ id: number; name: string; logoUrl: string | null }> = []
-    if (profileTeams.clubId && profileTeams.clubName) {
-      teamEntries.push({
-        id: profileTeams.clubId,
-        name: profileTeams.clubName,
-        logoUrl: profileTeams.clubLogoUrl,
-      })
-    }
-    if (profileTeams.nationalId && profileTeams.nationalName) {
-      teamEntries.push({
-        id: profileTeams.nationalId,
-        name: profileTeams.nationalName,
-        logoUrl: profileTeams.nationalLogoUrl,
-      })
-    }
-
-    const teamIds = teamEntries.map((team) => team.id)
-    const fixtures = await fetchFixturesForTeamsToday(season.id, teamIds)
-    const teamById = new Map(teamEntries.map((team) => [team.id, team]))
-
-    const items: YourTeamTodayItem[] = []
-    for (const fixture of fixtures) {
-      const matchedTeamId =
-        teamById.has(fixture.home_team_id) ? fixture.home_team_id : fixture.away_team_id
-      const matched = teamById.get(matchedTeamId)
-      if (!matched) continue
-
-      items.push(
-        mapFixtureToYourTeamItem(fixture, matched.id, matched.name, matched.logoUrl),
-      )
-    }
-
-    return items
+    return fixtures.map((fixture) =>
+      mapFixtureToYourTeamItem(
+        fixture,
+        profileTeams.clubId!,
+        profileTeams.clubName!,
+        profileTeams.clubLogoUrl,
+      ),
+    )
   },
 )

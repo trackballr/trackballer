@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import {
   PROVISIONAL_CAREER_COPY,
   careerRingCssVar,
@@ -34,7 +36,10 @@ export function PlayerTierCard({ career, className }: PlayerTierCardProps) {
       </div>
       {career.isProvisional && (
         <p className="mt-1 text-xs leading-snug text-muted-foreground">
-          {PROVISIONAL_CAREER_COPY}
+          {PROVISIONAL_CAREER_COPY}{" "}
+          <Link href="/how-ratings-work" className="text-primary hover:underline">
+            How ratings work
+          </Link>
         </p>
       )}
     </div>

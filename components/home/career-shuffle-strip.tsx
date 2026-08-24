@@ -195,11 +195,19 @@ export function CareerShuffleStrip({ isLoggedIn }: CareerShuffleStripProps) {
 
   return (
     <section>
-      <div className="mb-3">
-        <h2 className="h3">Shuffle ratings</h2>
-        <p className="body-sm mt-1 text-muted-foreground">
-          Rate careers for players you haven&apos;t scored yet.
-        </p>
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <div>
+          <h2 className="h3">Shuffle ratings</h2>
+          <p className="body-sm mt-1 text-muted-foreground">
+            Rate careers for players you haven&apos;t scored yet.
+          </p>
+        </div>
+        <Link
+          href="/how-ratings-work"
+          className="text-xs font-medium text-primary hover:underline"
+        >
+          How ratings work
+        </Link>
       </div>
 
       <div className="overflow-hidden rounded-xl bg-primary px-4 py-4 text-primary-foreground shadow-sm sm:px-5 sm:py-5">

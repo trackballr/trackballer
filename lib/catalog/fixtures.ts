@@ -1,7 +1,7 @@
 import { cache } from "react"
 
 import { TERMINAL_STATUSES } from "@/lib/catalog-sync/constants"
-import { getCatalogLeagueId, getCatalogSeasonYear } from "@/lib/catalog/config"
+import { getCatalogLeagueId, getCatalogSeasonYear, getT5SeasonYear } from "@/lib/catalog/config"
 import type {
   FixtureView,
   FixtureWithTeams,
@@ -106,24 +106,29 @@ async function fetchFixtures(
     .filter((row): row is FixtureWithTeams => row !== null)
 }
 
+export const getSeasonByLeagueId = cache(
+  async (leagueId: number, seasonYear?: number): Promise<SeasonRow | null> => {
+    const supabase = await createClient()
+    const year = seasonYear ?? getT5SeasonYear()
+
+    const { data, error } = await supabase
+      .from("seasons")
+      .select("id, league_id, year, is_current")
+      .eq("league_id", leagueId)
+      .eq("year", year)
+      .maybeSingle()
+
+    if (error) {
+      console.error("getSeasonByLeagueId failed:", error.message)
+      return null
+    }
+
+    return data
+  },
+)
+
 export const getWorldCupSeason = cache(async (): Promise<SeasonRow | null> => {
-  const supabase = await createClient()
-  const leagueId = getCatalogLeagueId()
-  const year = getCatalogSeasonYear()
-
-  const { data, error } = await supabase
-    .from("seasons")
-    .select("id, league_id, year, is_current")
-    .eq("league_id", leagueId)
-    .eq("year", year)
-    .maybeSingle()
-
-  if (error) {
-    console.error("getWorldCupSeason failed:", error.message)
-    return null
-  }
-
-  return data
+  return getSeasonByLeagueId(getCatalogLeagueId(), getCatalogSeasonYear())
 })
 
 export const getRounds = cache(async (seasonId: number): Promise<RoundRow[]> => {
@@ -295,3 +300,20 @@ export const getWorldCupCatalogContext = cache(async () => {
 
   return { season, rounds, fixtureCount }
 })
+
+/** Loads season + rounds for a domestic league hub page. */
+export const getLeagueCatalogContext = cache(
+  async (leagueId: number, seasonYear?: number) => {
+    const season = await getSeasonByLeagueId(leagueId, seasonYear)
+    if (!season) {
+      return { season: null, rounds: [], fixtureCount: null as number | null }
+    }
+
+    const [rounds, fixtureCount] = await Promise.all([
+      getRounds(season.id),
+      getFixtureCount(season.id),
+    ])
+
+    return { season, rounds, fixtureCount }
+  },
+)
