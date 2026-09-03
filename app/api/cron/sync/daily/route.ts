@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     leagueId: body.leagueId ?? null,
     seasonYear: body.seasonYear ?? null,
     daysAhead: body.daysAhead ?? null,
+    daysBehind: body.daysBehind ?? null,
   });
 
   return acceptDeferredSync("daily", body, (sync) =>
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
       leagueId: body.leagueId,
       seasonYear: body.seasonYear,
       daysAhead: body.daysAhead,
+      daysBehind: body.daysBehind,
     }),
   );
 }

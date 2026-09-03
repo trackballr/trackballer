@@ -7,6 +7,7 @@ import type { FixtureWithTeams } from "@/lib/catalog/types"
 
 type HomeLeagueMatchesProps = {
   leagues: LeagueHomeMatches[]
+  variant?: "default" | "sidebar"
 }
 
 function MatchBlock({
@@ -40,14 +41,16 @@ function MatchBlock({
   )
 }
 
-function LeagueBlock({ league }: { league: LeagueHomeMatches }) {
+function LeagueBlock({ league, compact }: { league: LeagueHomeMatches; compact?: boolean }) {
   const hasRecent = league.recent.length > 0
   const hasUpcoming = league.upcoming.length > 0
 
   return (
     <section>
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h3 className="text-base font-semibold">{league.name}</h3>
+        <h3 className={compact ? "text-sm font-semibold" : "text-base font-semibold"}>
+          {league.name}
+        </h3>
         <Link
           href={`/league/${league.slug}`}
           className="text-xs font-medium text-primary hover:underline"
@@ -70,13 +73,15 @@ function LeagueBlock({ league }: { league: LeagueHomeMatches }) {
   )
 }
 
-export function HomeLeagueMatches({ leagues }: HomeLeagueMatchesProps) {
+export function HomeLeagueMatches({ leagues, variant = "default" }: HomeLeagueMatchesProps) {
+  const isSidebar = variant === "sidebar"
+
   return (
     <section>
-      <h2 className="h3 mb-4">Matches</h2>
-      <div className="space-y-8">
+      <h2 className={isSidebar ? "h3 mb-3" : "h3 mb-4"}>Matches</h2>
+      <div className={isSidebar ? "space-y-6" : "space-y-8"}>
         {leagues.map((league) => (
-          <LeagueBlock key={league.leagueId} league={league} />
+          <LeagueBlock key={league.leagueId} league={league} compact={isSidebar} />
         ))}
       </div>
     </section>

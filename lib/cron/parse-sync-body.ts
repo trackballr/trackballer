@@ -5,6 +5,7 @@ export type CronSyncBody = {
   seasonYear?: number;
   limit?: number;
   daysAhead?: number;
+  daysBehind?: number;
 };
 
 export async function parseCronSyncBody(

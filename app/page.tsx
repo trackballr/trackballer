@@ -1,6 +1,6 @@
 import { CareerShuffleStrip } from "@/components/home/career-shuffle-strip"
 import { CompetitionStrip } from "@/components/home/competition-strip"
-import { HomeLeagueMatches } from "@/components/home/home-league-matches"
+import { HomeLeagueSidebar } from "@/components/home/home-league-sidebar"
 import { TrendingComments } from "@/components/home/trending-comments"
 import { TrendingPlayers } from "@/components/home/trending-players"
 import { YourTeamToday } from "@/components/home/your-team-today"
@@ -30,16 +30,21 @@ export default async function HomePage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <CompetitionStrip strip={strip} />
 
-      <div className="mt-8 space-y-8">
-        <YourTeamToday items={yourTeamToday} />
-        <HomeLeagueMatches leagues={leagueMatches} />
-        <TrendingPlayers players={trendingPlayers} />
-        <TrendingComments
-          comments={trendingComments}
-          currentUserId={auth?.userId ?? null}
-        />
-        <CareerShuffleStrip isLoggedIn={!!auth} />
-        <TeamOfTheWeekComingSoon />
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,22rem)] lg:items-start">
+        <div className="order-2 min-w-0 space-y-8 lg:order-none">
+          <YourTeamToday items={yourTeamToday} />
+          <TrendingPlayers players={trendingPlayers} />
+          <TrendingComments
+            comments={trendingComments}
+            currentUserId={auth?.userId ?? null}
+          />
+          <CareerShuffleStrip isLoggedIn={!!auth} />
+          <TeamOfTheWeekComingSoon />
+        </div>
+
+        <div className="order-1 lg:order-none">
+          <HomeLeagueSidebar leagues={leagueMatches} />
+        </div>
       </div>
     </div>
   )

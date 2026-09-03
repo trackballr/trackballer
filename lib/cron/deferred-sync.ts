@@ -38,6 +38,7 @@ export function acceptDeferredSync(
       leagueId: body.leagueId ?? null,
       seasonYear: body.seasonYear ?? null,
       daysAhead: body.daysAhead ?? null,
+      daysBehind: body.daysBehind ?? null,
       limit: body.limit ?? null,
     },
     message:
