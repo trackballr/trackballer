@@ -9,7 +9,7 @@ import type {
   RoundRow,
   SeasonRow,
 } from "@/lib/catalog/types"
-import { deriveRoundsFromFixtures } from "@/lib/catalog/rounds"
+import { deriveRoundsFromFixtures, mergeCatalogRounds } from "@/lib/catalog/rounds"
 import { createClient } from "@/lib/supabase/server"
 
 export const FIXTURE_TEAM_SELECT = `
@@ -146,10 +146,15 @@ export const getRounds = cache(async (seasonId: number): Promise<RoundRow[]> => 
     return []
   }
 
-  const rounds = data ?? []
-  if (rounds.length > 0) return rounds
+  const tableRounds = data ?? []
+  const derived = await deriveRoundsFromFixtures(seasonId)
+  if (derived.length === 0) return tableRounds
 
-  return deriveRoundsFromFixtures(seasonId)
+  return mergeCatalogRounds(
+    seasonId,
+    tableRounds,
+    derived.map((round) => round.name),
+  )
 })
 
 export const getFixtures = cache(

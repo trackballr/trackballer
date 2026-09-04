@@ -21,6 +21,35 @@ export function roundSortOrderFromName(name: string): number {
   return key === Number.MAX_SAFE_INTEGER ? 999 : key - 1
 }
 
+/**
+ * Hub picker source of truth is fixture round names. A partial `rounds` table
+ * (e.g. one preponed matchweek upserted) must not hide the rest of the season.
+ */
+export function mergeCatalogRounds(
+  seasonId: number,
+  tableRounds: RoundRow[],
+  fixtureRoundNames: string[],
+): RoundRow[] {
+  const names = sortRoundNames([
+    ...new Set([
+      ...tableRounds.map((round) => round.name),
+      ...fixtureRoundNames.filter(Boolean),
+    ]),
+  ])
+  const byName = new Map(tableRounds.map((round) => [round.name, round]))
+
+  return names.map((name, index) => {
+    const existing = byName.get(name)
+    if (existing) return existing
+    return {
+      id: -(index + 1),
+      season_id: seasonId,
+      name,
+      sort_order: index,
+    }
+  })
+}
+
 /** When bootstrap skipped rounds, derive matchweeks from fixture rows. */
 export async function deriveRoundsFromFixtures(seasonId: number): Promise<RoundRow[]> {
   const supabase = await createClient()
