@@ -2,11 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { ApiFootballClient } from "@/lib/api-football/client";
 import type { Database } from "@/lib/database.types";
-import { mapClubFromLeague, mapPlayersFromClubSquad } from "@/lib/catalog-sync/mappers";
-import {
-  mergePlayerStub,
-  type PlayerInsert,
-} from "@/lib/catalog-sync/player-merge";
+import { mapClubFromLeague } from "@/lib/catalog-sync/mappers";
+import { syncClubSquad } from "@/lib/catalog-sync/sync-club-squad";
 import {
   TOP_LEAGUE_CLUBS,
   type TopLeagueDefinition,
@@ -50,14 +47,6 @@ type TeamWorkItem = {
   teamName: string;
 };
 
-function dedupeById<T extends { id: number }>(rows: T[]): T[] {
-  const map = new Map<number, T>();
-  for (const row of rows) {
-    map.set(row.id, row);
-  }
-  return [...map.values()];
-}
-
 async function ensureSeason(
   db: Db,
   leagueId: number,
@@ -85,46 +74,6 @@ async function ensureSeason(
 
   if (insertError) throw insertError;
   return inserted.id;
-}
-
-async function fetchPlayersByIds(
-  db: Db,
-  ids: number[],
-): Promise<Map<number, Database["public"]["Tables"]["players"]["Row"]>> {
-  if (ids.length === 0) {
-    return new Map();
-  }
-  const { data, error } = await db.from("players").select("*").in("id", ids);
-  if (error) throw error;
-  return new Map((data ?? []).map((row) => [row.id, row]));
-}
-
-async function upsertMergedPlayers(
-  db: Db,
-  rows: PlayerInsert[],
-  existingById: Map<number, Database["public"]["Tables"]["players"]["Row"]>,
-): Promise<{ newPlayers: number; existingPlayersMerged: number }> {
-  if (rows.length === 0) {
-    return { newPlayers: 0, existingPlayersMerged: 0 };
-  }
-
-  const unique = dedupeById(rows);
-  let newPlayers = 0;
-  let existingPlayersMerged = 0;
-
-  const toWrite = unique.map((incoming) => {
-    const existing = existingById.get(incoming.id) ?? null;
-    if (existing) existingPlayersMerged += 1;
-    else newPlayers += 1;
-    return mergePlayerStub(existing, incoming);
-  });
-
-  const { error } = await db.from("players").upsert(toWrite, {
-    onConflict: "id",
-  });
-  if (error) throw error;
-
-  return { newPlayers, existingPlayersMerged };
 }
 
 async function buildTeamWorkList(
@@ -188,55 +137,24 @@ export async function seedTopLeaguePlayers(
   const byTeam: TopLeaguePlayersSeedResult["byTeam"] = [];
 
   for (const work of batch) {
-    const squadRes = await api.getSquad(work.teamId);
     apiCalls += 1;
+    const stats = await syncClubSquad(db, api, {
+      seasonId: work.seasonId,
+      teamId: work.teamId,
+      leagueId: work.league.id,
+    });
 
-    const squad = squadRes.response[0];
-    if (!squad?.players?.length) {
-      byTeam.push({
-        leagueId: work.league.id,
-        teamId: work.teamId,
-        teamName: work.teamName,
-        playerCount: 0,
-        newPlayers: 0,
-        existingPlayers: 0,
-      });
-      continue;
-    }
+    newPlayers += stats.newPlayers;
+    existingPlayersMerged += stats.existingPlayers;
+    squadLinksUpserted += stats.squadLinksUpserted;
 
-    const incomingPlayers = mapPlayersFromClubSquad(squad);
-    const existingById = await fetchPlayersByIds(
-      db,
-      incomingPlayers.map((p) => p.id),
-    );
-
-    const playerStats = await upsertMergedPlayers(
-      db,
-      incomingPlayers,
-      existingById,
-    );
-    newPlayers += playerStats.newPlayers;
-    existingPlayersMerged += playerStats.existingPlayersMerged;
-
-    const links = incomingPlayers.map((p) => ({
-      season_id: work.seasonId,
-      team_id: work.teamId,
-      player_id: p.id,
-    }));
-
-    const { error: linkError } = await db
-      .from("player_season_squads")
-      .upsert(links, { onConflict: "season_id,team_id,player_id" });
-    if (linkError) throw linkError;
-
-    squadLinksUpserted += links.length;
     byTeam.push({
       leagueId: work.league.id,
       teamId: work.teamId,
       teamName: work.teamName,
-      playerCount: incomingPlayers.length,
-      newPlayers: playerStats.newPlayers,
-      existingPlayers: playerStats.existingPlayersMerged,
+      playerCount: stats.playerCount,
+      newPlayers: stats.newPlayers,
+      existingPlayers: stats.existingPlayers,
     });
   }
 
