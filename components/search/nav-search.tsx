@@ -188,7 +188,7 @@ export function NavSearch({ variant = "header", onResultSelect }: NavSearchProps
                         handleResultClick(player.id)
                       }}
                     >
-                      <PlayerResultRow player={player} />
+                      <PlayerResultRow player={player} dense />
                     </button>
                   ))}
                 </div>

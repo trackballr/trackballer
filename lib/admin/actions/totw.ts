@@ -36,11 +36,13 @@ const publishTotwSchema = z.object({
   title: z.string().trim().min(3).max(120),
   formation: z.enum(formationIds),
   slots: z.record(z.string(), z.number().int().positive()),
+  leagueSlug: z.string().trim().min(1).optional(),
 })
 
 const featureTotwSchema = z.object({
   seasonId: z.number().int().positive(),
   totwId: z.number().int().positive(),
+  leagueSlug: z.string().trim().min(1).optional(),
 })
 
 export type PublishTotwResult = { ok: true; id: number } | { ok: false; error: string }
@@ -68,10 +70,15 @@ function validateElevenSlots(formation: FormationId, slots: Record<string, numbe
   return null
 }
 
-function revalidateTotwPaths() {
+function revalidateTotwPaths(leagueSlug?: string) {
+  revalidatePath("/admin/team-of-the-stage")
+  if (leagueSlug) {
+    revalidatePath(`/admin/team-of-the-stage/${leagueSlug}`)
+    revalidatePath(`/league/${leagueSlug}`)
+    return
+  }
   revalidatePath("/")
   revalidatePath("/world-cup")
-  revalidatePath("/admin/team-of-the-stage")
 }
 
 export async function publishTeamOfTheStage(
@@ -85,7 +92,7 @@ export async function publishTeamOfTheStage(
     return { ok: false, error: "Pick a stage, title, formation, and all eleven players." }
   }
 
-  const { seasonId, roundId, title, formation, slots } = parsed.data
+  const { seasonId, roundId, title, formation, slots, leagueSlug } = parsed.data
   const slotError = validateElevenSlots(formation as FormationId, slots)
   if (slotError) {
     return { ok: false, error: slotError }
@@ -174,7 +181,7 @@ export async function publishTeamOfTheStage(
     return { ok: false, error: playersError.message || "Could not save players." }
   }
 
-  revalidateTotwPaths()
+  revalidateTotwPaths(leagueSlug)
   return { ok: true, id: totwId }
 }
 
@@ -190,7 +197,7 @@ export async function featureTeamOfTheStage(
     return { ok: false, error: "Invalid team selection." }
   }
 
-  const { seasonId, totwId } = parsed.data
+  const { seasonId, totwId, leagueSlug } = parsed.data
   const supabase = await createClient()
 
   const { data: row, error: fetchError } = await supabase
@@ -228,11 +235,11 @@ export async function featureTeamOfTheStage(
     return { ok: false, error: featureError.message || "Could not set live team." }
   }
 
-  revalidateTotwPaths()
+  revalidateTotwPaths(leagueSlug)
   return { ok: true }
 }
 
-/** Hide a stage from home and World Cup by clearing its featured flag. */
+/** Hide a team from the league page by clearing its featured flag. */
 export async function unfeatureTeamOfTheStage(
   input: unknown,
 ): Promise<FeatureTotwResult> {
@@ -244,7 +251,7 @@ export async function unfeatureTeamOfTheStage(
     return { ok: false, error: "Invalid team selection." }
   }
 
-  const { seasonId, totwId } = parsed.data
+  const { seasonId, totwId, leagueSlug } = parsed.data
   const supabase = await createClient()
 
   const { error: clearError } = await supabase
@@ -260,6 +267,6 @@ export async function unfeatureTeamOfTheStage(
     return { ok: false, error: "Could not hide this team." }
   }
 
-  revalidateTotwPaths()
+  revalidateTotwPaths(leagueSlug)
   return { ok: true }
 }

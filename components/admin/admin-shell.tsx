@@ -19,7 +19,7 @@ const adminTabs = [
   },
   {
     href: "/admin/team-of-the-stage",
-    label: "Team of the Stage",
+    label: "Team of the Week",
     match: (path: string) => path.startsWith("/admin/team-of-the-stage"),
   },
   {
@@ -36,9 +36,10 @@ const adminTabs = [
 
 type AdminShellProps = {
   children: React.ReactNode
+  wide?: boolean
 }
 
-export function AdminShell({ children }: AdminShellProps) {
+export function AdminShell({ children, wide = false }: AdminShellProps) {
   const pathname = usePathname()
 
   return (
@@ -92,7 +93,14 @@ export function AdminShell({ children }: AdminShellProps) {
         </Link>
       </header>
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">{children}</main>
+      <main
+        className={cn(
+          "mx-auto w-full flex-1 px-4 py-8",
+          wide ? "max-w-5xl" : "max-w-3xl",
+        )}
+      >
+        {children}
+      </main>
     </div>
   )
 }

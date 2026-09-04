@@ -10,8 +10,8 @@ const tiles = [
   },
   {
     href: "/admin/team-of-the-stage",
-    title: "Team of the Stage",
-    description: "Pick an XI on a mini pitch and publish.",
+    title: "Team of the Week",
+    description: "Pick a competition, then a matchday XI.",
     icon: Users,
   },
   {

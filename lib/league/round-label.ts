@@ -1,11 +1,20 @@
-/** Turn API-Football round strings into readable league labels. */
+const REGULAR_SEASON_ROUND = /^Regular Season\s*-\s*(\d+)$/i
+const LEAGUE_STAGE_ROUND = /^League Stage\s*-\s*(\d+)$/i
+
+/** Turn API-Football round strings into readable league / UCL labels. */
 export function formatLeagueRoundLabel(roundName: string | null | undefined): string | null {
   if (!roundName) return null
 
-  const regularSeason = /^Regular Season\s*-\s*(\d+)$/i.exec(roundName.trim())
+  const trimmed = roundName.trim()
+  const regularSeason = REGULAR_SEASON_ROUND.exec(trimmed)
   if (regularSeason) {
-    return `Matchweek ${regularSeason[1]}`
+    return `Matchday ${regularSeason[1]}`
   }
 
-  return roundName
+  const leagueStage = LEAGUE_STAGE_ROUND.exec(trimmed)
+  if (leagueStage) {
+    return `Matchday ${leagueStage[1]}`
+  }
+
+  return trimmed
 }

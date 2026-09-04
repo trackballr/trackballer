@@ -18,12 +18,14 @@ import {
   publishTeamOfTheStage,
   unfeatureTeamOfTheStage,
 } from "@/lib/admin/actions/totw"
+import type { TotwEditorCopy } from "@/lib/admin/totw-copy"
 import {
   countFilledSlots,
   formationSlotKeys,
   type FormationId,
 } from "@/lib/admin/formation-slots"
 import type { TotwDraft } from "@/lib/admin/totw-types"
+import { formatLeagueRoundLabel } from "@/lib/league/round-label"
 import type { PlayerListItem } from "@/lib/search/types"
 
 type RoundOption = { id: number; name: string }
@@ -34,13 +36,15 @@ type TotwEditorProps = {
   rounds: RoundOption[]
   publishedDrafts: TotwDraft[]
   featuredTotwId: number | null
+  copy: TotwEditorCopy
+  leagueSlug?: string
 }
 
-function draftToState(draft: TotwDraft | undefined) {
+function draftToState(draft: TotwDraft | undefined, defaultTitle: string) {
   if (!draft) {
     return {
       totwId: null as number | null,
-      title: "Team of the Stage",
+      title: defaultTitle,
       formation: "4-3-3" as FormationId,
       assignments: {} as Record<string, SlotAssignment | undefined>,
     }
@@ -53,12 +57,18 @@ function draftToState(draft: TotwDraft | undefined) {
   }
 }
 
+function formatRoundLabel(name: string): string {
+  return formatLeagueRoundLabel(name) ?? name
+}
+
 export function TotwEditor({
   seasonId,
   seasonLabel,
   rounds,
   publishedDrafts,
   featuredTotwId: initialFeaturedTotwId,
+  copy,
+  leagueSlug,
 }: TotwEditorProps) {
   const router = useRouter()
   const defaultRoundId = rounds[0] ? String(rounds[0].id) : ""
@@ -75,7 +85,7 @@ export function TotwEditor({
   const [totwId, setTotwId] = useState<number | null>(null)
   const [featuredTotwId, setFeaturedTotwId] = useState(initialFeaturedTotwId)
   const [formation, setFormation] = useState<FormationId>("4-3-3")
-  const [title, setTitle] = useState("Team of the Stage")
+  const [title, setTitle] = useState(copy.defaultTitle)
   const [assignments, setAssignments] = useState<
     Record<string, SlotAssignment | undefined>
   >({})
@@ -89,19 +99,15 @@ export function TotwEditor({
       if (!numericRoundId) return
 
       const draft = draftsByRound.get(numericRoundId)
-      const next = draftToState(draft)
+      const next = draftToState(draft, copy.defaultTitle)
       setTotwId(next.totwId)
       setTitle(next.title)
       setFormation(next.formation)
       setAssignments(next.assignments)
       setActiveSlot(null)
-      setMessage(
-        draft
-          ? "Loaded saved lineup for this stage — edit and publish to update."
-          : null,
-      )
+      setMessage(draft ? copy.loadedRoundMessage : null)
     },
-    [draftsByRound],
+    [copy.defaultTitle, copy.loadedRoundMessage, draftsByRound],
   )
 
   const numericRoundId = roundId ? Number(roundId) : null
@@ -159,7 +165,7 @@ export function TotwEditor({
 
   function publish() {
     if (!roundId) {
-      setMessage("Select a tournament stage first.")
+      setMessage(copy.selectRoundError)
       return
     }
 
@@ -180,17 +186,14 @@ export function TotwEditor({
         title: title.trim(),
         formation,
         slots,
+        leagueSlug,
       })
       if (!result.ok) {
         setMessage(result.error)
         return
       }
       setTotwId(result.id)
-      setMessage(
-        totwId
-          ? "Saved. Use “Show on home & World Cup” when this stage should go live."
-          : "Published. Use “Show on home & World Cup” when this stage should go live.",
-      )
+      setMessage(totwId ? copy.publishSuccessUpdate : copy.publishSuccessNew)
       router.refresh()
     })
   }
@@ -199,13 +202,13 @@ export function TotwEditor({
     if (!totwId) return
 
     startTransition(async () => {
-      const result = await featureTeamOfTheStage({ seasonId, totwId })
+      const result = await featureTeamOfTheStage({ seasonId, totwId, leagueSlug })
       if (!result.ok) {
         setMessage(result.error)
         return
       }
       setFeaturedTotwId(totwId)
-      setMessage("This stage is now live on home and World Cup.")
+      setMessage(copy.featureSuccess)
       router.refresh()
     })
   }
@@ -214,36 +217,31 @@ export function TotwEditor({
     if (!totwId) return
 
     startTransition(async () => {
-      const result = await unfeatureTeamOfTheStage({ seasonId, totwId })
+      const result = await unfeatureTeamOfTheStage({ seasonId, totwId, leagueSlug })
       if (!result.ok) {
         setMessage(result.error)
         return
       }
       setFeaturedTotwId((current) => (current === totwId ? null : current))
-      setMessage("Hidden from home and World Cup.")
+      setMessage(copy.hideSuccess)
       router.refresh()
     })
   }
 
   if (rounds.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        No tournament rounds in the catalog yet. Run bootstrap first.
-      </p>
-    )
+    return <p className="text-sm text-muted-foreground">{copy.emptyRoundsMessage}</p>
   }
 
   return (
     <div className="space-y-6">
       <p className="body-sm text-muted-foreground">
-        {seasonLabel} — one lineup per stage. Publish saves the XI; “Show on home &
-        World Cup” picks which stage fans see (only one live at a time).
+        {seasonLabel} — {copy.intro}
       </p>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5 sm:col-span-2">
           <label htmlFor="totw-round" className="text-sm font-medium">
-            Stage
+            {copy.roundFieldLabel}
           </label>
           <OptionMenuSelect
             value={roundId}
@@ -251,21 +249,21 @@ export function TotwEditor({
             disabled={pending}
             groups={[
               {
-                options: rounds.map((r) => {
-                  const draft = draftsByRound.get(r.id)
+                options: rounds.map((round) => {
+                  const draft = draftsByRound.get(round.id)
                   const suffix = draft
                     ? featuredTotwId === draft.id
                       ? " · live on site"
                       : " · saved"
                     : ""
                   return {
-                    value: String(r.id),
-                    label: `${r.name}${suffix}`,
+                    value: String(round.id),
+                    label: `${formatRoundLabel(round.name)}${suffix}`,
                   }
                 }),
               },
             ]}
-            ariaLabel="Stage"
+            ariaLabel={copy.roundAriaLabel}
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -331,7 +329,7 @@ export function TotwEditor({
           {isLiveOnSite ? (
             <div className="space-y-2">
               <p className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-foreground">
-                Live on home and World Cup
+                {copy.liveBadge}
               </p>
               <Button
                 type="button"
@@ -340,7 +338,7 @@ export function TotwEditor({
                 onClick={hideFromSite}
                 className="w-full"
               >
-                Hide from site
+                {copy.hideCta}
               </Button>
             </div>
           ) : (
@@ -351,7 +349,7 @@ export function TotwEditor({
               onClick={setLiveOnSite}
               className="w-full"
             >
-              Show on home &amp; World Cup
+              {copy.featureCta}
             </Button>
           )}
         </aside>

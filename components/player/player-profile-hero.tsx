@@ -6,6 +6,7 @@ import { PlayerCareerRatingCta } from "@/components/player/player-career-rating-
 import { PlayerTierCard } from "@/components/player/player-tier-card"
 import { TeamFlag } from "@/components/team-flag"
 import { positionDisplayLabel } from "@/lib/match/position-label"
+import { computeAgeFromBirthDate } from "@/lib/player/age"
 import type { PlayerProfile } from "@/lib/player/types"
 import { formatCareerScore } from "@/lib/rating/career-tier"
 
@@ -39,6 +40,9 @@ function StatCell({ label, children }: { label: string; children: ReactNode }) {
 
 export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroProps) {
   const positionLabel = positionDisplayLabel(profile.primaryPosition)
+  const displayAge =
+    (profile.birthDate ? computeAgeFromBirthDate(profile.birthDate) : null) ??
+    profile.age
 
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
@@ -77,9 +81,9 @@ export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroP
 
       <div className="px-4 text-left">
         <div className="grid grid-cols-1 gap-x-6 sm:grid-cols-3">
-          {profile.age != null ? (
+          {displayAge != null ? (
             <StatCell label={profile.birthDate ? formatBirthDateLabel(profile.birthDate) : "Age"}>
-              {profile.age} years
+              {displayAge} years
             </StatCell>
           ) : profile.birthDate ? (
             <StatCell label="Date of birth">{formatBirthDateLabel(profile.birthDate)}</StatCell>

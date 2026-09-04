@@ -9,6 +9,11 @@ describe("formatFixtureRoundLabel", () => {
     expect(formatFixtureRoundLabel("Group Stage - 3")).toBe("Round 3")
   })
 
+  it("maps T5 and UCL rounds to matchday labels", () => {
+    expect(formatFixtureRoundLabel("Regular Season - 2")).toBe("Matchday 2")
+    expect(formatFixtureRoundLabel("League Stage - 1")).toBe("Matchday 1")
+  })
+
   it("leaves knockout round names unchanged", () => {
     expect(formatFixtureRoundLabel("Round of 16")).toBe("Round of 16")
   })

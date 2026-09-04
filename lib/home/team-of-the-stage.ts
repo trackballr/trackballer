@@ -152,7 +152,14 @@ async function loadFeaturedView(seasonId: number): Promise<TeamOfTheStageView | 
   return null
 }
 
-/** Live lineup: admin-featured stage when migration applied, else latest published. */
+/** Live lineup for a season: admin-featured matchday when set, else latest published. */
+export const getPublishedTeamOfTheWeekForSeason = cache(
+  async (seasonId: number): Promise<TeamOfTheStageView | null> => {
+    return loadFeaturedView(seasonId)
+  },
+)
+
+/** World Cup live lineup (legacy public surface). */
 export const getPublishedTeamOfTheStage = cache(async (): Promise<TeamOfTheStageView | null> => {
   const season = await getWorldCupSeason()
   if (!season) return null

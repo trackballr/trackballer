@@ -9,9 +9,17 @@ type PlayerResultRowProps = {
   player: PlayerListItem
   onSelect?: () => void
   className?: string
+  /** Tighter row for header search dropdown. */
+  dense?: boolean
 }
 
-function PlayerResultRowContent({ player }: { player: PlayerListItem }) {
+function PlayerResultRowContent({
+  player,
+  dense = false,
+}: {
+  player: PlayerListItem
+  dense?: boolean
+}) {
   const positionLabel = positionDisplayLabel(player.position)
   const meta = [player.nationality, positionLabel, player.age != null ? String(player.age) : null]
     .filter(Boolean)
@@ -24,37 +32,51 @@ function PlayerResultRowContent({ player }: { player: PlayerListItem }) {
         photoUrl={player.photoUrl}
         tier={player.tier}
         displayScore={player.displayScore}
-        compact
+        size={dense ? "mini" : "compact"}
         className="shrink-0"
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold">{player.displayName}</p>
-        {meta ? <p className="truncate text-xs text-muted-foreground">{meta}</p> : null}
+        <p className={cn("truncate font-semibold", dense ? "text-xs" : "text-sm")}>
+          {player.displayName}
+        </p>
+        {meta ? (
+          <p className={cn("truncate text-muted-foreground", dense ? "text-[10px]" : "text-xs")}>
+            {meta}
+          </p>
+        ) : null}
       </div>
     </>
   )
 }
 
 const rowClassName =
-  "flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-muted/30"
+  "flex w-full items-center border-b border-border text-left transition-colors last:border-b-0 hover:bg-muted/30"
 
-export function PlayerResultRow({ player, onSelect, className }: PlayerResultRowProps) {
+export function PlayerResultRow({
+  player,
+  onSelect,
+  className,
+  dense = false,
+}: PlayerResultRowProps) {
+  const layoutClass = dense
+    ? "gap-2 px-3 py-1.5"
+    : "gap-3 px-4 py-3"
   if (onSelect) {
     return (
       <button
         type="button"
-        className={cn(rowClassName, className)}
+        className={cn(rowClassName, layoutClass, className)}
         onMouseDown={(event) => event.preventDefault()}
         onClick={onSelect}
       >
-        <PlayerResultRowContent player={player} />
+        <PlayerResultRowContent player={player} dense={dense} />
       </button>
     )
   }
 
   return (
-    <Link href={`/player/${player.id}`} className={cn(rowClassName, className)}>
-      <PlayerResultRowContent player={player} />
+    <Link href={`/player/${player.id}`} className={cn(rowClassName, layoutClass, className)}>
+      <PlayerResultRowContent player={player} dense={dense} />
     </Link>
   )
 }

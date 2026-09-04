@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation"
 
 import { CompetitionHubShell } from "@/components/competition/competition-hub-shell"
 import { LeagueHubContent } from "@/components/league/league-hub-content"
-import { TeamOfTheWeekComingSoon } from "@/components/league/team-of-the-week-coming-soon"
+import { TeamOfTheStageStrip } from "@/components/home/team-of-the-stage-strip"
 import { getT5SeasonYear } from "@/lib/catalog/config"
 import {
   getCurrentRoundName,
@@ -14,6 +14,7 @@ import { resolveRoundFixtureView } from "@/lib/catalog/fixture-view"
 import { getCompetitionHubBySlug, isCompetitionHubSlug } from "@/lib/catalog/top-leagues"
 import { getLeagueBySlug } from "@/lib/league/detail"
 import { getLeagueStandings } from "@/lib/league/standings"
+import { getPublishedTeamOfTheWeekForSeason } from "@/lib/home/team-of-the-stage"
 
 type PageProps = {
   params: Promise<{ slug: string }>
@@ -55,9 +56,6 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
         <p className="body-sm text-muted-foreground">
           Fixtures are not available yet. Check back once the season is synced.
         </p>
-        <div className="mt-10">
-          <TeamOfTheWeekComingSoon leagueSlug={slug} />
-        </div>
       </CompetitionHubShell>
     )
   }
@@ -71,9 +69,10 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
 
   const view = await resolveRoundFixtureView(season.id, activeRound, viewParam)
 
-  const [fixtures, standings] = await Promise.all([
+  const [fixtures, standings, totw] = await Promise.all([
     getRoundFixtures(season.id, activeRound, { view }),
     getLeagueStandings(hubLeague.id, seasonYear),
+    getPublishedTeamOfTheWeekForSeason(season.id),
   ])
 
   return (
@@ -99,9 +98,15 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
         standings={standings}
       />
 
-      <div className="mt-10 lg:w-[55%]">
-        <TeamOfTheWeekComingSoon leagueSlug={slug} />
-      </div>
+      {totw ? (
+        <div className="mt-10 lg:w-[55%]">
+          <TeamOfTheStageStrip
+            team={totw}
+            showWorldCupLink={false}
+            sectionId="totw"
+          />
+        </div>
+      ) : null}
     </CompetitionHubShell>
   )
 }

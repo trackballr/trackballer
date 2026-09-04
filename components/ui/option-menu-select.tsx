@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -46,10 +47,16 @@ export function OptionMenuSelect({
   disabled = false,
   placeholder = "Select…",
 }: OptionMenuSelectProps) {
+  const [open, setOpen] = useState(false)
   const displayLabel = findLabel(groups, value) ?? placeholder
 
+  function handleValueChange(nextValue: string) {
+    onValueChange(nextValue)
+    setOpen(false)
+  }
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
         disabled={disabled}
         render={
@@ -68,7 +75,7 @@ export function OptionMenuSelect({
         <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="max-h-72 min-w-[var(--anchor-width)]">
-        <DropdownMenuRadioGroup value={value} onValueChange={onValueChange}>
+        <DropdownMenuRadioGroup value={value} onValueChange={handleValueChange}>
           {groups.map((group, index) => (
             <DropdownMenuGroup key={group.label ?? `group-${index}`}>
               {group.label ? (
