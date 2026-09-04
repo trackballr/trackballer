@@ -1,10 +1,8 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
-import { LeagueFixturesList } from "@/components/league/league-fixtures-list"
-import { LeaguePageHeader } from "@/components/league/league-page-header"
-import { LeagueRoundNav } from "@/components/league/league-round-nav"
-import { LeagueStandingsPanel } from "@/components/league/league-standings-panel"
+import { CompetitionHubShell } from "@/components/competition/competition-hub-shell"
+import { LeagueHubContent } from "@/components/league/league-hub-content"
 import { TeamOfTheWeekComingSoon } from "@/components/league/team-of-the-week-coming-soon"
 import { getT5SeasonYear } from "@/lib/catalog/config"
 import {
@@ -16,12 +14,6 @@ import { getTopLeagueBySlug, isTopLeagueSlug } from "@/lib/catalog/top-leagues"
 import type { FixtureView } from "@/lib/catalog/types"
 import { getLeagueBySlug } from "@/lib/league/detail"
 import { getLeagueStandings } from "@/lib/league/standings"
-import {
-  wcHubContentGridClass,
-  wcHubFixturesAreaClass,
-  wcHubSidebarAreaClass,
-  wcHubStandingsAreaClass,
-} from "@/lib/world-cup/layout"
 
 type PageProps = {
   params: Promise<{ slug: string }>
@@ -49,19 +41,24 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
 
   if (!season || rounds.length === 0) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <p className="eyebrow mb-3">{topLeague.country}</p>
+      <CompetitionHubShell
+        eyebrow={topLeague.country}
+        footer={
+          <p className="body-sm mt-8">
+            <Link href="/" className="text-primary underline-offset-4 hover:underline">
+              Back to home
+            </Link>
+          </p>
+        }
+      >
         <h1 className="h-display mb-2">{topLeague.name}</h1>
         <p className="body-sm text-muted-foreground">
           Fixtures are not available yet. Check back once the season is synced.
         </p>
-        <TeamOfTheWeekComingSoon leagueSlug={slug} />
-        <p className="body-sm mt-8">
-          <Link href="/" className="text-primary underline-offset-4 hover:underline">
-            Back to home
-          </Link>
-        </p>
-      </div>
+        <div className="mt-10">
+          <TeamOfTheWeekComingSoon leagueSlug={slug} />
+        </div>
+      </CompetitionHubShell>
     )
   }
 
@@ -79,59 +76,31 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
   ])
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <p className="eyebrow mb-3">{topLeague.country}</p>
-
-      <LeaguePageHeader
+    <CompetitionHubShell
+      eyebrow={topLeague.country}
+      footer={
+        <p className="body-sm mt-8">
+          <Link href="/" className="text-primary underline-offset-4 hover:underline">
+            Back to home
+          </Link>
+        </p>
+      }
+    >
+      <LeagueHubContent
+        slug={slug}
         name={league?.name ?? topLeague.name}
         country={league?.country ?? topLeague.country}
         logoUrl={league?.logoUrl ?? null}
         activeRound={activeRound}
+        rounds={rounds}
+        view={view}
+        fixtures={fixtures}
+        standings={standings}
       />
 
-      <section className="min-w-0">
-        <div className={wcHubContentGridClass}>
-          <div className={wcHubFixturesAreaClass}>
-            <h2 className="h3 mb-3">Matches</h2>
-            <LeagueRoundNav
-              slug={slug}
-              rounds={rounds}
-              activeRound={activeRound}
-              view={view}
-            />
-
-            <div className="mt-4">
-              {fixtures.length > 0 ? (
-                <LeagueFixturesList fixtures={fixtures} />
-              ) : (
-                <p className="body-sm rounded-lg border border-border bg-card px-6 py-8 text-center text-muted-foreground">
-                  {view === "finished"
-                    ? "No finished matches in this round yet."
-                    : "No upcoming matches in this round."}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <aside className={wcHubSidebarAreaClass}>
-            <LeagueStandingsPanel
-              data={standings}
-              variant="sidebar"
-              className={wcHubStandingsAreaClass}
-            />
-          </aside>
-        </div>
-      </section>
-
-      <div className="mt-10">
+      <div className="mt-10 lg:w-[55%]">
         <TeamOfTheWeekComingSoon leagueSlug={slug} />
       </div>
-
-      <p className="body-sm mt-8">
-        <Link href="/" className="text-primary underline-offset-4 hover:underline">
-          Back to home
-        </Link>
-      </p>
-    </div>
+    </CompetitionHubShell>
   )
 }

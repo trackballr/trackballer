@@ -6,6 +6,7 @@ import {
   mapFixtureRow,
   mapTeamFromFixtureSide,
 } from "@/lib/catalog-sync/mappers";
+import { roundSortOrderFromName } from "@/lib/catalog/rounds";
 
 type Db = SupabaseClient<Database>;
 
@@ -28,13 +29,24 @@ async function upsertTeams(
   return unique.length;
 }
 
-async function resolveRoundIds(
+async function ensureRoundIds(
   db: Db,
   seasonId: number,
   roundNames: string[],
 ): Promise<Map<string, number>> {
   const unique = [...new Set(roundNames.filter(Boolean))];
   if (unique.length === 0) return new Map();
+
+  const rows = unique.map((name) => ({
+    season_id: seasonId,
+    name,
+    sort_order: roundSortOrderFromName(name),
+  }));
+
+  const { error: upsertError } = await db
+    .from("rounds")
+    .upsert(rows, { onConflict: "season_id,name" });
+  if (upsertError) throw upsertError;
 
   const { data, error } = await db
     .from("rounds")
@@ -66,7 +78,7 @@ export async function upsertApiFixtureBatch(
   const teams = await upsertTeams(db, teamRows);
 
   const roundNames = items.map((item) => item.league.round ?? "Unknown");
-  const roundIdByName = await resolveRoundIds(db, seasonId, roundNames);
+  const roundIdByName = await ensureRoundIds(db, seasonId, roundNames);
 
   const fixtureRows: Database["public"]["Tables"]["fixtures"]["Insert"][] =
     items.map((item) => {
