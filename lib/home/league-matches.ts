@@ -1,5 +1,6 @@
 import { cache } from "react"
 
+import { getCompetitionHubLogosBySlug } from "@/lib/catalog/competition-hub-cards"
 import { getT5SeasonYear } from "@/lib/catalog/config"
 import {
   getRecentLiveAndResults,
@@ -13,12 +14,14 @@ export type LeagueHomeMatches = {
   leagueId: number
   name: string
   slug: string
+  logoUrl: string | null
   recent: FixtureWithTeams[]
   upcoming: FixtureWithTeams[]
 }
 
 export const getHomeLeagueMatches = cache(async (): Promise<LeagueHomeMatches[]> => {
   const seasonYear = getT5SeasonYear()
+  const logosBySlug = await getCompetitionHubLogosBySlug()
 
   const blocks = await Promise.all(
     COMPETITION_HUB_LEAGUES.map(async (league) => {
@@ -28,6 +31,7 @@ export const getHomeLeagueMatches = cache(async (): Promise<LeagueHomeMatches[]>
           leagueId: league.id,
           name: league.name,
           slug: league.slug,
+          logoUrl: logosBySlug.get(league.slug) ?? null,
           recent: [],
           upcoming: [],
         }
@@ -42,6 +46,7 @@ export const getHomeLeagueMatches = cache(async (): Promise<LeagueHomeMatches[]>
         leagueId: league.id,
         name: league.name,
         slug: league.slug,
+        logoUrl: logosBySlug.get(league.slug) ?? null,
         recent,
         upcoming,
       }

@@ -21,6 +21,12 @@ export type TrendingPlayerCard = {
   tier: string
   displayScore: number
   isProvisional: boolean
+  clubTeam: {
+    id: number
+    name: string
+    logo_url: string | null
+    code: string | null
+  } | null
 }
 
 type TrendingCommentTeam = {

@@ -10,19 +10,42 @@ const PLAYER_SELECT = `
   id,
   name,
   photo_url,
+  club_team:teams!players_club_team_id_fkey(id, name, logo_url, code),
   career:player_career_aggregates(display_score, tier, is_provisional, vote_count)
 `
+
+type ClubTeamRow = {
+  id: number
+  name: string
+  logo_url: string | null
+  code: string | null
+}
 
 type PlayerRow = {
   id: number
   name: string
   photo_url: string | null
+  club_team: ClubTeamRow | ClubTeamRow[] | null
   career: {
     display_score: number
     tier: string
     is_provisional: boolean
     vote_count: number
   } | null
+}
+
+function normalizeClubTeam(
+  raw: ClubTeamRow | ClubTeamRow[] | null,
+): TrendingPlayerCard["clubTeam"] {
+  if (!raw) return null
+  const team = Array.isArray(raw) ? raw[0] : raw
+  if (!team?.id) return null
+  return {
+    id: team.id,
+    name: team.name,
+    logo_url: team.logo_url,
+    code: team.code,
+  }
 }
 
 function mapPlayerRow(row: PlayerRow): TrendingPlayerCard {
@@ -33,6 +56,7 @@ function mapPlayerRow(row: PlayerRow): TrendingPlayerCard {
     tier: row.career?.tier ?? "provisional",
     displayScore: row.career ? Number(row.career.display_score) : 0,
     isProvisional: row.career?.is_provisional ?? true,
+    clubTeam: normalizeClubTeam(row.club_team),
   }
 }
 

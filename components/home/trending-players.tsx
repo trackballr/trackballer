@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { CareerRing } from "@/components/player/career-ring"
+import { TeamFlag } from "@/components/team-flag"
 import type { TrendingPlayerCard } from "@/lib/home/types"
 
 type TrendingPlayersProps = {
@@ -24,13 +25,20 @@ function TrendingPlayerCardItem({
           : "flex w-[7.5rem] shrink-0 flex-col items-center gap-3.5 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted/30 sm:w-auto"
       }
     >
-      <CareerRing
-        name={player.name}
-        photoUrl={player.photoUrl}
-        tier={player.tier}
-        displayScore={player.displayScore}
-        compact
-      />
+      <div className="relative shrink-0">
+        <CareerRing
+          name={player.name}
+          photoUrl={player.photoUrl}
+          tier={player.tier}
+          displayScore={player.displayScore}
+          compact
+        />
+        {player.clubTeam ? (
+          <span className="absolute -bottom-0.5 -right-0.5 rounded-sm border border-background bg-background p-0.5 shadow-sm">
+            <TeamFlag team={player.clubTeam} size="sm" variant="crest" />
+          </span>
+        ) : null}
+      </div>
       <p
         className={
           sidebar

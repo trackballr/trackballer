@@ -1,10 +1,12 @@
 import { CareerShuffleStrip } from "@/components/home/career-shuffle-strip"
 import { CompetitionStrip } from "@/components/home/competition-strip"
+import { FeaturedCompetitions } from "@/components/home/featured-competitions"
 import { HomeLeagueSidebar } from "@/components/home/home-league-sidebar"
 import { TrendingComments } from "@/components/home/trending-comments"
 import { TrendingPlayers } from "@/components/home/trending-players"
 import { YourTeamToday } from "@/components/home/your-team-today"
 import { TeamOfTheWeekComingSoon } from "@/components/league/team-of-the-week-coming-soon"
+import { getFeaturedCompetitionCards } from "@/lib/catalog/competition-hub-cards"
 import { getHomeLeagueMatches } from "@/lib/home/league-matches"
 import { getCompetitionStrip } from "@/lib/home/leagues"
 import { getTrendingComments } from "@/lib/home/trending-comments"
@@ -17,13 +19,14 @@ export default async function HomePage() {
   const supabase = await createClient()
   const auth = await getServerAuth(supabase)
 
-  const [strip, leagueMatches, trendingPlayers, trendingComments, yourTeamToday] =
+  const [strip, leagueMatches, trendingPlayers, trendingComments, yourTeamToday, featuredCompetitions] =
     await Promise.all([
       getCompetitionStrip(),
       getHomeLeagueMatches(),
       getTrendingPlayers(),
       getTrendingComments(),
       getYourTeamToday(auth?.userId ?? null),
+      getFeaturedCompetitionCards(),
     ])
 
   return (
@@ -39,6 +42,7 @@ export default async function HomePage() {
             currentUserId={auth?.userId ?? null}
           />
           <CareerShuffleStrip isLoggedIn={!!auth} />
+          <FeaturedCompetitions cards={featuredCompetitions} />
           <TeamOfTheWeekComingSoon />
         </div>
 
