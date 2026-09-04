@@ -5,7 +5,7 @@ import type { CatalogSync } from "@/lib/catalog-sync/catalog-sync";
 
 import type { CronSyncBody } from "./parse-sync-body";
 
-type CronJobName = "daily" | "matchday";
+type CronJobName = "daily" | "matchday" | "fixture-details";
 
 /**
  * Respond immediately for cron-job.org (30s HTTP timeout), run sync in after().

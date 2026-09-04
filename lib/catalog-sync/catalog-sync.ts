@@ -547,8 +547,9 @@ export class CatalogSync {
   }
 
   /**
-   * Sync lineups, appearances, and events only for terminal fixtures
-   * where `lineups_synced_at` is still null (skips already-synced matches).
+   * Sync lineups, appearances, and events for terminal fixtures still missing
+   * either flag (pending = no lineups yet; partial = lineups ok, appearances not).
+   * Skips matches already fully detail-synced.
    */
   async syncPendingFixtureDetails(
     options: PendingFixtureDetailsOptions = {},
@@ -574,7 +575,7 @@ export class CatalogSync {
 
     const { data: fixtures, error: fixturesError } = await this.db
       .from("fixtures")
-      .select("id, lineups_synced_at")
+      .select("id, lineups_synced_at, appearances_synced_at")
       .eq("season_id", season.id)
       .in("status_short", [...TERMINAL_STATUSES])
       .order("kickoff_at", { ascending: true });
@@ -585,7 +586,7 @@ export class CatalogSync {
     const pendingIds: number[] = [];
 
     for (const fx of fixtures ?? []) {
-      if (fx.lineups_synced_at) {
+      if (fx.lineups_synced_at && fx.appearances_synced_at) {
         skippedFixtureIds.push(fx.id);
       } else {
         pendingIds.push(fx.id);

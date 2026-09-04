@@ -15,8 +15,9 @@ type PendingBody = {
 
 /**
  * POST /api/admin/sync/fixture-details/pending
- * Sync lineups + appearances + events only where lineups_synced_at IS NULL.
- * Skips fixtures already detail-synced (unlike bootstrap + syncFixtureDetails).
+ * Sync lineups + appearances + events for terminal fixtures missing either
+ * lineups_synced_at or appearances_synced_at. Skips fully synced matches.
+ * Prefer POST /api/cron/sync/fixture-details for scheduled runs (deferred).
  */
 export async function POST(request: NextRequest) {
   const unauthorized = assertSyncAuthorized(request);
