@@ -130,10 +130,10 @@ function EmptyBanner({ onShuffle, shufflePending }: { onShuffle: () => void; shu
     <div className="flex flex-col items-center gap-4 text-center md:flex-row md:text-left">
       <div className="min-w-0 flex-1">
         <p className="text-base font-semibold">
-          You&apos;ve rated every top-league player in the pool — nice work.
+          No players available to shuffle right now.
         </p>
         <p className="mt-1 text-sm text-primary-foreground/80">
-          Browse players or check back when squads refresh.
+          You may have rated everyone in the pool, or squads are still syncing.
         </p>
       </div>
       <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
