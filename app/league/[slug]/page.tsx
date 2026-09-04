@@ -11,7 +11,7 @@ import {
   getRoundFixtures,
 } from "@/lib/catalog/fixtures"
 import { resolveRoundFixtureView } from "@/lib/catalog/fixture-view"
-import { getTopLeagueBySlug, isTopLeagueSlug } from "@/lib/catalog/top-leagues"
+import { getCompetitionHubBySlug, isCompetitionHubSlug } from "@/lib/catalog/top-leagues"
 import { getLeagueBySlug } from "@/lib/league/detail"
 import { getLeagueStandings } from "@/lib/league/standings"
 
@@ -28,21 +28,21 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
     redirect("/league/premier-league")
   }
 
-  if (!isTopLeagueSlug(slug)) {
+  if (!isCompetitionHubSlug(slug)) {
     const league = await getLeagueBySlug(slug)
     if (!league) notFound()
     redirect("/league/premier-league")
   }
 
-  const topLeague = getTopLeagueBySlug(slug)!
+  const hubLeague = getCompetitionHubBySlug(slug)!
   const league = await getLeagueBySlug(slug)
   const seasonYear = getT5SeasonYear()
-  const { season, rounds } = await getLeagueCatalogContext(topLeague.id, seasonYear)
+  const { season, rounds } = await getLeagueCatalogContext(hubLeague.id, seasonYear)
 
   if (!season || rounds.length === 0) {
     return (
       <CompetitionHubShell
-        eyebrow={topLeague.country}
+        eyebrow={hubLeague.country}
         footer={
           <p className="body-sm mt-8">
             <Link href="/" className="text-primary underline-offset-4 hover:underline">
@@ -51,7 +51,7 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
           </p>
         }
       >
-        <h1 className="h-display mb-2">{topLeague.name}</h1>
+        <h1 className="h-display mb-2">{hubLeague.name}</h1>
         <p className="body-sm text-muted-foreground">
           Fixtures are not available yet. Check back once the season is synced.
         </p>
@@ -73,12 +73,12 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
 
   const [fixtures, standings] = await Promise.all([
     getRoundFixtures(season.id, activeRound, { view }),
-    getLeagueStandings(topLeague.id, seasonYear),
+    getLeagueStandings(hubLeague.id, seasonYear),
   ])
 
   return (
     <CompetitionHubShell
-      eyebrow={topLeague.country}
+      eyebrow={hubLeague.country}
       footer={
         <p className="body-sm mt-8">
           <Link href="/" className="text-primary underline-offset-4 hover:underline">
@@ -89,8 +89,8 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
     >
       <LeagueHubContent
         slug={slug}
-        name={league?.name ?? topLeague.name}
-        country={league?.country ?? topLeague.country}
+        name={league?.name ?? hubLeague.name}
+        country={league?.country ?? hubLeague.country}
         logoUrl={league?.logoUrl ?? null}
         activeRound={activeRound}
         rounds={rounds}

@@ -1,6 +1,6 @@
 import { cache } from "react"
 
-import { TOP_LEAGUE_CLUBS } from "@/lib/catalog/top-leagues"
+import { COMPETITION_HUB_LEAGUES } from "@/lib/catalog/top-leagues"
 import type { CompetitionStrip, CompetitionStripItem } from "@/lib/home/types"
 import { createClient } from "@/lib/supabase/server"
 
@@ -10,6 +10,7 @@ const SHORT_LABELS: Record<string, string> = {
   "serie-a": "SA",
   bundesliga: "BL",
   "ligue-1": "L1",
+  "champions-league": "UCL",
 }
 
 type LeagueRow = {
@@ -37,7 +38,7 @@ function mapStripItem(row: LeagueRow): CompetitionStripItem {
 }
 
 export const getCompetitionStrip = cache(async (): Promise<CompetitionStrip> => {
-  const slugs = TOP_LEAGUE_CLUBS.map((league) => league.slug)
+  const slugs = COMPETITION_HUB_LEAGUES.map((league) => league.slug)
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -52,7 +53,7 @@ export const getCompetitionStrip = cache(async (): Promise<CompetitionStrip> => 
 
   const bySlug = new Map((data ?? []).map((row) => [row.slug, row as LeagueRow]))
 
-  const items = TOP_LEAGUE_CLUBS.map((league) => bySlug.get(league.slug))
+  const items = COMPETITION_HUB_LEAGUES.map((league) => bySlug.get(league.slug))
     .filter((row): row is LeagueRow => row != null)
     .map(mapStripItem)
 
@@ -67,7 +68,7 @@ export const getCompetitionStrip = cache(async (): Promise<CompetitionStrip> => 
 })
 
 function fallbackStrip(): CompetitionStrip {
-  const items = TOP_LEAGUE_CLUBS.map((league, index) => ({
+  const items = COMPETITION_HUB_LEAGUES.map((league, index) => ({
     id: league.id,
     name: league.name,
     slug: league.slug,

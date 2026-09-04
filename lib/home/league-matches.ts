@@ -6,7 +6,7 @@ import {
   getSeasonByLeagueId,
   getUpcomingFixtures,
 } from "@/lib/catalog/fixtures"
-import { TOP_LEAGUE_CLUBS } from "@/lib/catalog/top-leagues"
+import { COMPETITION_HUB_LEAGUES } from "@/lib/catalog/top-leagues"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
 
 export type LeagueHomeMatches = {
@@ -21,7 +21,7 @@ export const getHomeLeagueMatches = cache(async (): Promise<LeagueHomeMatches[]>
   const seasonYear = getT5SeasonYear()
 
   const blocks = await Promise.all(
-    TOP_LEAGUE_CLUBS.map(async (league) => {
+    COMPETITION_HUB_LEAGUES.map(async (league) => {
       const season = await getSeasonByLeagueId(league.id, seasonYear)
       if (!season) {
         return {

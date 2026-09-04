@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 
 import type { ApiFootballClient } from "@/lib/api-football/client"
 import {
+  COMPETITION_HUB_LEAGUES,
   TOP_LEAGUE_CLUBS,
   type TopLeagueDefinition,
 } from "@/lib/catalog/top-leagues"
@@ -38,7 +39,7 @@ export async function seedTopLeagueClubs(
   seasonYear: number,
 ): Promise<TopLeagueClubsSeedResult> {
   const leagueRows: Database["public"]["Tables"]["leagues"]["Insert"][] =
-    TOP_LEAGUE_CLUBS.map((league) => ({
+    COMPETITION_HUB_LEAGUES.map((league) => ({
       id: league.id,
       name: league.name,
       slug: league.slug,
