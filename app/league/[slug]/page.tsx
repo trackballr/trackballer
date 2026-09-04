@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation"
 
 import { CompetitionHubShell } from "@/components/competition/competition-hub-shell"
 import { LeagueHubContent } from "@/components/league/league-hub-content"
-import { TeamOfTheStageStrip } from "@/components/home/team-of-the-stage-strip"
+import { LeaguePageHeader } from "@/components/league/league-page-header"
 import { getT5SeasonYear } from "@/lib/catalog/config"
 import {
   getCurrentRoundName,
@@ -19,6 +19,16 @@ import { getPublishedTeamOfTheWeekForSeason } from "@/lib/home/team-of-the-stage
 type PageProps = {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ round?: string; view?: string }>
+}
+
+function BackHomeLink() {
+  return (
+    <p className="body-sm mt-8">
+      <Link href="/" className="text-primary underline-offset-4 hover:underline">
+        Back to home
+      </Link>
+    </p>
+  )
 }
 
 export default async function LeaguePage({ params, searchParams }: PageProps) {
@@ -37,22 +47,18 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
 
   const hubLeague = getCompetitionHubBySlug(slug)!
   const league = await getLeagueBySlug(slug)
+  const name = league?.name ?? hubLeague.name
+  const country = league?.country ?? hubLeague.country
+  const logoUrl = league?.logoUrl ?? null
+  const header = (
+    <LeaguePageHeader slug={slug} name={name} country={country} logoUrl={logoUrl} />
+  )
   const seasonYear = getT5SeasonYear()
   const { season, rounds } = await getLeagueCatalogContext(hubLeague.id, seasonYear)
 
   if (!season || rounds.length === 0) {
     return (
-      <CompetitionHubShell
-        eyebrow={hubLeague.country}
-        footer={
-          <p className="body-sm mt-8">
-            <Link href="/" className="text-primary underline-offset-4 hover:underline">
-              Back to home
-            </Link>
-          </p>
-        }
-      >
-        <h1 className="h-display mb-2">{hubLeague.name}</h1>
+      <CompetitionHubShell banner={header} footer={<BackHomeLink />}>
         <p className="body-sm text-muted-foreground">
           Fixtures are not available yet. Check back once the season is synced.
         </p>
@@ -76,37 +82,16 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
   ])
 
   return (
-    <CompetitionHubShell
-      eyebrow={hubLeague.country}
-      footer={
-        <p className="body-sm mt-8">
-          <Link href="/" className="text-primary underline-offset-4 hover:underline">
-            Back to home
-          </Link>
-        </p>
-      }
-    >
+    <CompetitionHubShell banner={header} footer={<BackHomeLink />}>
       <LeagueHubContent
         slug={slug}
-        name={league?.name ?? hubLeague.name}
-        country={league?.country ?? hubLeague.country}
-        logoUrl={league?.logoUrl ?? null}
         activeRound={activeRound}
         rounds={rounds}
         view={view}
         fixtures={fixtures}
         standings={standings}
+        totw={totw}
       />
-
-      {totw ? (
-        <div className="mt-10 lg:w-[55%]">
-          <TeamOfTheStageStrip
-            team={totw}
-            showWorldCupLink={false}
-            sectionId="totw"
-          />
-        </div>
-      ) : null}
     </CompetitionHubShell>
   )
 }

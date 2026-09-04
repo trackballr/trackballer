@@ -1,48 +1,49 @@
 import { CatalogImage } from "@/components/catalog-image"
-
-import { formatLeagueRoundLabel } from "@/lib/league/round-label"
+import { getLeagueHubHeaderStyle } from "@/lib/league/hub-theme"
 
 type LeaguePageHeaderProps = {
+  slug: string
   name: string
   country: string | null
   logoUrl: string | null
-  activeRound: string
 }
 
 export function LeaguePageHeader({
+  slug,
   name,
   country,
   logoUrl,
-  activeRound,
 }: LeaguePageHeaderProps) {
-  const roundLabel = formatLeagueRoundLabel(activeRound) ?? activeRound
+  const style = getLeagueHubHeaderStyle(slug)
 
   return (
-    <>
-      <div className="mb-2 flex items-center gap-3">
-        <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-primary bg-primary/10 text-sm font-bold text-primary">
+    <header
+      className="relative h-36 overflow-hidden md:h-40"
+      style={style}
+    >
+      <div className="flex h-full items-center gap-4 px-4 lg:ml-[5%] lg:px-0 lg:pr-[5%]">
+        <span className="flex size-20 shrink-0 items-center justify-center md:size-24">
           {logoUrl ? (
             <CatalogImage
               src={logoUrl}
               alt=""
-              width={40}
-              height={40}
-              className="size-10 object-contain"
+              width={96}
+              height={96}
+              className="size-20 object-contain drop-shadow-sm md:size-24"
             />
           ) : (
-            name.slice(0, 2).toUpperCase()
+            <span className="text-2xl font-bold" style={{ color: style.color }}>
+              {name.slice(0, 2).toUpperCase()}
+            </span>
           )}
         </span>
-        <div>
-          <h1 className="h-display">{name}</h1>
+        <div className="min-w-0">
+          <h1 className="h-display text-inherit drop-shadow-sm">{name}</h1>
           {country ? (
-            <p className="body-sm text-muted-foreground">{country}</p>
+            <p className="body-sm mt-1 opacity-80">{country}</p>
           ) : null}
         </div>
       </div>
-      <p className="body-sm mb-6 text-muted-foreground">
-        <span className="font-semibold text-foreground">Current round:</span> {roundLabel}
-      </p>
-    </>
+    </header>
   )
 }

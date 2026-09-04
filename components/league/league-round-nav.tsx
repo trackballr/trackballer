@@ -8,7 +8,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { FixtureView } from "@/lib/catalog/types"
 import { buildLeagueHref } from "@/lib/league/navigation"
 import { buildLeagueRoundMenuGroups } from "@/lib/league/round-groups"
-import { cn } from "@/lib/utils"
 
 type LeagueRoundNavProps = {
   slug: string
@@ -18,7 +17,7 @@ type LeagueRoundNavProps = {
 }
 
 const VIEW_TABS: { value: FixtureView; label: string }[] = [
-  { value: "finished", label: "Finished" },
+  { value: "finished", label: "Results" },
   { value: "upcoming", label: "Upcoming" },
 ]
 
@@ -52,8 +51,22 @@ export function LeagueRoundNav({
   }
 
   return (
-    <div className={cn("w-full space-y-3")}>
-      <div className="flex items-center gap-2">
+    <div className="flex w-full flex-wrap items-center justify-between gap-3">
+      <Tabs
+        value={view}
+        onValueChange={(nextView) => goToView(nextView as FixtureView)}
+        className="w-auto gap-0"
+      >
+        <TabsList className="h-8">
+          {VIEW_TABS.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="text-xs">
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
+      <div className="flex min-w-0 items-center gap-2">
         <button
           type="button"
           className={arrowClass}
@@ -69,7 +82,7 @@ export function LeagueRoundNav({
           onValueChange={goToRound}
           groups={menuGroups}
           ariaLabel="Select matchweek"
-          triggerClassName="h-8 flex-1 text-xs md:text-[0.7rem]"
+          triggerClassName="h-8 min-w-0 max-w-[14rem] text-xs md:text-[0.7rem] sm:max-w-[18rem]"
         />
 
         <button
@@ -82,20 +95,6 @@ export function LeagueRoundNav({
           <ChevronRight className="size-4" />
         </button>
       </div>
-
-      <Tabs
-        value={view}
-        onValueChange={(nextView) => goToView(nextView as FixtureView)}
-        className="w-full"
-      >
-        <TabsList className="h-8 w-full">
-          {VIEW_TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} className="flex-1 text-xs">
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
     </div>
   )
 }

@@ -1,21 +1,23 @@
 import type { ReactNode } from "react"
 
+import { cn } from "@/lib/utils"
+
 type CompetitionHubShellProps = {
-  eyebrow: string
+  banner?: ReactNode
   children: ReactNode
   footer?: ReactNode
 }
 
-/** Shared full-width shell for World Cup and domestic league hub pages. */
+/** Full-width shell for domestic league hub pages. */
 export function CompetitionHubShell({
-  eyebrow,
+  banner,
   children,
   footer,
 }: CompetitionHubShellProps) {
   return (
-    <div className="w-full py-8">
-      <p className="eyebrow mb-3 px-4 lg:ml-[5%] lg:px-0">{eyebrow}</p>
-      <div className="px-4 lg:ml-[5%] lg:px-0 lg:pr-[5%]">
+    <div className="w-full">
+      {banner}
+      <div className={cn("px-4 lg:ml-[5%] lg:px-0 lg:pr-[5%]", banner ? "py-6" : "py-8")}>
         {children}
         {footer}
       </div>
