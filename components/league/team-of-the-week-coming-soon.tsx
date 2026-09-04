@@ -17,7 +17,7 @@ export function TeamOfTheWeekComingSoon({ leagueSlug }: TeamOfTheWeekComingSoonP
       <div className="mb-3">
         <h2 className="h3">Team of the Week</h2>
         <p className="text-xs text-muted-foreground">
-          Weekly best XIs for each top league — launching soon.
+          Weekly best XIs for each top league launching soon.
         </p>
       </div>
 

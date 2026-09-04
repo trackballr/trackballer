@@ -12,6 +12,8 @@ export type StandingsTeamRow = {
   goalsDiff: number
   points: number
   form: string | null
+  /** API note for the row, e.g. "Promotion - Champions League (Group Stage)". */
+  description: string | null
 }
 
 export type StandingsGroup = {

@@ -87,6 +87,16 @@ export function formatKickoffTimeLocal(iso: string): string {
   }).format(new Date(iso))
 }
 
+/** UTC kickoff clock — stable first paint before the viewer-local swap. */
+export function formatKickoffClockUtc(iso: string): string {
+  return new Intl.DateTimeFormat(KICKOFF_LOCALE, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: KICKOFF_TIME_ZONE,
+  }).format(new Date(iso))
+}
+
 /** Viewer-local kickoff day under the time — e.g. "Fri, 12 Jun". */
 export function formatKickoffDateLocalShort(iso: string): string {
   return new Intl.DateTimeFormat(KICKOFF_LOCALE, {

@@ -26,6 +26,9 @@ type OptionMenuSelectProps = {
   groups: OptionMenuGroup[]
   ariaLabel: string
   triggerClassName?: string
+  labelClassName?: string
+  /** Centre the trigger label; chevron stays on the right. */
+  centerLabel?: boolean
   disabled?: boolean
   placeholder?: string
 }
@@ -44,6 +47,8 @@ export function OptionMenuSelect({
   groups,
   ariaLabel,
   triggerClassName,
+  labelClassName,
+  centerLabel = false,
   disabled = false,
   placeholder = "Select…",
 }: OptionMenuSelectProps) {
@@ -65,14 +70,28 @@ export function OptionMenuSelect({
             variant="outline"
             className={cn(
               "h-9 w-full min-w-0 justify-between gap-2 px-3 font-medium",
+              centerLabel && "relative justify-center",
               triggerClassName,
             )}
             aria-label={ariaLabel}
           />
         }
       >
-        <span className="min-w-0 truncate text-left">{displayLabel}</span>
-        <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+        <span
+          className={cn(
+            "min-w-0 truncate",
+            centerLabel ? "px-5 text-center" : "text-left",
+            labelClassName,
+          )}
+        >
+          {displayLabel}
+        </span>
+        <ChevronDown
+          className={cn(
+            "size-4 shrink-0 text-muted-foreground",
+            centerLabel && "absolute right-2",
+          )}
+        />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="max-h-72 min-w-[var(--anchor-width)]">
         <DropdownMenuRadioGroup value={value} onValueChange={handleValueChange}>

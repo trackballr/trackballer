@@ -8,8 +8,6 @@ export type LeagueHubTheme = {
   whiteFade?: boolean
 }
 
-const WHITE_FADE = "linear-gradient(90deg, #fff 0%, #fff 7rem, transparent 18rem)"
-
 const THEMES: Record<string, LeagueHubTheme> = {
   "premier-league": {
     brand: "oklch(0.28 0.11 305)",
@@ -30,14 +28,13 @@ const THEMES: Record<string, LeagueHubTheme> = {
   "ligue-1": {
     brand: "oklch(0.18 0 0)",
     foreground: "oklch(0.99 0 0)",
-    whiteFade: false,
   },
   "champions-league": {
     brand: "oklch(0.42 0.21 255)",
     foreground: "oklch(0.99 0 0)",
     whiteFade: false,
     overlay:
-      "linear-gradient(115deg, oklch(0.62 0.28 330 / 0.55) 0%, transparent 28%, oklch(0.72 0.16 200 / 0.45) 42%, transparent 55%, oklch(0.55 0.24 300 / 0.4) 68%, oklch(0.85 0.18 95 / 0.35) 82%, oklch(0.62 0.24 25 / 0.4) 100%)",
+      "linear-gradient(90deg, oklch(0.76 0.11 225) 0%, oklch(0.55 0.17 250) 40%, oklch(0.38 0.18 295) 78%, oklch(0.30 0.16 312) 100%)",
   },
 }
 
@@ -50,20 +47,21 @@ export function getLeagueHubTheme(slug: string): LeagueHubTheme {
   return THEMES[slug] ?? FALLBACK
 }
 
+/** True when the banner wears the white patch — see `.league-banner-fade`. */
+export function hasLeagueHubWhiteFade(slug: string): boolean {
+  return getLeagueHubTheme(slug).whiteFade !== false
+}
+
 export function getLeagueHubHeaderStyle(slug: string): {
   backgroundColor: string
   backgroundImage?: string
   color: string
 } {
   const theme = getLeagueHubTheme(slug)
-  const layers = [
-    theme.whiteFade === false ? null : WHITE_FADE,
-    theme.overlay ?? null,
-  ].filter((layer): layer is string => layer != null)
 
   return {
     backgroundColor: theme.brand,
-    ...(layers.length > 0 ? { backgroundImage: layers.join(", ") } : {}),
+    ...(theme.overlay ? { backgroundImage: theme.overlay } : {}),
     color: theme.foreground,
   }
 }

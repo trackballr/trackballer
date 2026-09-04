@@ -14,6 +14,7 @@ type ApiStandingsTeam = {
   points: number
   form: string | null
   group?: string
+  description?: string | null
 }
 
 function mapTeamRow(row: ApiStandingsTeam): StandingsGroup["teams"][number] {
@@ -31,6 +32,7 @@ function mapTeamRow(row: ApiStandingsTeam): StandingsGroup["teams"][number] {
     goalsDiff: row.goalsDiff,
     points: row.points,
     form: row.form,
+    description: row.description ?? null,
   }
 }
 

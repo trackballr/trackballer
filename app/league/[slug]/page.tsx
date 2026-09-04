@@ -50,10 +50,18 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
   const name = league?.name ?? hubLeague.name
   const country = league?.country ?? hubLeague.country
   const logoUrl = league?.logoUrl ?? null
-  const header = (
-    <LeaguePageHeader slug={slug} name={name} country={country} logoUrl={logoUrl} />
-  )
   const seasonYear = getT5SeasonYear()
+
+  const header = (
+    <LeaguePageHeader
+      slug={slug}
+      name={name}
+      country={country}
+      logoUrl={logoUrl}
+      seasonYear={seasonYear}
+    />
+  )
+
   const { season, rounds } = await getLeagueCatalogContext(hubLeague.id, seasonYear)
 
   if (!season || rounds.length === 0) {
@@ -82,7 +90,7 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
   ])
 
   return (
-    <CompetitionHubShell banner={header} footer={<BackHomeLink />}>
+    <CompetitionHubShell banner={header}>
       <LeagueHubContent
         slug={slug}
         activeRound={activeRound}

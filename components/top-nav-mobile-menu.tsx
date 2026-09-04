@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 
+import { LeagueNavRow, type NavLeagueItem } from "@/components/nav/leagues-nav-menu"
 import { NavSearch } from "@/components/search/nav-search"
 import { topNavLinks } from "@/components/top-nav-links"
 import { Button } from "@/components/ui/button"
@@ -19,10 +20,15 @@ import { cn } from "@/lib/utils"
 
 type TopNavMobileMenuProps = {
   showAdminLink?: boolean
+  leagues: NavLeagueItem[]
   className?: string
 }
 
-export function TopNavMobileMenu({ showAdminLink = false, className }: TopNavMobileMenuProps) {
+export function TopNavMobileMenu({
+  showAdminLink = false,
+  leagues,
+  className,
+}: TopNavMobileMenuProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const adminActive = pathname === "/admin" || pathname.startsWith("/admin/")
@@ -61,22 +67,24 @@ export function TopNavMobileMenu({ showAdminLink = false, className }: TopNavMob
             Browse
           </p>
           <nav className="flex flex-col gap-0.5" aria-label="Main">
-            {topNavLinks.map((tab) => {
-              const active = tab.match(pathname)
-              return (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  onClick={closeMenu}
-                  className={cn(
-                    "rounded-lg px-3 py-2.5 text-[15px] font-medium text-foreground transition-colors hover:bg-muted",
-                    active && "bg-muted font-semibold",
-                  )}
-                >
-                  {tab.label}
-                </Link>
-              )
-            })}
+            {topNavLinks
+              .filter((tab) => tab.label !== "Leagues")
+              .map((tab) => {
+                const active = tab.match(pathname)
+                return (
+                  <Link
+                    key={tab.href}
+                    href={tab.href}
+                    onClick={closeMenu}
+                    className={cn(
+                      "rounded-lg px-3 py-2.5 text-[15px] font-medium text-foreground transition-colors hover:bg-muted",
+                      active && "bg-muted font-semibold",
+                    )}
+                  >
+                    {tab.label}
+                  </Link>
+                )
+              })}
             {showAdminLink ? (
               <Link
                 href="/admin"
@@ -89,6 +97,28 @@ export function TopNavMobileMenu({ showAdminLink = false, className }: TopNavMob
                 Admin
               </Link>
             ) : null}
+          </nav>
+
+          <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Leagues
+          </p>
+          <nav className="flex flex-col gap-0.5" aria-label="Leagues">
+            {leagues.map((league) => {
+              const active = pathname === league.href
+              return (
+                <Link
+                  key={league.slug}
+                  href={league.href}
+                  onClick={closeMenu}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[15px] font-medium text-foreground transition-colors hover:bg-muted",
+                    active && "bg-muted font-semibold",
+                  )}
+                >
+                  <LeagueNavRow league={league} />
+                </Link>
+              )
+            })}
           </nav>
         </div>
       </SheetContent>

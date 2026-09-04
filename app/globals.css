@@ -185,6 +185,61 @@
     font-weight: 500;
     color: var(--muted-foreground);
   }
+  /*
+   * League hub banner: white patch behind the crest and title, meeting the
+   * brand colour on a curve instead of a straight line. The ellipse is anchored
+   * above the left edge, so the white is widest at the top and pulls left
+   * towards the bottom; the stops past the solid part are the smudge. Gradient
+   * radii cannot use max(), so the phone width gets its own rule below.
+   */
+  .league-banner-fade {
+    background-image:
+      radial-gradient(
+        48% 400% at 0% -100%,
+        #fff 0%,
+        #fff 80%,
+        rgba(255, 255, 255, 0.88) 88%,
+        rgba(255, 255, 255, 0.55) 100%,
+        rgba(255, 255, 255, 0.2) 112%,
+        rgba(255, 255, 255, 0) 125%
+      ),
+      radial-gradient(
+        26% 62% at 41% 6%,
+        rgba(255, 255, 255, 0.42) 0%,
+        rgba(255, 255, 255, 0) 72%
+      ),
+      radial-gradient(
+        21% 52% at 33% 94%,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0) 70%
+      ),
+      radial-gradient(
+        15% 40% at 47% 34%,
+        rgba(255, 255, 255, 0.22) 0%,
+        rgba(255, 255, 255, 0) 68%
+      );
+  }
+
+  /* Phones: a fixed radius keeps the patch under the title on narrow screens. */
+  @media (width < 40rem) {
+    .league-banner-fade {
+      background-image:
+        radial-gradient(
+          21rem 400% at 0% -100%,
+          #fff 0%,
+          #fff 80%,
+          rgba(255, 255, 255, 0.88) 90%,
+          rgba(255, 255, 255, 0.5) 102%,
+          rgba(255, 255, 255, 0) 122%
+        ),
+        radial-gradient(
+          34% 60% at 62% 8%,
+          rgba(255, 255, 255, 0.35) 0%,
+          rgba(255, 255, 255, 0) 72%
+        );
+    }
+  }
+
   .eyebrow {
     font-size: 0.75rem;
     font-weight: 600;
