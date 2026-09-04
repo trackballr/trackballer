@@ -10,8 +10,8 @@ import {
   getLeagueCatalogContext,
   getRoundFixtures,
 } from "@/lib/catalog/fixtures"
+import { resolveRoundFixtureView } from "@/lib/catalog/fixture-view"
 import { getTopLeagueBySlug, isTopLeagueSlug } from "@/lib/catalog/top-leagues"
-import type { FixtureView } from "@/lib/catalog/types"
 import { getLeagueBySlug } from "@/lib/league/detail"
 import { getLeagueStandings } from "@/lib/league/standings"
 
@@ -62,13 +62,14 @@ export default async function LeaguePage({ params, searchParams }: PageProps) {
     )
   }
 
-  const view: FixtureView = viewParam === "finished" ? "finished" : "upcoming"
   const requestedRound = roundParam ? decodeURIComponent(roundParam) : undefined
   const isKnownRound =
     requestedRound != null && rounds.some((round) => round.name === requestedRound)
   const activeRound = isKnownRound
     ? requestedRound
     : ((await getCurrentRoundName(season.id)) ?? rounds[0].name)
+
+  const view = await resolveRoundFixtureView(season.id, activeRound, viewParam)
 
   const [fixtures, standings] = await Promise.all([
     getRoundFixtures(season.id, activeRound, { view }),

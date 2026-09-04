@@ -16,6 +16,7 @@ import {
   getRoundFixtures,
   getWorldCupCatalogContext,
 } from "@/lib/catalog/fixtures"
+import { resolveRoundFixtureView } from "@/lib/catalog/fixture-view"
 import type { FixtureView } from "@/lib/catalog/types"
 import { getPublishedTeamOfTheStage } from "@/lib/home/team-of-the-stage"
 import { getCompetitionStrip } from "@/lib/home/leagues"
@@ -53,8 +54,6 @@ export default async function WorldCupPage({ searchParams }: PageProps) {
     )
   }
 
-  const view: FixtureView = viewParam === "finished" ? "finished" : "upcoming"
-
   const requestedRound = roundParam
     ? decodeURIComponent(roundParam)
     : undefined
@@ -63,6 +62,8 @@ export default async function WorldCupPage({ searchParams }: PageProps) {
   const activeRound = isKnownRound
     ? requestedRound
     : ((await getCurrentRoundName(season.id)) ?? rounds[0].name)
+
+  const view = await resolveRoundFixtureView(season.id, activeRound, viewParam)
 
   const supabase = await createClient()
   const auth = await getServerAuth(supabase)
