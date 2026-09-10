@@ -22,6 +22,7 @@ type RatingDrawerProps = {
   onIndexChange: (index: number) => void
   onSubmit: (value: number) => void
   isSubmitting?: boolean
+  hasNextPlayer?: boolean
 }
 
 function teamForPlayer(
@@ -43,6 +44,7 @@ export function RatingDrawer({
   onIndexChange,
   onSubmit,
   isSubmitting = false,
+  hasNextPlayer = false,
 }: RatingDrawerProps) {
   const { player, value, setValue, canGoPrev, canGoNext } = useRatingPanel({
     open,
@@ -74,6 +76,7 @@ export function RatingDrawer({
           onClose={onClose}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
+          hasNextPlayer={hasNextPlayer}
           titleId="rating-drawer-title"
         />
       </DrawerContent>

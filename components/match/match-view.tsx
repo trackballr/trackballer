@@ -12,6 +12,12 @@ import type { CommentsPageData } from "@/lib/comment/queries"
 import type { MatchTopRatedPayload } from "@/lib/match/match-top-rated"
 import type { MatchTrendingCommentCard } from "@/lib/match/match-trending-comments"
 import type { MatchDetail, MatchLineupPlayer } from "@/lib/match/types"
+import {
+  firstUnratedIndex,
+  hasNextRatingPlayer,
+  nextRatingIndex,
+  type RatingFlowMode,
+} from "@/lib/match/rating-queue-order"
 import { submitMatchRating } from "@/lib/rating/submit-match-rating"
 import { formatFixtureRoundLabel } from "@/lib/world-cup/round-label"
 
@@ -56,7 +62,7 @@ export function MatchView({
   const router = useRouter()
   const [detail, setDetail] = useState(initialDetail)
   const [ratingIndex, setRatingIndex] = useState<number | null>(null)
-  const [advanceOnSubmit, setAdvanceOnSubmit] = useState(false)
+  const [ratingFlowMode, setRatingFlowMode] = useState<RatingFlowMode | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -73,11 +79,11 @@ export function MatchView({
 
   const closeRatingSheet = useCallback(() => {
     setRatingIndex(null)
-    setAdvanceOnSubmit(false)
+    setRatingFlowMode(null)
   }, [])
 
   const openRatingSheet = useCallback(
-    (player: MatchLineupPlayer, options?: { advanceOnSubmit?: boolean }) => {
+    (player: MatchLineupPlayer) => {
       if (!canRate) {
         if (!isLoggedIn) {
           setErrorMessage("Sign in to rate players.")
@@ -100,7 +106,7 @@ export function MatchView({
       }
 
       setErrorMessage(null)
-      setAdvanceOnSubmit(options?.advanceOnSubmit ?? false)
+      setRatingFlowMode("single")
       setRatingIndex(index)
     },
     [canRate, detail.rateableQueue, detail.ratingsUnlocked, isLoggedIn],
@@ -111,8 +117,8 @@ export function MatchView({
       setErrorMessage("No rateable players for this match yet.")
       return
     }
-    setAdvanceOnSubmit(true)
-    setRatingIndex(0)
+    setRatingFlowMode("rateAll")
+    setRatingIndex(firstUnratedIndex(detail.rateableQueue) ?? 0)
     setErrorMessage(null)
   }
 
@@ -145,7 +151,7 @@ export function MatchView({
     if (!player) return
 
     const snapshotIndex = ratingIndex
-    const shouldAdvance = advanceOnSubmit
+    const flowMode = ratingFlowMode ?? "single"
 
     startTransition(async () => {
       const result = await submitMatchRating({
@@ -172,13 +178,23 @@ export function MatchView({
       applyLocalRating(player.playerId, value, nextAvg)
       router.refresh()
 
-      if (shouldAdvance && snapshotIndex < detail.rateableQueue.length - 1) {
-        setRatingIndex(snapshotIndex + 1)
+      const updatedQueue = updatePlayerInList(detail.rateableQueue, player.playerId, {
+        userRating: value,
+        communityAvg: nextAvg,
+      })
+      const nextIndex = nextRatingIndex(updatedQueue, snapshotIndex, flowMode)
+      if (nextIndex != null) {
+        setRatingIndex(nextIndex)
       } else {
         closeRatingSheet()
       }
     })
   }
+
+  const hasNextPlayer =
+    ratingIndex != null &&
+    ratingFlowMode != null &&
+    hasNextRatingPlayer(detail.rateableQueue, ratingIndex, ratingFlowMode)
 
   return (
     <div className="mx-auto max-w-lg px-4 py-8 md:max-w-5xl">
@@ -214,6 +230,7 @@ export function MatchView({
         onIndexChange={setRatingIndex}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
+        hasNextPlayer={hasNextPlayer}
       />
     </div>
   )

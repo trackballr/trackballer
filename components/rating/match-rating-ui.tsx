@@ -17,6 +17,7 @@ export type MatchRatingUIProps = {
   onIndexChange: (index: number) => void
   onSubmit: (value: number) => void
   isSubmitting?: boolean
+  hasNextPlayer?: boolean
 }
 
 /** Mobile drawer or desktop dialog — one shell mounted at a time. */

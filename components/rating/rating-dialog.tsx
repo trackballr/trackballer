@@ -22,6 +22,7 @@ type RatingDialogProps = {
   onIndexChange: (index: number) => void
   onSubmit: (value: number) => void
   isSubmitting?: boolean
+  hasNextPlayer?: boolean
 }
 
 function teamForPlayer(
@@ -43,6 +44,7 @@ export function RatingDialog({
   onIndexChange,
   onSubmit,
   isSubmitting = false,
+  hasNextPlayer = false,
 }: RatingDialogProps) {
   const { player, value, setValue, canGoPrev, canGoNext } = useRatingPanel({
     open,
@@ -74,6 +76,7 @@ export function RatingDialog({
           onClose={onClose}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
+          hasNextPlayer={hasNextPlayer}
           titleId="rating-dialog-title"
         />
       </DialogContent>

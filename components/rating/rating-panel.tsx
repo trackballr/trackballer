@@ -26,6 +26,7 @@ export type RatingPanelProps = {
   onClose: () => void
   onSubmit: (value: number) => void
   isSubmitting?: boolean
+  hasNextPlayer?: boolean
   titleId?: string
 }
 
@@ -44,8 +45,14 @@ export function RatingPanel({
   onClose,
   onSubmit,
   isSubmitting = false,
+  hasNextPlayer = false,
   titleId = "rating-panel-title",
 }: RatingPanelProps) {
+  const submitLabel = isSubmitting
+    ? "Saving…"
+    : hasNextPlayer
+      ? "Save & next"
+      : "Save rating"
   const positionLabel = positionDisplayLabel(player.position)
   const metaParts = [
     player.shirtNumber != null ? `#${player.shirtNumber}` : null,
@@ -143,7 +150,7 @@ export function RatingPanel({
             Cancel
           </Button>
           <Button type="button" disabled={isSubmitting} onClick={() => onSubmit(value)}>
-            {isSubmitting ? "Saving…" : "Submit rating"}
+            {submitLabel}
           </Button>
         </div>
       </div>

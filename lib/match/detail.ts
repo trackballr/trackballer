@@ -4,6 +4,7 @@ import { FIXTURE_TEAM_SELECT, mapFixtureRow } from "@/lib/catalog/fixtures"
 import { buildCompetitionLabel } from "@/lib/match/competition-label"
 import { buildFormationRows, formationLabel } from "@/lib/match/formation"
 import { parseGridSlot } from "@/lib/match/lineup-position"
+import { sortRateableQueue } from "@/lib/match/rating-queue-order"
 import { buildCardCountsMap } from "@/lib/match/card-counts"
 import { buildGoalAssistCountsMap } from "@/lib/match/goal-assist-counts"
 import { buildMatchGoalScorers } from "@/lib/match/match-goals"
@@ -217,11 +218,7 @@ export const getMatchDetail = cache(
       }
     }
 
-    rateableQueue.sort((a, b) => {
-      if (a.isStarter !== b.isStarter) return a.isStarter ? -1 : 1
-      if (a.side !== b.side) return a.side === "home" ? -1 : 1
-      return (a.shirtNumber ?? 99) - (b.shirtNumber ?? 99)
-    })
+    const sortedRateableQueue = sortRateableQueue(rateableQueue)
 
     substitutesOn.sort(
       (a, b) => (a.subOnMinute ?? 999) - (b.subOnMinute ?? 999),
@@ -242,7 +239,7 @@ export const getMatchDetail = cache(
       substitutesOn,
       benchUnused,
       coaches,
-      rateableQueue,
+      rateableQueue: sortedRateableQueue,
       homeFormation: formationLabel(buildFormationRows(homeStarters)),
       awayFormation: formationLabel(buildFormationRows(awayStarters)),
     }
