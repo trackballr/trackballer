@@ -4,7 +4,7 @@ import { getT5SeasonYear } from "@/lib/catalog/config"
 import { getStandingsPayload } from "@/lib/catalog/standings-fetch"
 import type { StandingsPayload } from "@/lib/catalog/standings-types"
 
-/** League standings — null while API_FOOTBALL_ENABLED is false (no vendor fetch). */
+/** League standings — ~30-day cache; paused API serves cache only. */
 export const getLeagueStandings = cache(
   async (
     leagueId: number,

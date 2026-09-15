@@ -2,7 +2,8 @@
  * Master switch for all outbound API-Football calls.
  * Temporary while the vendor subscription is inactive.
  *
- * When false: cron sync, page-load standings, and admin sync routes do not hit the API.
+ * When false: cron sync and admin sync do not hit the API; standings pages serve
+ * the last cached table only (~30-day TTL, no new fetches).
  * Set to true when resuming sync and live standings.
  */
 export const API_FOOTBALL_ENABLED = false

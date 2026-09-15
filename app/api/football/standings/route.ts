@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { STANDINGS_REVALIDATE_SECONDS } from "@/lib/catalog/standings-cache"
 import { getStandingsPayload } from "@/lib/catalog/standings-fetch"
 
 export async function GET(request: Request) {
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json(payload, {
     headers: {
-      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=120",
+      "Cache-Control": `public, s-maxage=${STANDINGS_REVALIDATE_SECONDS}, stale-while-revalidate=86400`,
     },
   })
 }
