@@ -4,7 +4,7 @@ import { getT5SeasonYear } from "@/lib/catalog/config"
 import { getStandingsPayload } from "@/lib/catalog/standings-fetch"
 import type { StandingsPayload } from "@/lib/catalog/standings-types"
 
-/** League standings — API fetch with 1h cache until Postgres sync lands. */
+/** League standings — cached for this deploy (API hourly refresh paused). */
 export const getLeagueStandings = cache(
   async (
     leagueId: number,

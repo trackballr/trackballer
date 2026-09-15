@@ -1,6 +1,7 @@
 import { after, NextResponse } from "next/server";
 
 import { createCatalogSync } from "@/lib/admin/sync-handler";
+import { CATALOG_SYNC_CRON_ENABLED } from "@/lib/catalog/sync-cron-enabled";
 import type { CatalogSync } from "@/lib/catalog-sync/catalog-sync";
 
 import type { CronSyncBody } from "./parse-sync-body";
@@ -16,6 +17,17 @@ export function acceptDeferredSync(
   body: CronSyncBody,
   run: (sync: CatalogSync) => Promise<unknown>,
 ): NextResponse {
+  if (!CATALOG_SYNC_CRON_ENABLED) {
+    console.log("[catalog-sync]", `cron ${job} paused — no API calls`);
+    return NextResponse.json({
+      ok: true,
+      status: "paused",
+      job,
+      message:
+        "Scheduled catalog sync is paused while the football API subscription is inactive. No API calls were made.",
+    });
+  }
+
   after(async () => {
     try {
       const sync = createCatalogSync();

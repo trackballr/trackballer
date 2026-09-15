@@ -2,6 +2,7 @@ import { after, NextResponse } from "next/server";
 
 import { ApiFootballClient } from "@/lib/api-football/client";
 import { getT5SeasonYear } from "@/lib/catalog/config";
+import { CATALOG_SYNC_CRON_ENABLED } from "@/lib/catalog/sync-cron-enabled";
 import { UCL_COMPETITION } from "@/lib/catalog/top-leagues";
 import { seedTopLeaguePlayers } from "@/lib/catalog-sync/seed-top-league-players";
 import { seedUclPlayers } from "@/lib/catalog-sync/seed-ucl-players";
@@ -14,6 +15,17 @@ import type { SquadsSyncBody } from "./parse-squads-sync-body";
  * Work still runs in the same Vercel invocation up to maxDuration (300s).
  */
 export function acceptDeferredSquadsSync(body: SquadsSyncBody): NextResponse {
+  if (!CATALOG_SYNC_CRON_ENABLED) {
+    console.log("[catalog-sync]", "cron squads paused — no API calls");
+    return NextResponse.json({
+      ok: true,
+      status: "paused",
+      job: "squads",
+      message:
+        "Scheduled catalog sync is paused while the football API subscription is inactive. No API calls were made.",
+    });
+  }
+
   after(async () => {
     try {
       const api = new ApiFootballClient();

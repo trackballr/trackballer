@@ -2,9 +2,7 @@ import { getCatalogLeagueId, getCatalogSeasonYear } from "@/lib/catalog/config"
 import { parseStandingsResponse } from "@/lib/catalog/standings-parse"
 import type { StandingsPayload } from "@/lib/catalog/standings-types"
 
-const REVALIDATE_SECONDS = 3600
-
-/** Server-only fetch — cached 10 minutes. */
+/** Server-only fetch. Cached for this deploy — no hourly refresh while the API plan is paused. */
 export async function getStandingsPayload(
   leagueId = getCatalogLeagueId(),
   seasonYear = getCatalogSeasonYear(),
@@ -23,7 +21,7 @@ export async function getStandingsPayload(
       "x-apisports-key": apiKey,
       Accept: "application/json",
     },
-    next: { revalidate: REVALIDATE_SECONDS },
+    cache: "force-cache",
   })
 
   if (!res.ok) {
