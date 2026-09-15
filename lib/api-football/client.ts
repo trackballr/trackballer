@@ -1,3 +1,5 @@
+import { API_FOOTBALL_ENABLED } from "@/lib/catalog/sync-cron-enabled";
+
 import type {
   ApiFixtureEventItem,
   ApiFixtureItem,
@@ -61,6 +63,12 @@ export class ApiFootballClient {
     path: string,
     retried = false,
   ): Promise<ApiFootballResponse<T>> {
+    if (!API_FOOTBALL_ENABLED) {
+      throw new Error(
+        "API-Football calls are paused (API_FOOTBALL_ENABLED=false in lib/catalog/sync-cron-enabled.ts)",
+      );
+    }
+
     await this.rateLimiter.waitForSlot();
 
     const res = await fetch(url, {

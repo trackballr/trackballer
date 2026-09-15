@@ -1,12 +1,17 @@
 import { getCatalogLeagueId, getCatalogSeasonYear } from "@/lib/catalog/config"
+import { API_FOOTBALL_ENABLED } from "@/lib/catalog/sync-cron-enabled"
 import { parseStandingsResponse } from "@/lib/catalog/standings-parse"
 import type { StandingsPayload } from "@/lib/catalog/standings-types"
 
-/** Server-only fetch. Cached for this deploy — no hourly refresh while the API plan is paused. */
+/** Server-only fetch — skipped entirely while API_FOOTBALL_ENABLED is false. */
 export async function getStandingsPayload(
   leagueId = getCatalogLeagueId(),
   seasonYear = getCatalogSeasonYear(),
 ): Promise<StandingsPayload | null> {
+  if (!API_FOOTBALL_ENABLED) {
+    return null
+  }
+
   const baseUrl =
     process.env.API_FOOTBALL_BASE_URL ?? "https://v3.football.api-sports.io"
   const apiKey = process.env.API_FOOTBALL_KEY
@@ -21,7 +26,7 @@ export async function getStandingsPayload(
       "x-apisports-key": apiKey,
       Accept: "application/json",
     },
-    cache: "force-cache",
+    next: { revalidate: 3600 },
   })
 
   if (!res.ok) {
