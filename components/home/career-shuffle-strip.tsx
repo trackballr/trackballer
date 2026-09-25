@@ -4,16 +4,29 @@ import Link from "next/link"
 import { Loader2, Shuffle } from "lucide-react"
 import { useCallback, useEffect, useState, useTransition } from "react"
 
+import { CareerShuffleFilters } from "@/components/home/career-shuffle-filters"
 import { CareerRing } from "@/components/player/career-ring"
 import { PlayerCareerRatingCta } from "@/components/player/player-career-rating-cta"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { fetchShuffleCareerPlayer } from "@/lib/home/shuffle-career-player"
 import type { ShufflePlayerCard } from "@/lib/home/shuffle-career-player-map"
+import {
+  EMPTY_SHUFFLE_FILTER,
+  readShuffleFilters,
+  sameShuffleFilter,
+  selectShuffleLeague,
+  toggleShuffleBigClubs,
+  withShuffleClubTicks,
+  writeShuffleFilters,
+  type ShuffleClubOption,
+  type ShuffleFilterState,
+} from "@/lib/home/shuffle-filter-state"
 import { positionDisplayLabel } from "@/lib/match/position-label"
 import { cn } from "@/lib/utils"
 
 type CareerShuffleStripProps = {
   isLoggedIn: boolean
+  clubs: ShuffleClubOption[]
 }
 
 const primaryOutlineBtn =
@@ -110,7 +123,7 @@ function PlayerBanner({
           size="sm"
           variant="outline"
           className={cn("w-full sm:w-auto", primaryOutlineBtn)}
-          onClick={onShuffle}
+            onClick={onShuffle}
           disabled={shufflePending}
         >
           {shufflePending ? (
@@ -125,18 +138,47 @@ function PlayerBanner({
   )
 }
 
-function EmptyBanner({ onShuffle, shufflePending }: { onShuffle: () => void; shufflePending: boolean }) {
+function EmptyBanner({
+  onShuffle,
+  onClearClubs,
+  shufflePending,
+  filtered,
+  hasClubFilter,
+}: {
+  onShuffle: () => void
+  onClearClubs: () => void
+  shufflePending: boolean
+  filtered: boolean
+  hasClubFilter: boolean
+}) {
   return (
     <div className="flex flex-col items-center gap-4 text-center md:flex-row md:text-left">
       <div className="min-w-0 flex-1">
         <p className="text-base font-semibold">
-          No players available to shuffle right now.
+          {filtered
+            ? "No unrated players in this league or these clubs."
+            : "No players available to shuffle right now."}
         </p>
         <p className="mt-1 text-sm text-primary-foreground/80">
-          You may have rated everyone in the pool, or squads are still syncing.
+          {filtered
+            ? hasClubFilter
+              ? "Clear the club filter or browse the full list."
+              : "Pick another league or browse the full list."
+            : "You may have rated everyone in the pool, or squads are still syncing."}
         </p>
       </div>
       <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+        {hasClubFilter ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className={cn(primaryOutlineBtn)}
+            onClick={onClearClubs}
+          >
+            Clear clubs
+          </Button>
+        ) : null}
         <Link
           href="/players"
           className={cn(
@@ -151,7 +193,7 @@ function EmptyBanner({ onShuffle, shufflePending }: { onShuffle: () => void; shu
           size="sm"
           variant="outline"
           className={cn(primaryOutlineBtn)}
-          onClick={onShuffle}
+            onClick={onShuffle}
           disabled={shufflePending}
         >
           {shufflePending ? (
@@ -166,17 +208,24 @@ function EmptyBanner({ onShuffle, shufflePending }: { onShuffle: () => void; shu
   )
 }
 
-export function CareerShuffleStrip({ isLoggedIn }: CareerShuffleStripProps) {
+export function CareerShuffleStrip({ isLoggedIn, clubs }: CareerShuffleStripProps) {
   const [player, setPlayer] = useState<ShufflePlayerCard | null>(null)
   const [poolEmpty, setPoolEmpty] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [initialLoad, setInitialLoad] = useState(isLoggedIn)
+  const [filters, setFilters] = useState<ShuffleFilterState>(EMPTY_SHUFFLE_FILTER)
+  const [filtersReady, setFiltersReady] = useState(!isLoggedIn)
   const [isPending, startTransition] = useTransition()
 
-  const loadPlayer = useCallback(() => {
-    startTransition(async () => {
+  const loadPlayer = useCallback((mode: "replace" | "keep" = "replace") => {
+    if (mode === "replace") {
+      setPlayer(null)
+      setPoolEmpty(false)
       setError(null)
-      const result = await fetchShuffleCareerPlayer()
+    }
+    startTransition(async () => {
+      if (mode === "keep") setError(null)
+      const result = await fetchShuffleCareerPlayer(filters)
       setInitialLoad(false)
       if (!result.ok) {
         setError(result.error)
@@ -185,13 +234,26 @@ export function CareerShuffleStrip({ isLoggedIn }: CareerShuffleStripProps) {
       setPlayer(result.player)
       setPoolEmpty(result.player == null)
     })
-  }, [])
+  }, [filters])
 
   useEffect(() => {
-    if (isLoggedIn) {
-      loadPlayer()
-    }
-  }, [isLoggedIn, loadPlayer])
+    if (!isLoggedIn) return
+    setFilters(readShuffleFilters(window.localStorage))
+    setFiltersReady(true)
+  }, [isLoggedIn])
+
+  useEffect(() => {
+    if (!isLoggedIn || !filtersReady) return
+    writeShuffleFilters(window.localStorage, filters)
+    loadPlayer()
+  }, [isLoggedIn, filtersReady, filters, loadPlayer])
+
+  const commitFilters = useCallback((next: ShuffleFilterState) => {
+    setFilters((current) => (sameShuffleFilter(current, next) ? current : next))
+  }, [])
+
+  const filtered = filters.leagueId != null || filters.teamIds.length > 0
+  const hasClubFilter = filters.teamIds.length > 0
 
   return (
     <section>
@@ -210,6 +272,16 @@ export function CareerShuffleStrip({ isLoggedIn }: CareerShuffleStripProps) {
         </Link>
       </div>
 
+      {isLoggedIn && filtersReady ? (
+        <CareerShuffleFilters
+          clubs={clubs}
+          filter={filters}
+          onLeague={(leagueId) => commitFilters(selectShuffleLeague(filters, leagueId))}
+          onToggleBigClubs={() => commitFilters(toggleShuffleBigClubs(filters))}
+          onApplyClubs={(teamIds) => commitFilters(withShuffleClubTicks(filters, teamIds))}
+        />
+      ) : null}
+
       <div className="overflow-hidden rounded-xl bg-primary px-4 py-4 text-primary-foreground shadow-sm sm:px-5 sm:py-5">
         {!isLoggedIn ? (
           <GuestBanner />
@@ -223,19 +295,25 @@ export function CareerShuffleStrip({ isLoggedIn }: CareerShuffleStripProps) {
               size="sm"
               variant="outline"
               className={cn("shrink-0", primaryOutlineBtn)}
-              onClick={loadPlayer}
+              onClick={() => loadPlayer("keep")}
               disabled={isPending}
             >
               Try again
             </Button>
           </div>
         ) : poolEmpty ? (
-          <EmptyBanner onShuffle={loadPlayer} shufflePending={isPending} />
+          <EmptyBanner
+            onShuffle={() => loadPlayer("keep")}
+            onClearClubs={() => commitFilters(withShuffleClubTicks(filters, []))}
+            shufflePending={isPending}
+            filtered={filtered}
+            hasClubFilter={hasClubFilter}
+          />
         ) : player ? (
           <PlayerBanner
             player={player}
-            onShuffle={loadPlayer}
-            onRated={loadPlayer}
+            onShuffle={() => loadPlayer("keep")}
+            onRated={() => loadPlayer("keep")}
             shufflePending={isPending}
           />
         ) : (

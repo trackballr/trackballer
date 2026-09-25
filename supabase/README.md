@@ -19,6 +19,7 @@ Migrations implement the locked design in [`../../DATABASE.md`](../../DATABASE.m
 | `20260605120000` | `custom_access_token_hook` | JWT `app_metadata.is_admin` + `is_onboarded` from `profiles` |
 | `20260609120000` | `career_ratings_100_scale` | Career votes 1–100 integer OVR; widen aggregate columns; tier thresholds ×10 |
 | `20260610120000` | `shuffle_career_player_rpc` | `get_shuffle_career_player()` — random unrated player with photo for home strip |
+| `20260925120000` | `shuffle_career_player_filters` | Home shuffle can narrow by one top-5 league and an optional club list |
 
 ## Custom access token hook
 

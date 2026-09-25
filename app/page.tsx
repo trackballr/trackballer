@@ -11,6 +11,7 @@ import { getHomeLeagueMatches } from "@/lib/home/league-matches"
 import { getCompetitionStrip } from "@/lib/home/leagues"
 import { getTrendingComments } from "@/lib/home/trending-comments"
 import { getTrendingPlayers } from "@/lib/home/trending-players"
+import { getShuffleClubs } from "@/lib/home/shuffle-clubs"
 import { getYourTeamToday } from "@/lib/home/your-team-today"
 import { getServerAuth } from "@/lib/auth/server-session"
 import { createClient } from "@/lib/supabase/server"
@@ -19,7 +20,7 @@ export default async function HomePage() {
   const supabase = await createClient()
   const auth = await getServerAuth(supabase)
 
-  const [strip, leagueMatches, trendingPlayers, trendingComments, yourTeamToday, featuredCompetitions] =
+  const [strip, leagueMatches, trendingPlayers, trendingComments, yourTeamToday, featuredCompetitions, shuffleClubs] =
     await Promise.all([
       getCompetitionStrip(),
       getHomeLeagueMatches(),
@@ -27,6 +28,7 @@ export default async function HomePage() {
       getTrendingComments(),
       getYourTeamToday(auth?.userId ?? null),
       getFeaturedCompetitionCards(),
+      getShuffleClubs(),
     ])
 
   return (
@@ -41,7 +43,7 @@ export default async function HomePage() {
             comments={trendingComments}
             currentUserId={auth?.userId ?? null}
           />
-          <CareerShuffleStrip isLoggedIn={!!auth} />
+          <CareerShuffleStrip isLoggedIn={!!auth} clubs={shuffleClubs} />
           <FeaturedCompetitions cards={featuredCompetitions} />
           <TeamOfTheWeekComingSoon />
         </div>
