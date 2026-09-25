@@ -4,15 +4,19 @@ import { cn } from "@/lib/utils"
 
 type TeamFlagProps = {
   team: Pick<TeamSummary, "name" | "logo_url" | "code">
-  size?: "sm" | "md"
+  size?: "sm" | "md" | "lg"
   /** Circle for lineups; crest matches standings / fixture tables. */
   variant?: "circle" | "crest"
   className?: string
 }
 
-const sizePx = { sm: 20, md: 24 } as const
+const sizePx = { sm: 20, md: 24, lg: 48 } as const
 
-const sizeClass = { sm: "size-5 text-[8px]", md: "size-6 text-[9px]" } as const
+const sizeClass = {
+  sm: "size-5 text-[8px]",
+  md: "size-6 text-[9px]",
+  lg: "size-12 text-xs",
+} as const
 
 export function TeamFlag({
   team,

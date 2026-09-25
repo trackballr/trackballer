@@ -45,11 +45,11 @@ export function MatchScorersRow({ scorers, className }: MatchScorersRowProps) {
   return (
     <div
       className={cn(
-        "flex items-start border-t  border-primary/40 px-2 pt-3 text-xs text-muted-foreground",
+        "flex items-start px-2 text-xs text-muted-foreground md:text-sm",
         className,
       )}
     >
-      <div className="flex min-w-0 flex-1 justify-end pr-2">
+      <div className="flex min-w-0 flex-1 justify-end pr-3">
         <ScorerColumn goals={homeGroups} align="right" />
       </div>
       <span className="flex size-5 shrink-0 items-center justify-center pt-0.5">
@@ -61,7 +61,7 @@ export function MatchScorersRow({ scorers, className }: MatchScorersRowProps) {
           className="object-contain opacity-70 dark:invert"
         />
       </span>
-      <div className="flex min-w-0 flex-1 justify-start pl-2">
+      <div className="flex min-w-0 flex-1 justify-start pl-3">
         <ScorerColumn goals={awayGroups} align="left" />
       </div>
     </div>

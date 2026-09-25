@@ -10,7 +10,11 @@ import { buildGoalAssistCountsMap } from "@/lib/match/goal-assist-counts"
 import { buildMatchGoalScorers } from "@/lib/match/match-goals"
 import { buildMatchRedCards } from "@/lib/match/match-red-cards"
 import { buildPenaltyShootout } from "@/lib/match/penalty-shootout"
-import { buildSubOnInfoMap, type SubOnInfo } from "@/lib/match/sub-on-minutes"
+import {
+  buildSubOffMinuteMap,
+  buildSubOnInfoMap,
+  type SubOnInfo,
+} from "@/lib/match/sub-on-minutes"
 import type { MatchCoach, MatchDetail, MatchLineupPlayer } from "@/lib/match/types"
 import { getServerAuth } from "@/lib/auth/server-session"
 import { createClient } from "@/lib/supabase/server"
@@ -150,6 +154,7 @@ export const getMatchDetail = cache(
     }
 
     const subOnInfoByPlayer = buildSubOnInfoMap(events)
+    const subOffMinuteByPlayer = buildSubOffMinuteMap(events)
     const goalAssistByPlayer = buildGoalAssistCountsMap(events)
     const cardCountsByPlayer = buildCardCountsMap(events)
 
@@ -200,6 +205,7 @@ export const getMatchDetail = cache(
         aggregateByPlayer,
         userRatingsResult,
         subOnInfoByPlayer,
+        subOffMinuteByPlayer,
         playerNameById,
         goalAssistByPlayer,
         cardCountsByPlayer,
@@ -355,6 +361,7 @@ function mapLineupPlayer(
   aggregateByPlayer: Map<number, AggregateRow>,
   userRatingByPlayer: Map<number, number>,
   subOnInfoByPlayer: Map<number, SubOnInfo>,
+  subOffMinuteByPlayer: Map<number, number>,
   playerNameById: Map<number, string>,
   goalAssistByPlayer: Map<number, { goals: number; assists: number }>,
   cardCountsByPlayer: Map<number, { yellowCards: number; redCards: number }>,
@@ -391,6 +398,7 @@ function mapLineupPlayer(
     minutesPlayed,
     subOnMinute,
     subReplacedPlayerName,
+    subOffMinute: subOffMinuteByPlayer.get(row.player_id) ?? null,
     gridRow: slot.row,
     gridCol: slot.col,
     communityAvg: aggregate?.avg_rating != null ? Number(aggregate.avg_rating) : null,

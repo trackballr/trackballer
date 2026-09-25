@@ -111,3 +111,26 @@ export function formatMatchHeroScore(fixture: MatchScoreFixture): MatchHeroScore
     isUpcoming: false,
   }
 }
+
+const STATUS_LABELS: Record<string, string> = {
+  FT: "Full time",
+  AET: "After extra time",
+  PEN: "After penalties",
+  HT: "Half time",
+  BT: "Break",
+  ET: "Extra time",
+  P: "Penalties",
+  PST: "Postponed",
+  CANC: "Cancelled",
+  SUSP: "Suspended",
+  INT: "Interrupted",
+  ABD: "Abandoned",
+  AWD: "Awarded",
+  WO: "Walkover",
+}
+
+/** Short line under the hero score, e.g. "Full time". Null before kickoff. */
+export function matchHeroStatusLabel(status: string): string | null {
+  if (UPCOMING.has(status)) return null
+  return STATUS_LABELS[status] ?? "Live"
+}
