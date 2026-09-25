@@ -23,7 +23,7 @@ function FormationLineColumn({
   onPlayerClick?: (player: MatchLineupPlayer) => void
 }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col items-center justify-evenly gap-2 py-1">
+    <div className="flex min-w-0 flex-1 flex-col items-center justify-evenly gap-1.5 py-1">
       {row.players.map((player) => (
         <LineupPlayerNode
           key={`${player.side}-${player.playerId}`}
@@ -40,24 +40,24 @@ function PitchMarkings() {
   return (
     <>
       {/* Outer boundary */}
-      <div className="pointer-events-none absolute inset-3 rounded-lg border border-primary/30" />
+      <div className="pointer-events-none absolute inset-3 rounded-lg border border-[var(--pitch-line)]" />
       {/* Halfway line */}
-      <div className="pointer-events-none absolute top-3 bottom-3 left-1/2 w-px -translate-x-1/2 bg-primary/30" />
+      <div className="pointer-events-none absolute top-3 bottom-3 left-1/2 w-px -translate-x-1/2 bg-[var(--pitch-line)]" />
       {/* Centre circle + spot */}
-      <div className="pointer-events-none absolute top-1/2 left-1/2 size-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/30" />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/40" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 size-[4.25rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--pitch-line)]" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--pitch-line)]" />
       {/* Penalty boxes (18-yard) */}
-      <div className="pointer-events-none absolute top-1/2 left-3 h-[55%] w-[16%] -translate-y-1/2 rounded-sm border border-primary/30" />
-      <div className="pointer-events-none absolute top-1/2 right-3 h-[55%] w-[16%] -translate-y-1/2 rounded-sm border border-primary/30" />
+      <div className="pointer-events-none absolute top-1/2 left-3 h-[55%] w-[16%] -translate-y-1/2 rounded-sm border border-[var(--pitch-line)]" />
+      <div className="pointer-events-none absolute top-1/2 right-3 h-[55%] w-[16%] -translate-y-1/2 rounded-sm border border-[var(--pitch-line)]" />
       {/* Goal areas (6-yard) */}
-      <div className="pointer-events-none absolute top-1/2 left-3 h-[26%] w-[6%] -translate-y-1/2 rounded-sm border border-primary/30" />
-      <div className="pointer-events-none absolute top-1/2 right-3 h-[26%] w-[6%] -translate-y-1/2 rounded-sm border border-primary/30" />
+      <div className="pointer-events-none absolute top-1/2 left-3 h-[26%] w-[6%] -translate-y-1/2 rounded-sm border border-[var(--pitch-line)]" />
+      <div className="pointer-events-none absolute top-1/2 right-3 h-[26%] w-[6%] -translate-y-1/2 rounded-sm border border-[var(--pitch-line)]" />
       {/* Penalty spots */}
-      <div className="pointer-events-none absolute top-1/2 left-[11%] size-1 -translate-y-1/2 rounded-full bg-primary/40" />
-      <div className="pointer-events-none absolute top-1/2 right-[11%] size-1 -translate-y-1/2 rounded-full bg-primary/40" />
+      <div className="pointer-events-none absolute top-1/2 left-[11%] size-1 -translate-y-1/2 rounded-full bg-[var(--pitch-line)]" />
+      <div className="pointer-events-none absolute top-1/2 right-[11%] size-1 -translate-y-1/2 rounded-full bg-[var(--pitch-line)]" />
       {/* Penalty arcs (the "D") at the box edge */}
-      <div className="pointer-events-none absolute top-1/2 left-[calc(0.75rem_+_16%)] h-[22%] w-[5%] -translate-y-1/2 rounded-r-full border border-l-0 border-primary/30" />
-      <div className="pointer-events-none absolute top-1/2 right-[calc(0.75rem_+_16%)] h-[22%] w-[5%] -translate-y-1/2 rounded-l-full border border-r-0 border-primary/30" />
+      <div className="pointer-events-none absolute top-1/2 left-[calc(0.75rem_+_16%)] h-[22%] w-[5%] -translate-y-1/2 rounded-r-full border border-l-0 border-[var(--pitch-line)]" />
+      <div className="pointer-events-none absolute top-1/2 right-[calc(0.75rem_+_16%)] h-[22%] w-[5%] -translate-y-1/2 rounded-l-full border border-r-0 border-[var(--pitch-line)]" />
     </>
   )
 }
@@ -105,8 +105,8 @@ export function LineupPitch({
   return (
     <div
       className={cn(
-        "relative flex w-full flex-row overflow-hidden rounded-xl border border-[color-mix(in_oklch,var(--pitch-line),transparent_30%)] bg-[var(--pitch)]",
-        "aspect-[16/10] min-h-[18rem]",
+        "relative flex w-full flex-row overflow-hidden bg-[var(--pitch)]",
+        "aspect-[16/10] min-h-[15.25rem]",
         className,
       )}
     >

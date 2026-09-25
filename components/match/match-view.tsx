@@ -198,12 +198,6 @@ export function MatchView({
 
   return (
     <div className="mx-auto max-w-lg px-4 py-8 md:max-w-5xl">
-      <MatchHero fixture={fixture} detail={detail} heroScore={heroScore} />
-
-      {detail.penaltyShootout && (
-        <PenaltyShootoutSection shootout={detail.penaltyShootout} />
-      )}
-
       <MatchPageTabs
         fixture={fixture}
         detail={detail}
@@ -217,6 +211,19 @@ export function MatchView({
         trendingComments={trendingComments}
         onRateAll={handleRateAll}
         onPlayerClick={(player) => openRatingSheet(player)}
+        renderHero={(tabBar) => (
+          <MatchHero
+            fixture={fixture}
+            detail={detail}
+            heroScore={heroScore}
+            tabBar={tabBar}
+          />
+        )}
+        afterHero={
+          detail.penaltyShootout ? (
+            <PenaltyShootoutSection shootout={detail.penaltyShootout} className="mb-4" />
+          ) : null
+        }
       />
 
       <MatchRatingUI

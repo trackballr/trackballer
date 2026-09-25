@@ -17,6 +17,7 @@ function player(overrides: Partial<MatchLineupPlayer> = {}): MatchLineupPlayer {
     minutesPlayed: 90,
     subOnMinute: null,
     subReplacedPlayerName: null,
+    subOffMinute: null,
     gridRow: 1,
     gridCol: 1,
     communityAvg: null,

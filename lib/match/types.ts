@@ -17,6 +17,8 @@ export type MatchLineupPlayer = {
   subOnMinute: number | null
   /** Starter subbed off when this player came on; null if unknown. */
   subReplacedPlayerName: string | null
+  /** Minute this player was substituted off; null if they finished the match. */
+  subOffMinute: number | null
   /** Formation line: 1 = goalkeeper, increasing toward attack. */
   gridRow: number
   /** Position within the line, left to right. */

@@ -8,6 +8,7 @@ import {
   MatchUnusedBenchSection,
 } from "@/components/match/match-bench-sections"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
+import { teamCommunityAvg } from "@/lib/match/team-match-rating"
 import type { MatchCoach, MatchLineupPlayer } from "@/lib/match/types"
 
 type MatchLineupsTabProps = {
@@ -33,13 +34,13 @@ export function MatchLineupsTab({
   ratingsLocked,
   onPlayerClick,
 }: MatchLineupsTabProps) {
+  const sideAvg = (side: "home" | "away") =>
+    teamCommunityAvg(
+      [...detail.starters, ...detail.substitutesOn].filter((p) => p.side === side),
+    )
+
   return (
     <div>
-      <MatchLineupFormationHeader
-        homeFormation={detail.homeFormation}
-        awayFormation={detail.awayFormation}
-      />
-
       <div className="md:hidden">
         <LineupMobileSection
           fixture={fixture}
@@ -56,17 +57,32 @@ export function MatchLineupsTab({
         />
       </div>
 
-      <div className="hidden md:block">
+      {/* Desktop: pitch column held to 85% width, Sofascore-style. */}
+      <div className="mx-auto hidden w-[85%] md:block">
         {!detail.hasLineups ? (
           <p className="body-sm text-muted-foreground">
             Lineups are not available yet. Check back closer to kickoff.
           </p>
         ) : (
-          <LineupPitch
-            starters={detail.starters}
-            ratingsLocked={ratingsLocked}
-            onPlayerClick={onPlayerClick}
-          />
+          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+            <MatchLineupFormationHeader
+              home={{
+                team: fixture.home_team,
+                formation: detail.homeFormation,
+                teamAvg: sideAvg("home"),
+              }}
+              away={{
+                team: fixture.away_team,
+                formation: detail.awayFormation,
+                teamAvg: sideAvg("away"),
+              }}
+            />
+            <LineupPitch
+              starters={detail.starters}
+              ratingsLocked={ratingsLocked}
+              onPlayerClick={onPlayerClick}
+            />
+          </div>
         )}
         <MatchSubstitutesSection
           fixture={fixture}

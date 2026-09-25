@@ -24,6 +24,7 @@ function player(
     minutesPlayed: overrides.minutesPlayed ?? 90,
     subOnMinute: overrides.subOnMinute ?? null,
     subReplacedPlayerName: overrides.subReplacedPlayerName ?? null,
+    subOffMinute: null,
     goalCount: overrides.goalCount ?? 0,
     assistCount: overrides.assistCount ?? 0,
     yellowCardCount: overrides.yellowCardCount ?? 0,

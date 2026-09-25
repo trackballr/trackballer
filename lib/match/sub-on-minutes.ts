@@ -34,3 +34,17 @@ export function buildSubOnInfoMap(
   }
   return map
 }
+
+/** Minute each player left the pitch (API-Football subst `player`). First event wins. */
+export function buildSubOffMinuteMap(
+  events: SubstitutionEventRow[],
+): Map<number, number> {
+  const map = new Map<number, number>()
+  for (const event of events) {
+    if (event.type.toLowerCase() !== "subst") continue
+    const leavingId = event.player_id
+    if (leavingId == null || map.has(leavingId)) continue
+    map.set(leavingId, event.minute + (event.extra_minute ?? 0))
+  }
+  return map
+}

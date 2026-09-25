@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { formatMatchHeroScore } from "@/lib/match/hero-score"
+import { formatMatchHeroScore, matchHeroStatusLabel } from "@/lib/match/hero-score"
 import { matchRowFixture } from "@/lib/match/__tests__/fixtures"
 
 describe("formatMatchHeroScore", () => {
@@ -36,5 +36,20 @@ describe("formatMatchHeroScore", () => {
     expect(result.mainScore).toBe("2 - 1")
     expect(result.penLine).toBeNull()
     expect(result.statusText).toBe("FT")
+  })
+})
+
+describe("matchHeroStatusLabel", () => {
+  it("spells out finished and paused states", () => {
+    expect(matchHeroStatusLabel("FT")).toBe("Full time")
+    expect(matchHeroStatusLabel("AET")).toBe("After extra time")
+    expect(matchHeroStatusLabel("PEN")).toBe("After penalties")
+    expect(matchHeroStatusLabel("HT")).toBe("Half time")
+  })
+
+  it("returns null before kickoff and Live for in-play codes", () => {
+    expect(matchHeroStatusLabel("NS")).toBeNull()
+    expect(matchHeroStatusLabel("TBD")).toBeNull()
+    expect(matchHeroStatusLabel("2H")).toBe("Live")
   })
 })

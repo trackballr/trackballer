@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import { CatalogImage } from "@/components/catalog-image"
 import { MatchKickoffClock } from "@/components/match/match-kickoff-clock"
 import { MatchKickoffDateTime } from "@/components/match/match-kickoff-datetime"
@@ -6,7 +8,7 @@ import { MatchScorersRow } from "@/components/match/match-scorers-row"
 import { NationalTeamNameLink } from "@/components/national-team-name-link"
 import { TeamFlag } from "@/components/team-flag"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
-import type { MatchHeroScore } from "@/lib/match/hero-score"
+import { matchHeroStatusLabel, type MatchHeroScore } from "@/lib/match/hero-score"
 import type { MatchDetail } from "@/lib/match/types"
 import { cn } from "@/lib/utils"
 
@@ -14,6 +16,8 @@ type MatchHeroProps = {
   fixture: FixtureWithTeams
   detail: Pick<MatchDetail, "competitionLabel" | "goalScorers" | "redCards">
   heroScore: MatchHeroScore
+  /** Rendered flush with the bottom edge (FotMob-style tabs). */
+  tabBar?: ReactNode
   className?: string
 }
 
@@ -60,95 +64,134 @@ function MatchTrophyIcon({ className }: { className?: string }) {
   )
 }
 
-export function MatchHero({ fixture, detail, heroScore, className }: MatchHeroProps) {
+function HeroTeam({
+  team,
+  side,
+}: {
+  team: FixtureWithTeams["home_team"]
+  side: "home" | "away"
+}) {
+  return (
+    <div
+      className={cn(
+        "flex min-w-0 flex-col items-center gap-2 md:flex-row md:gap-4",
+        side === "home" && "md:justify-end",
+      )}
+    >
+      <TeamFlag
+        team={team}
+        size="lg"
+        variant="crest"
+        className={cn("size-10 md:size-12", side === "home" && "md:order-last")}
+      />
+      <NationalTeamNameLink
+        team={team}
+        className={cn(
+          "block max-w-full text-center font-display text-sm font-semibold md:text-2xl",
+          side === "home" ? "md:text-right" : "md:text-left",
+        )}
+      />
+    </div>
+  )
+}
+
+function HeroScore({
+  fixture,
+  heroScore,
+}: {
+  fixture: FixtureWithTeams
+  heroScore: MatchHeroScore
+}) {
+  const statusLabel = matchHeroStatusLabel(fixture.status_short)
+
+  return (
+    <div className="flex flex-col items-center px-1 text-center">
+      <p className="font-display text-3xl font-bold leading-none tabular-nums tracking-tight md:text-5xl">
+        {heroScore.isUpcoming && fixture.kickoff_at ? (
+          <MatchKickoffClock iso={fixture.kickoff_at} fallback={heroScore.mainScore} />
+        ) : (
+          heroScore.mainScore
+        )}
+      </p>
+      {heroScore.penLine && (
+        <p className="mt-1.5 text-xs font-semibold text-foreground/80 md:text-sm">
+          {heroScore.penLine}
+        </p>
+      )}
+      {statusLabel && (
+        <p
+          className={cn(
+            "mt-1.5 inline-flex items-center gap-1.5 text-xs font-medium md:text-sm",
+            heroScore.isLive ? "text-primary" : "text-muted-foreground",
+          )}
+        >
+          {heroScore.isLive && (
+            <span className="size-1.5 animate-pulse rounded-full bg-primary" aria-hidden />
+          )}
+          {statusLabel}
+        </p>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Match header card: competition bar, date + venue, teams and score, scorers,
+ * and an optional tab bar pinned to the bottom edge.
+ */
+export function MatchHero({ fixture, detail, heroScore, tabBar, className }: MatchHeroProps) {
+  const hasScorers =
+    detail.goalScorers.home.length > 0 || detail.goalScorers.away.length > 0
+
   return (
     <section
       className={cn(
-        "mb-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm",
+        "mb-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm",
         className,
       )}
     >
-      <div className="bg-gradient-to-br from-muted/40 via-card to-muted/20 px-4 py-4 md:px-6 md:py-5">
-        {detail.competitionLabel && (
-          <div className="mb-3 flex items-center justify-center gap-1.5 text-center">
-            <MatchTrophyIcon />
-            <p className="text-sm font-semibold text-foreground">{detail.competitionLabel}</p>
-          </div>
-        )}
+      {detail.competitionLabel && (
+        <div className="flex items-center justify-center gap-2 border-b border-border px-4 py-3">
+          <MatchTrophyIcon />
+          <p className="truncate text-sm font-semibold text-foreground md:text-base">
+            {detail.competitionLabel}
+          </p>
+        </div>
+      )}
 
-        {(fixture.kickoff_at || fixture.venue) && (
-          <div className="mb-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            {fixture.kickoff_at && <MatchKickoffDateTime iso={fixture.kickoff_at} />}
-            {fixture.venue && (
-              <span className="inline-flex items-center gap-1">
-                <CatalogImage
-                  src={STADIUM_ICON}
-                  alt=""
-                  width={14}
-                  height={14}
-                  className="shrink-0 object-contain opacity-70 dark:invert"
-                />
-                {fixture.venue}
-              </span>
-            )}
-          </div>
-        )}
-
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-6">
-          <div className="flex min-w-0 items-center justify-end gap-2 md:gap-3">
-            <div className="min-w-0 text-right">
-              <NationalTeamNameLink
-                team={fixture.home_team}
-                className="block truncate font-display text-base font-bold md:text-xl"
+      {(fixture.kickoff_at || fixture.venue) && (
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 border-b border-border px-4 py-2.5 text-xs text-muted-foreground">
+          {fixture.kickoff_at && <MatchKickoffDateTime iso={fixture.kickoff_at} />}
+          {fixture.venue && (
+            <span className="inline-flex items-center gap-1.5">
+              <CatalogImage
+                src={STADIUM_ICON}
+                alt=""
+                width={14}
+                height={14}
+                className="shrink-0 object-contain opacity-60 dark:invert"
               />
-            </div>
-            <TeamFlag team={fixture.home_team} size="md" className="shrink-0" />
-          </div>
+              {fixture.venue}
+            </span>
+          )}
+        </div>
+      )}
 
-          <div className="text-center">
-            <p className="font-display text-3xl font-bold tabular-nums tracking-tight md:text-4xl">
-              {heroScore.isUpcoming && fixture.kickoff_at ? (
-                <MatchKickoffClock
-                  iso={fixture.kickoff_at}
-                  fallback={heroScore.mainScore}
-                />
-              ) : (
-                heroScore.mainScore
-              )}
-            </p>
-            {heroScore.penLine && (
-              <p className="mt-0.5 text-xs font-medium text-muted-foreground md:text-sm">
-                {heroScore.penLine}
-              </p>
-            )}
-            {heroScore.isLive && (
-              <p className="mt-0.5 text-xs font-semibold uppercase text-primary">
-                {heroScore.statusText}
-              </p>
-            )}
-          </div>
-
-          <div className="flex min-w-0 items-center gap-2 md:gap-3">
-            <TeamFlag team={fixture.away_team} size="md" className="shrink-0" />
-            <div className="min-w-0 text-left">
-              <NationalTeamNameLink
-                team={fixture.away_team}
-                className="block truncate font-display text-base font-bold md:text-xl"
-              />
-            </div>
-          </div>
+      <div className="px-3 pt-5 pb-4 md:px-8 md:pt-7 md:pb-5">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2 md:items-center md:gap-8">
+          <HeroTeam team={fixture.home_team} side="home" />
+          <HeroScore fixture={fixture} heroScore={heroScore} />
+          <HeroTeam team={fixture.away_team} side="away" />
         </div>
 
-        <MatchScorersRow scorers={detail.goalScorers} className="mt-1" />
+        <MatchScorersRow scorers={detail.goalScorers} className="mt-4 md:mt-5" />
         <MatchRedCardsRow
           redCards={detail.redCards}
-          className={
-            detail.goalScorers.home.length > 0 || detail.goalScorers.away.length > 0
-              ? "border-t-0 pt-2"
-              : undefined
-          }
+          className={hasScorers ? "mt-1.5" : "mt-4 md:mt-5"}
         />
       </div>
+
+      {tabBar && <div className="px-3 md:px-6">{tabBar}</div>}
     </section>
   )
 }

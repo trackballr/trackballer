@@ -39,17 +39,17 @@ export function MatchRedCardsRow({ redCards, className }: MatchRedCardsRowProps)
   return (
     <div
       className={cn(
-        "flex items-start border-t border-primary/40 px-2 pt-3 text-xs text-muted-foreground",
+        "flex items-start px-2 text-xs text-muted-foreground md:text-sm",
         className,
       )}
     >
-      <div className="flex min-w-0 flex-1 justify-end pr-2">
+      <div className="flex min-w-0 flex-1 justify-end pr-3">
         <RedCardColumn cards={redCards.home} align="right" />
       </div>
       <span className="flex size-5 shrink-0 items-center justify-center pt-0.5">
         <MatchRedCardIcon className="h-3.5 w-2.5" />
       </span>
-      <div className="flex min-w-0 flex-1 justify-start pl-2">
+      <div className="flex min-w-0 flex-1 justify-start pl-3">
         <RedCardColumn cards={redCards.away} align="left" />
       </div>
     </div>
