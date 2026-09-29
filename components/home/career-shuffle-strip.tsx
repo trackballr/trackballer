@@ -51,7 +51,7 @@ function GuestBanner() {
         <Shuffle className="size-6 text-primary-foreground/80" aria-hidden />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-base font-semibold">Sign in to shuffle players</p>
+        <p className="text-base font-semibold">Sign in to rate a player</p>
         <p className="mt-1 text-sm text-primary-foreground/80">
           Discover someone new and rate their career.
         </p>
@@ -131,7 +131,7 @@ function PlayerBanner({
           ) : (
             <Shuffle data-icon="inline-start" aria-hidden />
           )}
-          Shuffle
+          Someone else
         </Button>
       </div>
     </div>
@@ -157,12 +157,12 @@ function EmptyBanner({
         <p className="text-base font-semibold">
           {filtered
             ? "No unrated players in this league or these clubs."
-            : "No players available to shuffle right now."}
+            : "No players left to rate right now."}
         </p>
         <p className="mt-1 text-sm text-primary-foreground/80">
           {filtered
             ? hasClubFilter
-              ? "Clear the club filter or browse the full list."
+              ? "Choose Anyone, or browse the full list."
               : "Pick another league or browse the full list."
             : "You may have rated everyone in the pool, or squads are still syncing."}
         </p>
@@ -176,7 +176,7 @@ function EmptyBanner({
             className={cn(primaryOutlineBtn)}
             onClick={onClearClubs}
           >
-            Clear clubs
+            Use every club
           </Button>
         ) : null}
         <Link
@@ -201,7 +201,7 @@ function EmptyBanner({
           ) : (
             <Shuffle data-icon="inline-start" aria-hidden />
           )}
-          Shuffle
+          Someone else
         </Button>
       </div>
     </div>
@@ -259,9 +259,9 @@ export function CareerShuffleStrip({ isLoggedIn, clubs }: CareerShuffleStripProp
     <section>
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <div>
-          <h2 className="h3">Shuffle ratings</h2>
+          <h2 className="h3">Rate a player</h2>
           <p className="body-sm mt-1 text-muted-foreground">
-            Rate careers for players you haven&apos;t scored yet.
+            Pick a league, then rate the player we show you.
           </p>
         </div>
         <Link

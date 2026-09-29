@@ -66,25 +66,22 @@ export function CareerShuffleClubsDialog({
     )
   }
 
-  const emptyCopy =
-    leagueId == null
-      ? "Shuffle uses every club in the top leagues."
-      : "Shuffle uses every club in this league."
+  const emptyCopy = "Leave them all unticked and you'll get a player from any club."
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[min(32rem,calc(100%-2rem))] flex-col gap-3 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Clubs</DialogTitle>
+          <DialogTitle>Which clubs?</DialogTitle>
           <DialogDescription>
-            {draft.length === 0 ? emptyCopy : `${draft.length} selected.`}
+            {draft.length === 0 ? emptyCopy : `${draft.length} selected. Only these clubs will come up.`}
           </DialogDescription>
         </DialogHeader>
 
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search clubs"
+          placeholder="Type a club name"
           aria-label="Search clubs"
         />
 
@@ -128,7 +125,7 @@ export function CareerShuffleClubsDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => setDraft([])}>
-            Clear
+            Clear ticks
           </Button>
           <Button
             type="button"
@@ -137,7 +134,7 @@ export function CareerShuffleClubsDialog({
               onOpenChange(false)
             }}
           >
-            Apply
+            Use these clubs
           </Button>
         </DialogFooter>
       </DialogContent>

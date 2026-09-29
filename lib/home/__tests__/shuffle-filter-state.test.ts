@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { bigClubIdsForLeague } from "@/lib/home/shuffle-big-clubs"
 import {
+  describeShuffleScope,
   formatShuffleClubSummary,
   isBigClubSelection,
   parseShuffleFilters,
@@ -71,6 +72,22 @@ describe("shuffle filters", () => {
     writeShuffleFilters(storage, { leagueId: 78, teamIds: [157] })
     expect(saved.get(SHUFFLE_FILTERS_STORAGE_KEY)).toContain("157")
     expect(readShuffleFilters(storage)).toEqual({ leagueId: 78, teamIds: [157] })
+  })
+
+  it("describes who the next player will be", () => {
+    const clubs = [
+      { id: 42, name: "Arsenal", logoUrl: null, leagueId: 39 },
+      { id: 40, name: "Liverpool", logoUrl: null, leagueId: 39 },
+    ]
+    expect(describeShuffleScope({ leagueId: 39, teamIds: [] }, clubs)).toBe(
+      "Next up: one Premier League player you haven't rated.",
+    )
+    expect(describeShuffleScope({ leagueId: null, teamIds: bigClubIdsForLeague(null) }, clubs)).toBe(
+      "Next up: one player from the big clubs you haven't rated.",
+    )
+    expect(describeShuffleScope({ leagueId: 39, teamIds: [42, 40] }, clubs)).toBe(
+      "Next up: one player from Arsenal, Liverpool you haven't rated.",
+    )
   })
 
   it("formats a short club summary", () => {

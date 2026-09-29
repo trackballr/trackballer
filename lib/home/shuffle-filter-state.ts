@@ -114,6 +114,30 @@ export function withShuffleClubTicks(
   return sanitized.ok ? sanitized.filter : state
 }
 
+export function describeShuffleScope(
+  state: ShuffleFilterState,
+  clubs: ShuffleClubOption[],
+): string {
+  const league = TOP_LEAGUE_CLUBS.find((item) => item.id === state.leagueId)?.name ?? null
+
+  if (state.teamIds.length === 0) {
+    return league
+      ? `Next up: one ${league} player you haven't rated.`
+      : "Next up: one player from the top leagues you haven't rated."
+  }
+
+  if (isBigClubSelection(state)) {
+    return league
+      ? `Next up: one player from the big ${league} clubs you haven't rated.`
+      : "Next up: one player from the big clubs you haven't rated."
+  }
+
+  const summary = formatShuffleClubSummary(state.teamIds, clubs)
+  return summary
+    ? `Next up: one player from ${summary} you haven't rated.`
+    : "Next up: one player from the clubs you picked."
+}
+
 export function formatShuffleClubSummary(
   teamIds: number[],
   clubs: ShuffleClubOption[],

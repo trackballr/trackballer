@@ -91,8 +91,8 @@ export function RatingsExplainer() {
             to rate their career.
           </li>
           <li>
-            Use the <strong className="text-foreground">shuffle strip</strong> on the home
-            page to discover players you have not scored yet.
+            On the home page, use <strong className="text-foreground">Rate a player</strong> to
+            find someone you have not rated yet.
           </li>
           <li>
             After a match ends, open the <strong className="text-foreground">match
