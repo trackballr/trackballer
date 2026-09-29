@@ -6,6 +6,7 @@ import {
   addCommentToTree,
   appendThreadComments,
   getThreadIndent,
+  replyAddress,
 } from "@/lib/comment/comment-tree"
 import type { CommentDisplay } from "@/lib/comment/types"
 
@@ -106,10 +107,43 @@ describe("appendThreadComments", () => {
   })
 })
 
+describe("replyAddress", () => {
+  it("names the reply a later comment answers, and skips the original comment", () => {
+    const root = comment({ id: 10, user_id: "root-user" })
+    const first = comment({
+      id: 11,
+      parent_id: 10,
+      thread_root_id: 10,
+      thread_depth: 1,
+      user_id: "alice",
+      profile: {
+        id: "alice",
+        username: "alice",
+        display_name: "Alice",
+        avatar_url: null,
+        favourite_club: null,
+        favourite_national_team: null,
+      },
+    })
+    const nested = comment({
+      id: 12,
+      parent_id: 11,
+      thread_root_id: 10,
+      thread_depth: 2,
+    })
+    root.replies = [first, nested]
+
+    expect(replyAddress(root, first)).toBeNull()
+    expect(replyAddress(root, nested)?.username).toBe("alice")
+    expect(replyAddress(root, nested)?.commentId).toBe(11)
+  })
+})
+
 describe("getThreadIndent", () => {
-  it("caps visual indent at depth 4", () => {
-    expect(getThreadIndent(1)).toBe("2.5rem")
-    expect(getThreadIndent(4)).toBe("10rem")
-    expect(getThreadIndent(8)).toBe("10rem")
+  it("uses one indent for every reply", () => {
+    expect(getThreadIndent(0)).toBe("0")
+    expect(getThreadIndent(1)).toBe("1.25rem")
+    expect(getThreadIndent(8)).toBe("1.25rem")
+    expect(getThreadIndent(40)).toBe("1.25rem")
   })
 })

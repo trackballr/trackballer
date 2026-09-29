@@ -19,11 +19,11 @@ export function PlayerNationalityFlag({
   const code = nationalityToAlpha2(nationality)
   if (!code) return null
 
+  const px = sizePx[size]
+
   return (
-    <CircleFlag
-      countryCode={code}
-      height={sizePx[size]}
-      className={cn("shrink-0", className)}
-    />
+    <span className={cn("inline-flex shrink-0 overflow-hidden rounded-full", className)} style={{ width: px, height: px }}>
+      <CircleFlag countryCode={code} height={px} />
+    </span>
   )
 }

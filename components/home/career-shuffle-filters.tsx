@@ -187,22 +187,15 @@ function LeagueChipLogo({
 
 function ShuffleChoiceIndicator({ selected }: { selected: boolean }) {
   return (
-    <div className="flex flex-col items-center gap-0.5 pt-0.5" aria-hidden>
-      <span
-        className={cn(
-          "flex size-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-          selected ? "border-primary" : "border-muted-foreground/45",
-        )}
-      >
-        {selected ? <span className="size-2 rounded-full bg-primary" /> : null}
-      </span>
-      <span
-        className={cn(
-          "size-1 rounded-full bg-primary transition-opacity",
-          selected ? "opacity-100" : "opacity-0",
-        )}
-      />
-    </div>
+    <span
+      className={cn(
+        "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+        selected ? "border-primary" : "border-muted-foreground/45",
+      )}
+      aria-hidden
+    >
+      {selected ? <span className="size-2 rounded-full bg-primary" /> : null}
+    </span>
   )
 }
 

@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/dialog"
 import { CommentAuthorLink } from "@/components/comment/comment-author-link"
 import { CommentTime } from "@/components/comment/comment-time"
-import { getThreadIndent } from "@/lib/comment/comment-tree"
+import { getCommentAuthorDisplay } from "@/lib/comment/author-display"
+import { getThreadIndent, type ReplyAddress } from "@/lib/comment/comment-tree"
 import { MAX_THREAD_DEPTH } from "@/lib/comment/pagination"
 import type { CommentDisplay } from "@/lib/comment/types"
 
@@ -24,6 +25,7 @@ interface CommentItemProps {
   isLoggedIn: boolean
   currentUserId: string | null
   depth?: number
+  replyTo?: ReplyAddress | null
   onVote: (commentId: number, value: 1 | -1) => void
   onDelete: (commentId: number) => void
   onPostReply: (body: string, parentId: number) => Promise<{ ok: boolean; error?: string }>
@@ -35,6 +37,7 @@ export function CommentItem({
   isLoggedIn,
   currentUserId,
   depth = 0,
+  replyTo = null,
   onVote,
   onDelete,
   onPostReply,
@@ -54,7 +57,8 @@ export function CommentItem({
   return (
     <>
       <div
-        className={`flex gap-3 transition-opacity ${isPending ? "opacity-50" : ""}`}
+        id={`comment-${comment.id}`}
+        className={`flex scroll-mt-20 gap-3 transition-opacity ${isPending ? "opacity-50" : ""}`}
         style={depth > 0 ? { marginLeft: getThreadIndent(depth) } : undefined}
       >
         <div className="flex flex-col items-center gap-1 pt-1">
@@ -92,6 +96,7 @@ export function CommentItem({
         </div>
 
         <div className="min-w-0 flex-1">
+          {replyTo ? <ReplyingTo replyTo={replyTo} currentUserId={currentUserId} /> : null}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <CommentAuthorLink
               currentUserId={currentUserId}
@@ -175,5 +180,43 @@ export function CommentItem({
         </DialogContent>
       </Dialog>
     </>
+  )
+}
+
+function ReplyingTo({
+  replyTo,
+  currentUserId,
+}: {
+  replyTo: ReplyAddress
+  currentUserId: string | null
+}) {
+  const named =
+    replyTo.authorUserId != null
+      ? getCommentAuthorDisplay({
+          currentUserId,
+          authorUserId: replyTo.authorUserId,
+          username: replyTo.username,
+          displayName: replyTo.displayName,
+        }).label
+      : null
+
+  function jumpToParent() {
+    document.getElementById(`comment-${replyTo.commentId}`)?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    })
+  }
+
+  return (
+    <p className="mb-1 text-xs text-muted-foreground">
+      Replying to{" "}
+      <button
+        type="button"
+        onClick={jumpToParent}
+        className="font-medium text-foreground hover:underline"
+      >
+        {named ?? "an earlier reply"}
+      </button>
+    </p>
   )
 }

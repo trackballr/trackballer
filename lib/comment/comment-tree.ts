@@ -1,5 +1,3 @@
-import { MAX_THREAD_INDENT_DEPTH } from "@/lib/comment/pagination"
-
 import type { CommentDisplay } from "./types"
 import type { VoteTransition } from "./optimistic-vote"
 
@@ -58,9 +56,44 @@ function patchRootComment(
   }
 }
 
+/** Every reply sits one step in, no matter how deep the debate goes. */
+export const REPLY_INDENT = "1.25rem"
+
 export function getThreadIndent(depth: number): string {
-  const capped = Math.min(Math.max(depth, 0), MAX_THREAD_INDENT_DEPTH)
-  return `${capped * 2.5}rem`
+  if (depth <= 0) return "0"
+  return REPLY_INDENT
+}
+
+export type ReplyAddress = {
+  commentId: number
+  authorUserId: string | null
+  username: string | null
+  displayName: string | null
+}
+
+/** Set when this reply answers another reply, not the original comment. */
+export function replyAddress(root: CommentDisplay, reply: CommentDisplay): ReplyAddress | null {
+  if (reply.parent_id == null || reply.parent_id === root.id) return null
+
+  const parent =
+    root.replies.find((row) => row.id === reply.parent_id) ??
+    (root.id === reply.parent_id ? root : null)
+
+  if (!parent) {
+    return {
+      commentId: reply.parent_id,
+      authorUserId: null,
+      username: null,
+      displayName: null,
+    }
+  }
+
+  return {
+    commentId: parent.id,
+    authorUserId: parent.user_id,
+    username: parent.profile?.username ?? null,
+    displayName: parent.profile?.display_name ?? null,
+  }
 }
 
 export function updateVoteInTree(

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Loader2, Shuffle } from "lucide-react"
+import { CircleHelp, Loader2, Shuffle } from "lucide-react"
 import { useCallback, useEffect, useState, useTransition } from "react"
 
 import { CareerShuffleFilters } from "@/components/home/career-shuffle-filters"
@@ -272,8 +272,9 @@ export function CareerShuffleStrip({
         </div>
         <Link
           href="/how-ratings-work"
-          className="text-xs font-medium text-primary hover:underline"
+          className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
         >
+          <CircleHelp className="size-3.5" aria-hidden />
           How ratings work
         </Link>
       </div>

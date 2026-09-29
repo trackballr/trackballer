@@ -2,7 +2,7 @@ import { PlayerAvatar } from "@/components/player-avatar"
 import { careerRingCssVar, formatCareerScore } from "@/lib/rating/career-tier"
 import { cn } from "@/lib/utils"
 
-type CareerRingSize = "default" | "compact" | "mini"
+type CareerRingSize = "default" | "compact" | "mini" | "quarter"
 
 type CareerRingProps = {
   name: string
@@ -12,7 +12,7 @@ type CareerRingProps = {
   className?: string
   /** Compact size for horizontal profile header. */
   compact?: boolean
-  /** Mini size for search dropdown rows (~⅓ of compact). */
+  /** Mini is about ⅓ of compact. Quarter is about ¼, for slim sidebar rows. */
   size?: CareerRingSize
 }
 
@@ -20,24 +20,28 @@ const ringSizeClass: Record<CareerRingSize, string> = {
   default: "size-[7.5rem]",
   compact: "size-[4.5rem]",
   mini: "size-6",
+  quarter: "size-[1.125rem]",
 }
 
 const ringBorderClass: Record<CareerRingSize, string> = {
   default: "border-[5px]",
   compact: "border-[3px]",
   mini: "border",
+  quarter: "border",
 }
 
 const avatarSize: Record<CareerRingSize, "sm" | "lg" | "xl"> = {
   default: "xl",
   compact: "lg",
   mini: "sm",
+  quarter: "sm",
 }
 
 const scoreBadgeClass: Record<CareerRingSize, string> = {
   default: "min-w-[1.75rem] px-1.5 py-0.5 text-xs",
   compact: "min-w-[1.35rem] px-1 py-0.5 text-[10px]",
   mini: "min-w-[1rem] px-0.5 py-px text-[8px]",
+  quarter: "min-w-[0.85rem] px-0.5 py-px text-[7px]",
 }
 
 export function CareerRing({

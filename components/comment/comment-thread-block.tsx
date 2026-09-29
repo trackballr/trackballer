@@ -3,7 +3,8 @@
 import { ViewTransition } from "react"
 
 import { CommentItem } from "./comment-item"
-import { useInfiniteScroll } from "./use-infinite-scroll"
+import { Button } from "@/components/ui/button"
+import { replyAddress } from "@/lib/comment/comment-tree"
 import type { ReplyPaginationMeta } from "@/lib/comment/pagination"
 import type { CommentDisplay } from "@/lib/comment/types"
 
@@ -34,12 +35,6 @@ export function CommentThreadBlock({
 }: CommentThreadBlockProps) {
   const threadHasMore = threadMeta?.hasMore ?? false
 
-  const threadSentinelRef = useInfiniteScroll({
-    hasMore: threadHasMore,
-    isLoading: isLoadingThread,
-    onLoadMore: () => onLoadMoreThread(root.id),
-  })
-
   return (
     <div className="space-y-4">
       <CommentItem
@@ -62,7 +57,8 @@ export function CommentThreadBlock({
                 userVote={userVotesMap[reply.id] ?? null}
                 isLoggedIn={isLoggedIn}
                 currentUserId={currentUserId}
-                depth={reply.thread_depth}
+                depth={reply.thread_depth > 0 ? 1 : 0}
+                replyTo={replyAddress(root, reply)}
                 onVote={onVote}
                 onDelete={onDelete}
                 onPostReply={onPostReply}
@@ -73,10 +69,17 @@ export function CommentThreadBlock({
       )}
 
       {threadHasMore && (
-        <div ref={threadSentinelRef} className="flex justify-center py-2">
-          {isLoadingThread && (
-            <p className="text-xs text-muted-foreground">Loading more replies…</p>
-          )}
+        <div className="pl-5">
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            className="h-auto px-0"
+            disabled={isLoadingThread}
+            onClick={() => onLoadMoreThread(root.id)}
+          >
+            {isLoadingThread ? "Loading more replies…" : "View more replies"}
+          </Button>
         </div>
       )}
     </div>

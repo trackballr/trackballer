@@ -3,8 +3,8 @@ import type { CommentWithProfile } from "./types"
 export const PARENT_PAGE_SIZE = 20
 export const REPLY_PAGE_SIZE = 10
 export const INITIAL_REPLY_PREVIEW = 5
-export const MAX_THREAD_DEPTH = 8
-export const MAX_THREAD_INDENT_DEPTH = 4
+/** Abuse guard only. The screen never stops a normal debate at this depth. */
+export const MAX_THREAD_DEPTH = 100
 
 export type CommentSort = "top" | "new"
 
