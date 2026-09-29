@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 
 import { CatalogImage } from "@/components/catalog-image"
+import { Card } from "@/components/ui/card"
 import { TeamFlag } from "@/components/team-flag"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
 import {
@@ -129,7 +130,7 @@ export function CountryProfileHero({
   const fallback = code?.slice(0, 3).toUpperCase() ?? name.slice(0, 2).toUpperCase()
 
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+    <Card className="overflow-hidden">
       <div className="flex flex-col gap-4 bg-primary px-4 py-4 text-primary-foreground lg:flex-row lg:items-stretch lg:gap-5 sm:px-5 sm:py-5">
         <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
           <span className="flex size-[4.5rem] shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-primary-foreground/30 bg-primary-foreground/10">
@@ -203,6 +204,6 @@ export function CountryProfileHero({
           <MetaItem label="Competition">{competitionLabel}</MetaItem>
         </div>
       </div>
-    </section>
+    </Card>
   )
 }

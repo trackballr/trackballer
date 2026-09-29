@@ -122,6 +122,32 @@ function addClub(
   })
 }
 
+export type ShuffleLeagueLogos = Partial<Record<number, string | null>>
+
+export const getShuffleLeagueLogos = cache(async (): Promise<ShuffleLeagueLogos> => {
+  const supabase = await createClient()
+  const slugs = TOP_LEAGUE_CLUBS.map((league) => league.slug)
+
+  const { data, error } = await supabase
+    .from("leagues")
+    .select("slug, logo_url")
+    .in("slug", slugs)
+
+  if (error) {
+    console.error("getShuffleLeagueLogos failed:", error.message)
+    return {}
+  }
+
+  const bySlug = new Map((data ?? []).map((row) => [row.slug, row.logo_url]))
+  const logos: ShuffleLeagueLogos = {}
+
+  for (const league of TOP_LEAGUE_CLUBS) {
+    logos[league.id] = bySlug.get(league.slug) ?? null
+  }
+
+  return logos
+})
+
 function asTeam(value: unknown): TeamRow | null {
   const row = Array.isArray(value) ? value[0] : value
   if (!row || typeof row !== "object") return null

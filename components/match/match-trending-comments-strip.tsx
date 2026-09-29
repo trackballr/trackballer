@@ -1,6 +1,7 @@
 import { CommentAuthorLink } from "@/components/comment/comment-author-link"
 import { CommentFavouriteCrests } from "@/components/comment/comment-favourite-crests"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { getCommentTimeSince } from "@/lib/comment/format-time"
 import type { MatchTrendingCommentCard } from "@/lib/match/match-trending-comments"
 import { cn } from "@/lib/utils"
@@ -19,12 +20,7 @@ export function MatchTrendingCommentsStrip({
   className,
 }: MatchTrendingCommentsStripProps) {
   return (
-    <section
-      className={cn(
-        "flex h-auto flex-col self-start overflow-hidden rounded-xl border border-border bg-card shadow-sm",
-        className,
-      )}
-    >
+    <Card className={cn("flex h-auto flex-col self-start overflow-hidden", className)}>
       <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
         <h3 className="text-sm font-semibold">Trending comments</h3>
         <Button type="button" variant="link" size="sm" className="h-auto px-0" onClick={onSeeAll}>
@@ -63,6 +59,6 @@ export function MatchTrendingCommentsStrip({
           ))}
         </div>
       )}
-    </section>
+    </Card>
   )
 }

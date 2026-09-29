@@ -9,6 +9,7 @@ import {
   collectQualificationZones,
   getQualificationZone,
 } from "@/lib/league/qualification"
+import { cardSurfaceClass } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 type LeagueStandingsPanelProps = {
@@ -16,7 +17,7 @@ type LeagueStandingsPanelProps = {
   className?: string
 }
 
-const cardClass = "overflow-hidden rounded-xl border border-border bg-card"
+const cardClass = cardSurfaceClass({ className: "overflow-hidden" })
 
 const headerClass =
   "flex items-center justify-between gap-2 border-b border-border px-3 py-3 sm:px-4"

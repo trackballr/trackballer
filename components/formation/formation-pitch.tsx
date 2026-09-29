@@ -111,7 +111,7 @@ function PitchSurface({
         )
 
         const puckClass = cn(
-          "relative flex size-11 shrink-0 items-center justify-center rounded-full border-2 bg-card text-[0.6rem] font-bold shadow-sm transition-colors",
+          "relative flex size-11 shrink-0 items-center justify-center rounded-full border-2 bg-card text-[0.6rem] font-bold transition-colors",
           mode === "edit" && isActive
             ? "border-primary ring-2 ring-primary/30"
             : "border-border",

@@ -11,7 +11,7 @@ export type PlayerBrowseRow = {
   nationality: string | null
   primary_position: string | null
   age: number | null
-  club_team: { name: string } | null
+  club_team: { name: string; logo_url: string | null; code: string | null } | null
   career:
     | {
         display_score: number
@@ -46,5 +46,12 @@ export function mapPlayerBrowseRow(row: PlayerBrowseRow): PlayerListItem {
     displayScore: career ? Number(career.display_score) : 50,
     isProvisional: career?.is_provisional ?? true,
     clubName: row.club_team?.name ?? null,
+    clubTeam: row.club_team
+      ? {
+          name: row.club_team.name,
+          logo_url: row.club_team.logo_url,
+          code: row.club_team.code,
+        }
+      : null,
   }
 }

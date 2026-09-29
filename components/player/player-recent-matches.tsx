@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { Card } from "@/components/ui/card"
 import { TeamFlag } from "@/components/team-flag"
 import { formatMatchScore } from "@/lib/match/score"
 import type { PlayerProfile } from "@/lib/player/types"
@@ -26,7 +27,7 @@ function formatKickoffShort(iso: string): string {
 export function PlayerRecentMatches({ profile }: PlayerRecentMatchesProps) {
   return (
     <section className="mb-8">
-      <div className="rounded-xl border border-border bg-card shadow-sm">
+      <Card className="overflow-hidden">
         <div className="border-b border-border px-4 py-3">
           <h2 className="text-sm font-semibold">Recent matches</h2>
         </div>
@@ -89,7 +90,7 @@ export function PlayerRecentMatches({ profile }: PlayerRecentMatchesProps) {
             })}
           </ul>
         )}
-      </div>
+      </Card>
     </section>
   )
 }

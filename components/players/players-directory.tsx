@@ -21,8 +21,8 @@ export function PlayersDirectory({
 }: PlayersDirectoryProps) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-4 lg:py-5">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_minmax(0,1fr)_220px] lg:items-start">
-        <aside className="hidden lg:block">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:items-start">
+        <aside className="hidden lg:col-span-1 lg:block">
           <div className="sticky top-16 rounded-lg border border-border bg-card p-4">
             <PlayersFiltersForm
               filters={filters}
@@ -34,7 +34,7 @@ export function PlayersDirectory({
           </div>
         </aside>
 
-        <div className="min-w-0">
+        <div className="min-w-0 lg:col-span-2">
           <PlayersToolbar
             filters={filters}
             options={options}
@@ -46,9 +46,9 @@ export function PlayersDirectory({
               No players match these filters. Try clearing filters or another search.
             </p>
           ) : (
-            <div className="mt-4 overflow-hidden rounded-lg border border-border bg-card">
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {result.players.map((player) => (
-                <PlayerResultRow key={player.id} player={player} />
+                <PlayerResultRow key={player.id} player={player} variant="card" />
               ))}
             </div>
           )}
@@ -63,7 +63,7 @@ export function PlayersDirectory({
           </div>
         </div>
 
-        <aside className="hidden lg:block">
+        <aside className="hidden lg:col-span-1 lg:block">
           <div className="sticky top-16 rounded-lg border border-border bg-card p-4">
             <TrendingPlayers players={trendingPlayers} variant="sidebar" />
           </div>

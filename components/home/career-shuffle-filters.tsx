@@ -3,10 +3,12 @@
 import { useState } from "react"
 import { X } from "lucide-react"
 
+import { CatalogImage } from "@/components/catalog-image"
 import { CareerShuffleClubsDialog } from "@/components/home/career-shuffle-clubs-dialog"
 import { TeamFlag } from "@/components/team-flag"
 import { Button } from "@/components/ui/button"
 import { TOP_LEAGUE_CLUBS } from "@/lib/catalog/top-leagues"
+import type { ShuffleLeagueLogos } from "@/lib/home/shuffle-clubs"
 import { bigClubIdsForLeague, bigClubName } from "@/lib/home/shuffle-big-clubs"
 import {
   describeShuffleScope,
@@ -24,6 +26,7 @@ const LEAGUE_CHIPS: { id: number | null; label: string }[] = [
 
 type CareerShuffleFiltersProps = {
   clubs: ShuffleClubOption[]
+  leagueLogos: ShuffleLeagueLogos
   filter: ShuffleFilterState
   onLeague: (leagueId: number | null) => void
   onToggleBigClubs: () => void
@@ -34,6 +37,7 @@ type ClubChoice = "any" | "big" | "custom"
 
 export function CareerShuffleFilters({
   clubs,
+  leagueLogos,
   filter,
   onLeague,
   onToggleBigClubs,
@@ -54,6 +58,7 @@ export function CareerShuffleFilters({
         <div className="mt-2 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="League">
           {LEAGUE_CHIPS.map((chip) => {
             const selected = filter.leagueId === chip.id
+            const logoUrl = chip.id != null ? leagueLogos[chip.id] : null
             return (
               <Button
                 key={chip.label}
@@ -61,9 +66,12 @@ export function CareerShuffleFilters({
                 size="sm"
                 variant={selected ? "default" : "outline"}
                 aria-pressed={selected}
-                className="shrink-0"
+                className="shrink-0 gap-1.5"
                 onClick={() => onLeague(chip.id)}
               >
+                {chip.id != null ? (
+                  <LeagueChipLogo label={chip.label} logoUrl={logoUrl ?? null} selected={selected} />
+                ) : null}
                 {chip.label}
               </Button>
             )
@@ -144,6 +152,60 @@ export function CareerShuffleFilters({
   )
 }
 
+function LeagueChipLogo({
+  label,
+  logoUrl,
+  selected,
+}: {
+  label: string
+  logoUrl: string | null
+  selected: boolean
+}) {
+  if (logoUrl) {
+    return (
+      <CatalogImage
+        src={logoUrl}
+        alt=""
+        width={16}
+        height={16}
+        className="size-4 shrink-0 object-contain"
+      />
+    )
+  }
+
+  return (
+    <span
+      className={cn(
+        "flex size-4 shrink-0 items-center justify-center rounded-sm text-[7px] font-bold leading-none",
+        selected ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground",
+      )}
+    >
+      {label.slice(0, 2).toUpperCase()}
+    </span>
+  )
+}
+
+function ShuffleChoiceIndicator({ selected }: { selected: boolean }) {
+  return (
+    <div className="flex flex-col items-center gap-0.5 pt-0.5" aria-hidden>
+      <span
+        className={cn(
+          "flex size-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+          selected ? "border-primary" : "border-muted-foreground/45",
+        )}
+      >
+        {selected ? <span className="size-2 rounded-full bg-primary" /> : null}
+      </span>
+      <span
+        className={cn(
+          "size-1 rounded-full bg-primary transition-opacity",
+          selected ? "opacity-100" : "opacity-0",
+        )}
+      />
+    </div>
+  )
+}
+
 function ChoiceCard({
   title,
   hint,
@@ -161,12 +223,15 @@ function ChoiceCard({
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "rounded-xl border px-3 py-2.5 text-left",
+        "flex gap-2.5 rounded-xl border px-3 py-2.5 text-left",
         selected ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-muted/60",
       )}
     >
-      <span className="block text-sm font-semibold">{title}</span>
-      <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+      <ShuffleChoiceIndicator selected={selected} />
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold">{title}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+      </span>
     </button>
   )
 }

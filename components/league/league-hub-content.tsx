@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { TeamOfTheStageStrip } from "@/components/home/team-of-the-stage-strip"
+import { Card } from "@/components/ui/card"
 import { LeagueFixturesList } from "@/components/league/league-fixtures-list"
 import { LeagueRoundNav } from "@/components/league/league-round-nav"
 import { LeagueStandingsPanel } from "@/components/league/league-standings-panel"
@@ -31,7 +32,7 @@ export function LeagueHubContent({
     <section className="min-w-0">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,65%)_minmax(0,35%)] lg:items-start">
         <div className="min-w-0 space-y-6">
-          <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <Card className="overflow-hidden">
             <LeagueRoundNav
               slug={slug}
               rounds={rounds}
@@ -48,7 +49,7 @@ export function LeagueHubContent({
                   : "No upcoming matches in this round."}
               </p>
             )}
-          </div>
+          </Card>
 
           <p className="body-sm">
             <Link href="/" className="text-primary underline-offset-4 hover:underline">

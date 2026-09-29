@@ -1,7 +1,7 @@
 import Link from "next/link"
 
+import { PlayerClubCrestBadge } from "@/components/player/player-club-crest-badge"
 import { CareerRing } from "@/components/player/career-ring"
-import { TeamFlag } from "@/components/team-flag"
 import type { TrendingPlayerCard } from "@/lib/home/types"
 
 type TrendingPlayersProps = {
@@ -21,8 +21,8 @@ function TrendingPlayerCardItem({
       href={`/player/${player.id}`}
       className={
         sidebar
-          ? "flex items-center gap-3 rounded-lg border border-border bg-card p-2 transition-colors hover:bg-muted/30"
-          : "flex w-[7.5rem] shrink-0 flex-col items-center gap-3.5 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted/30 sm:w-auto"
+          ? "flex min-w-0 flex-col items-center gap-2 rounded-lg border border-border bg-card p-2 transition-colors hover:bg-muted/30"
+          : "flex w-full min-w-0 flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted/30"
       }
     >
       <div className="relative shrink-0">
@@ -33,19 +33,9 @@ function TrendingPlayerCardItem({
           displayScore={player.displayScore}
           compact
         />
-        {player.clubTeam ? (
-          <span className="absolute -bottom-0.5 -right-0.5 rounded-sm border border-background bg-background p-0.5 shadow-sm">
-            <TeamFlag team={player.clubTeam} size="sm" variant="crest" />
-          </span>
-        ) : null}
+        {player.clubTeam ? <PlayerClubCrestBadge team={player.clubTeam} /> : null}
       </div>
-      <p
-        className={
-          sidebar
-            ? "line-clamp-2 min-w-0 flex-1 text-xs font-semibold leading-tight"
-            : "line-clamp-2 w-full text-center text-xs font-semibold leading-tight"
-        }
-      >
+      <p className="line-clamp-2 w-full text-center text-xs font-semibold leading-tight">
         {player.name}
       </p>
     </Link>
@@ -76,8 +66,8 @@ export function TrendingPlayers({ players, variant = "default" }: TrendingPlayer
           </p>
         </div>
       ) : sidebar ? (
-        <div className="space-y-2">
-          {players.slice(0, 6).map((player) => (
+        <div className="grid grid-cols-2 gap-2">
+          {players.slice(0, 8).map((player) => (
             <TrendingPlayerCardItem key={player.id} player={player} sidebar />
           ))}
         </div>

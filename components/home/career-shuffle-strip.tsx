@@ -8,6 +8,7 @@ import { CareerShuffleFilters } from "@/components/home/career-shuffle-filters"
 import { CareerRing } from "@/components/player/career-ring"
 import { PlayerCareerRatingCta } from "@/components/player/player-career-rating-cta"
 import { Button, buttonVariants } from "@/components/ui/button"
+import type { ShuffleLeagueLogos } from "@/lib/home/shuffle-clubs"
 import { fetchShuffleCareerPlayer } from "@/lib/home/shuffle-career-player"
 import type { ShufflePlayerCard } from "@/lib/home/shuffle-career-player-map"
 import {
@@ -27,6 +28,7 @@ import { cn } from "@/lib/utils"
 type CareerShuffleStripProps = {
   isLoggedIn: boolean
   clubs: ShuffleClubOption[]
+  leagueLogos: ShuffleLeagueLogos
 }
 
 const primaryOutlineBtn =
@@ -208,7 +210,11 @@ function EmptyBanner({
   )
 }
 
-export function CareerShuffleStrip({ isLoggedIn, clubs }: CareerShuffleStripProps) {
+export function CareerShuffleStrip({
+  isLoggedIn,
+  clubs,
+  leagueLogos,
+}: CareerShuffleStripProps) {
   const [player, setPlayer] = useState<ShufflePlayerCard | null>(null)
   const [poolEmpty, setPoolEmpty] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -275,6 +281,7 @@ export function CareerShuffleStrip({ isLoggedIn, clubs }: CareerShuffleStripProp
       {isLoggedIn && filtersReady ? (
         <CareerShuffleFilters
           clubs={clubs}
+          leagueLogos={leagueLogos}
           filter={filters}
           onLeague={(leagueId) => commitFilters(selectShuffleLeague(filters, leagueId))}
           onToggleBigClubs={() => commitFilters(toggleShuffleBigClubs(filters))}
@@ -282,7 +289,7 @@ export function CareerShuffleStrip({ isLoggedIn, clubs }: CareerShuffleStripProp
         />
       ) : null}
 
-      <div className="overflow-hidden rounded-xl bg-primary px-4 py-4 text-primary-foreground shadow-sm sm:px-5 sm:py-5">
+      <div className="overflow-hidden rounded-xl bg-primary px-4 py-4 text-primary-foreground sm:px-5 sm:py-5">
         {!isLoggedIn ? (
           <GuestBanner />
         ) : initialLoad && isPending ? (

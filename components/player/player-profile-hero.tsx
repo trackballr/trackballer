@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
 
+import { Card } from "@/components/ui/card"
 import { CareerRing } from "@/components/player/career-ring"
 import { PlayerCareerRatingCta } from "@/components/player/player-career-rating-cta"
 import { PlayerTierCard } from "@/components/player/player-tier-card"
@@ -45,7 +46,7 @@ export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroP
     profile.age
 
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+    <Card className="overflow-hidden">
       <div className="flex items-center gap-3 bg-primary px-4 py-4 text-primary-foreground sm:gap-4">
         <CareerRing
           name={profile.displayName}
@@ -132,6 +133,6 @@ export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroP
           </div>
         </div>
       </div>
-    </section>
+    </Card>
   )
 }

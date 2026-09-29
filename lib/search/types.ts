@@ -11,6 +11,11 @@ export type PlayerListItem = {
   displayScore: number
   isProvisional: boolean
   clubName: string | null
+  clubTeam: {
+    name: string
+    logo_url: string | null
+    code: string | null
+  } | null
 }
 
 export type PlayerBrowseSort = "rating-desc" | "rating-asc"

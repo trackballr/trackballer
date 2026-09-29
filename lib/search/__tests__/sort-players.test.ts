@@ -16,6 +16,7 @@ function player(id: number, score: number, name: string): PlayerListItem {
     displayScore: score,
     isProvisional: false,
     clubName: null,
+    clubTeam: null,
   }
 }
 

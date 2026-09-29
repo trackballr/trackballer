@@ -44,7 +44,7 @@ export function PlayerAvatar({
         width={px}
         height={px}
         className={cn(
-          "shrink-0 rounded-md border border-border bg-card object-cover shadow-sm",
+          "shrink-0 rounded-md border border-border bg-card object-cover",
           sizeClass[size],
           className,
         )}
@@ -56,7 +56,7 @@ export function PlayerAvatar({
     <span
       aria-hidden
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-md border border-border bg-card font-bold tabular-nums text-muted-foreground shadow-sm",
+        "flex shrink-0 items-center justify-center rounded-md border border-border bg-card font-bold tabular-nums text-muted-foreground",
         sizeClass[size],
         className,
       )}

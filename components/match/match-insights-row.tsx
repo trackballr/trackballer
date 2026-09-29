@@ -3,6 +3,7 @@
 import { MatchTopRatedPlayers } from "@/components/match/match-top-rated-players"
 import { MatchTrendingCommentsStrip } from "@/components/match/match-trending-comments-strip"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import type { MatchTopRatedPayload } from "@/lib/match/match-top-rated"
 import type { MatchTrendingCommentCard } from "@/lib/match/match-trending-comments"
 import { cn } from "@/lib/utils"
@@ -19,7 +20,7 @@ type MatchInsightsRowProps = {
 
 function RateAllFallbackCard({ onRateAll }: { onRateAll: () => void }) {
   return (
-    <section className="flex h-auto flex-col self-start overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+    <Card className="flex h-auto flex-col self-start overflow-hidden">
       <h3 className="border-b border-border px-4 py-3 text-center text-sm font-semibold">
         Player ratings
       </h3>
@@ -31,7 +32,7 @@ function RateAllFallbackCard({ onRateAll }: { onRateAll: () => void }) {
           Rate all players
         </Button>
       </div>
-    </section>
+    </Card>
   )
 }
 

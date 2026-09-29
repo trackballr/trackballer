@@ -10,6 +10,7 @@ import { TeamFlag } from "@/components/team-flag"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
 import { matchHeroStatusLabel, type MatchHeroScore } from "@/lib/match/hero-score"
 import type { MatchDetail } from "@/lib/match/types"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 type MatchHeroProps = {
@@ -144,12 +145,7 @@ export function MatchHero({ fixture, detail, heroScore, tabBar, className }: Mat
     detail.goalScorers.home.length > 0 || detail.goalScorers.away.length > 0
 
   return (
-    <section
-      className={cn(
-        "mb-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm",
-        className,
-      )}
-    >
+    <Card radius="lg" className={cn("mb-4 overflow-hidden", className)}>
       {detail.competitionLabel && (
         <div className="flex items-center justify-center gap-2 border-b border-border px-4 py-3">
           <MatchTrophyIcon />
@@ -192,6 +188,6 @@ export function MatchHero({ fixture, detail, heroScore, tabBar, className }: Mat
       </div>
 
       {tabBar && <div className="px-3 md:px-6">{tabBar}</div>}
-    </section>
+    </Card>
   )
 }

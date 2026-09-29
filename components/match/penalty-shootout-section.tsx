@@ -1,6 +1,7 @@
 import { Check, X } from "lucide-react"
 
 import type { PenaltyKick, PenaltyShootout } from "@/lib/match/types"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 type PenaltyShootoutSectionProps = {
@@ -114,12 +115,7 @@ export function PenaltyShootoutSection({
   className,
 }: PenaltyShootoutSectionProps) {
   return (
-    <section
-      className={cn(
-        "mb-6 overflow-hidden rounded-xl border border-border bg-card px-4 py-4 shadow-sm md:px-6",
-        className,
-      )}
-    >
+    <Card className={cn("mb-6 overflow-hidden px-4 py-4 md:px-6", className)}>
       <h2 className="mb-4 text-center text-sm font-semibold">Penalty-shootout</h2>
 
       <div className="mb-5 flex items-center justify-center gap-3 md:gap-6">
@@ -133,6 +129,6 @@ export function PenaltyShootoutSection({
           <TimelineRow key={`${kick.sequenceOrder}-${kick.playerId}`} kick={kick} />
         ))}
       </div>
-    </section>
+    </Card>
   )
 }

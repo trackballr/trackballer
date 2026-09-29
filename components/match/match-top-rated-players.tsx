@@ -4,6 +4,7 @@ import { PlayerAvatar } from "@/components/player-avatar"
 import { RatingChip } from "@/components/rating/rating-chip"
 import { Button } from "@/components/ui/button"
 import type { MatchTopRatedPayload } from "@/lib/match/match-top-rated"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 type MatchTopRatedPlayersProps = {
@@ -74,12 +75,7 @@ export function MatchTopRatedPlayers({
   const rowCount = Math.max(payload.home.length, payload.away.length)
 
   return (
-    <section
-      className={cn(
-        "flex h-auto flex-col self-start overflow-hidden rounded-xl border border-border bg-card shadow-sm",
-        className,
-      )}
-    >
+    <Card className={cn("flex h-auto flex-col self-start overflow-hidden", className)}>
       <h3 className="shrink-0 border-b border-border px-4 py-3 text-center text-sm font-semibold">
         Highest-rated players
       </h3>
@@ -103,6 +99,6 @@ export function MatchTopRatedPlayers({
           </Button>
         </div>
       ) : null}
-    </section>
+    </Card>
   )
 }

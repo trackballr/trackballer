@@ -11,7 +11,7 @@ import { getHomeLeagueMatches } from "@/lib/home/league-matches"
 import { getCompetitionStrip } from "@/lib/home/leagues"
 import { getTrendingComments } from "@/lib/home/trending-comments"
 import { getTrendingPlayers } from "@/lib/home/trending-players"
-import { getShuffleClubs } from "@/lib/home/shuffle-clubs"
+import { getShuffleClubs, getShuffleLeagueLogos } from "@/lib/home/shuffle-clubs"
 import { getYourTeamToday } from "@/lib/home/your-team-today"
 import { getServerAuth } from "@/lib/auth/server-session"
 import { createClient } from "@/lib/supabase/server"
@@ -20,16 +20,25 @@ export default async function HomePage() {
   const supabase = await createClient()
   const auth = await getServerAuth(supabase)
 
-  const [strip, leagueMatches, trendingPlayers, trendingComments, yourTeamToday, featuredCompetitions, shuffleClubs] =
-    await Promise.all([
-      getCompetitionStrip(),
-      getHomeLeagueMatches(),
-      getTrendingPlayers(),
-      getTrendingComments(),
-      getYourTeamToday(auth?.userId ?? null),
-      getFeaturedCompetitionCards(),
-      getShuffleClubs(),
-    ])
+  const [
+    strip,
+    leagueMatches,
+    trendingPlayers,
+    trendingComments,
+    yourTeamToday,
+    featuredCompetitions,
+    shuffleClubs,
+    shuffleLeagueLogos,
+  ] = await Promise.all([
+    getCompetitionStrip(),
+    getHomeLeagueMatches(),
+    getTrendingPlayers(),
+    getTrendingComments(),
+    getYourTeamToday(auth?.userId ?? null),
+    getFeaturedCompetitionCards(),
+    getShuffleClubs(),
+    getShuffleLeagueLogos(),
+  ])
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -43,7 +52,11 @@ export default async function HomePage() {
             comments={trendingComments}
             currentUserId={auth?.userId ?? null}
           />
-          <CareerShuffleStrip isLoggedIn={!!auth} clubs={shuffleClubs} />
+          <CareerShuffleStrip
+            isLoggedIn={!!auth}
+            clubs={shuffleClubs}
+            leagueLogos={shuffleLeagueLogos}
+          />
           <FeaturedCompetitions cards={featuredCompetitions} />
           <TeamOfTheWeekComingSoon />
         </div>

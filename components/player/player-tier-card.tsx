@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { Card } from "@/components/ui/card"
 import {
   PROVISIONAL_CAREER_COPY,
   careerRingCssVar,
@@ -21,11 +22,8 @@ export function PlayerTierCard({ career, className }: PlayerTierCardProps) {
   const label = careerTierLabel(ringTier)
 
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-border bg-card px-4 py-3 shadow-sm",
-        className,
-      )}
+    <Card
+      className={cn("px-4 py-3", className)}
       style={{ ["--tier-accent" as string]: `var(${ringVar})` }}
     >
       <div className="flex items-baseline gap-2">
@@ -42,6 +40,6 @@ export function PlayerTierCard({ career, className }: PlayerTierCardProps) {
           </Link>
         </p>
       )}
-    </div>
+    </Card>
   )
 }

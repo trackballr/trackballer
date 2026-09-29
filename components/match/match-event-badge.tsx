@@ -15,7 +15,7 @@ function EventBadgePill({
   return (
     <span
       className={cn(
-        "flex items-center rounded-full border border-border bg-card shadow-sm",
+        "flex items-center rounded-full border border-border bg-card",
         showCount ? "gap-0.5 py-0.5 pl-0.5 pr-1" : "size-5 justify-center",
       )}
       aria-label={`${count} ${label}${count === 1 ? "" : "s"}`}
@@ -66,7 +66,7 @@ function CardBadgePill({
 }) {
   return (
     <span
-      className="flex size-5 items-center justify-center rounded-sm border border-border bg-card shadow-sm"
+      className="flex size-5 items-center justify-center rounded-sm border border-border bg-card"
       aria-label={label}
     >
       {kind === "red" ? <RedCardIcon /> : <YellowCardIcon />}

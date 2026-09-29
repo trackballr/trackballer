@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { CatalogImage } from "@/components/catalog-image"
+import { cardSurfaceClass } from "@/components/ui/card"
 import type { CompetitionHubCard } from "@/lib/catalog/competition-hub-cards"
 
 type CompetitionHubCardGridProps = {
@@ -14,7 +15,11 @@ export function CompetitionHubCardGrid({ cards }: CompetitionHubCardGridProps) {
         <Link
           key={card.slug}
           href={card.href}
-          className="flex flex-col items-center rounded-lg border border-border bg-card px-4 py-6 text-center shadow-sm transition-colors hover:bg-muted/40"
+          className={cardSurfaceClass({
+            radius: "sm",
+            className:
+              "flex flex-col items-center px-4 py-6 text-center transition-colors hover:bg-muted/40",
+          })}
         >
           <span className="mb-3 flex size-16 items-center justify-center">
             {card.logoUrl ? (

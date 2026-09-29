@@ -7,6 +7,7 @@ import {
   MatchSubstitutesSection,
   MatchUnusedBenchSection,
 } from "@/components/match/match-bench-sections"
+import { Card } from "@/components/ui/card"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
 import { teamCommunityAvg } from "@/lib/match/team-match-rating"
 import type { MatchCoach, MatchLineupPlayer } from "@/lib/match/types"
@@ -64,7 +65,7 @@ export function MatchLineupsTab({
             Lineups are not available yet. Check back closer to kickoff.
           </p>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <Card radius="lg" className="overflow-hidden">
             <MatchLineupFormationHeader
               home={{
                 team: fixture.home_team,
@@ -82,7 +83,7 @@ export function MatchLineupsTab({
               ratingsLocked={ratingsLocked}
               onPlayerClick={onPlayerClick}
             />
-          </div>
+          </Card>
         )}
         <MatchSubstitutesSection
           fixture={fixture}
