@@ -26,6 +26,8 @@ interface CommentItemProps {
   currentUserId: string | null
   depth?: number
   replyTo?: ReplyAddress | null
+  /** Tint this comment — used when a thread is opened from profile history. */
+  highlighted?: boolean
   onVote: (commentId: number, value: 1 | -1) => void
   onDelete: (commentId: number) => void
   onPostReply: (body: string, parentId: number) => Promise<{ ok: boolean; error?: string }>
@@ -38,6 +40,7 @@ export function CommentItem({
   currentUserId,
   depth = 0,
   replyTo = null,
+  highlighted = false,
   onVote,
   onDelete,
   onPostReply,
@@ -58,7 +61,9 @@ export function CommentItem({
     <>
       <div
         id={`comment-${comment.id}`}
-        className={`flex scroll-mt-20 gap-3 transition-opacity ${isPending ? "opacity-50" : ""}`}
+        className={`flex scroll-mt-20 gap-3 transition-opacity ${isPending ? "opacity-50" : ""} ${
+          highlighted ? "-mx-3 rounded-lg bg-primary/10 px-3 py-2" : ""
+        }`}
         style={depth > 0 ? { marginLeft: getThreadIndent(depth) } : undefined}
       >
         <div className="flex flex-col items-center gap-1 pt-1">

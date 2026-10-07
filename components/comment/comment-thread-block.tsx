@@ -15,6 +15,7 @@ type CommentThreadBlockProps = {
   isLoadingThread: boolean
   isLoggedIn: boolean
   currentUserId: string | null
+  highlightId?: number | null
   onVote: (commentId: number, value: 1 | -1) => void
   onDelete: (commentId: number) => void
   onPostReply: (body: string, parentId: number) => Promise<{ ok: boolean; error?: string }>
@@ -28,6 +29,7 @@ export function CommentThreadBlock({
   isLoadingThread,
   isLoggedIn,
   currentUserId,
+  highlightId = null,
   onVote,
   onDelete,
   onPostReply,
@@ -43,6 +45,7 @@ export function CommentThreadBlock({
         isLoggedIn={isLoggedIn}
         currentUserId={currentUserId}
         depth={0}
+        highlighted={highlightId === root.id}
         onVote={onVote}
         onDelete={onDelete}
         onPostReply={onPostReply}
@@ -59,6 +62,7 @@ export function CommentThreadBlock({
                 currentUserId={currentUserId}
                 depth={reply.thread_depth > 0 ? 1 : 0}
                 replyTo={replyAddress(root, reply)}
+                highlighted={highlightId === reply.id}
                 onVote={onVote}
                 onDelete={onDelete}
                 onPostReply={onPostReply}

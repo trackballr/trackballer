@@ -4,34 +4,20 @@ import { useCallback, useEffect, useMemo, useState, useTransition, ViewTransitio
 
 import { CommentThreadBlock } from "./comment-thread-block"
 import { CommentComposer } from "./comment-composer"
+import { mergeVoteMaps, useCommentTreeActions } from "./use-comment-tree-actions"
 import { useInfiniteScroll } from "./use-infinite-scroll"
 import {
-  addCommentToTree,
-  appendThreadComments,
   appendUniqueParents,
-  settlePendingComment,
-  removeCommentById,
-  deleteCommentInTree,
   mergeServerWithPendingComments,
   pruneDeletedComments,
-  updateVoteInTree,
 } from "@/lib/comment/comment-tree"
-import {
-  fetchParentCommentsPageAction,
-  fetchThreadCommentsPageAction,
-} from "@/lib/comment/fetch-comments-page"
-import {
-  applyUserVoteToMap,
-  computeVoteTransition,
-} from "@/lib/comment/optimistic-vote"
+import { fetchParentCommentsPageAction } from "@/lib/comment/fetch-comments-page"
 import type {
   CommentSort,
   ParentCursor,
   ReplyPaginationMeta,
 } from "@/lib/comment/pagination"
-import { submitComment, deleteComment } from "@/lib/comment/submit-comment"
-import { submitVote } from "@/lib/comment/submit-vote"
-import type { CommentDisplay, CommentWithProfile } from "@/lib/comment/types"
+import type { CommentWithProfile } from "@/lib/comment/types"
 
 interface CommentThreadProps {
   initialComments: CommentWithProfile[]
@@ -45,48 +31,6 @@ interface CommentThreadProps {
   targetId: number
   isLoggedIn: boolean
   currentUserId: string | null
-}
-
-function buildPendingComment(
-  body: string,
-  targetType: "player" | "match",
-  targetId: number,
-  currentUserId: string,
-  parentId?: number,
-): CommentDisplay {
-  return {
-    id: -Date.now(),
-    body,
-    score: 0,
-    upvote_count: 0,
-    downvote_count: 0,
-    created_at: new Date().toISOString(),
-    is_deleted: false,
-    parent_id: parentId ?? null,
-    user_id: currentUserId,
-    player_id: targetType === "player" ? targetId : null,
-    fixture_id: targetType === "match" ? targetId : null,
-    target_type: targetType,
-    thread_root_id: null,
-    thread_depth: 0,
-    profile: {
-      id: currentUserId,
-      username: null,
-      display_name: "You",
-      avatar_url: null,
-      favourite_club: null,
-      favourite_national_team: null,
-    },
-    replies: [],
-    isPending: true,
-  }
-}
-
-function mergeVoteMaps(
-  existing: Record<number, 1 | -1>,
-  incoming: Record<number, 1 | -1>,
-): Record<number, 1 | -1> {
-  return { ...existing, ...incoming }
 }
 
 export function CommentThread({
@@ -103,20 +47,39 @@ export function CommentThread({
   currentUserId,
 }: CommentThreadProps) {
   const [sort, setSort] = useState<CommentSort>(initialSort)
-  const [comments, setComments] = useState<CommentDisplay[]>(initialComments)
-  const [userVotes, setUserVotes] = useState(initialUserVotes)
   const [totalParentCount, setTotalParentCount] = useState(initialTotalParentCount)
   const [parentHasMore, setParentHasMore] = useState(initialParentHasMore)
   const [parentCursor, setParentCursor] = useState<ParentCursor | null>(
     initialParentNextCursor,
   )
-  const [replyMeta, setReplyMeta] =
-    useState<Record<number, ReplyPaginationMeta>>(initialReplyPagination)
-  const [loadingThreadFor, setLoadingThreadFor] = useState<number | null>(null)
   const [isLoadingParents, setIsLoadingParents] = useState(false)
   const [isLoadingSort, setIsLoadingSort] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [, startTransition] = useTransition()
+
+  const {
+    comments,
+    setComments,
+    userVotes,
+    setUserVotes,
+    replyMeta,
+    setReplyMeta,
+    loadingThreadFor,
+    errorMessage,
+    setErrorMessage,
+    handleLoadMoreThread,
+    handleVote,
+    handleDelete,
+    handlePostComment,
+  } = useCommentTreeActions({
+    initialComments,
+    initialUserVotes,
+    initialReplyPagination,
+    target: { type: targetType, id: targetId },
+    isLoggedIn,
+    currentUserId,
+    onParentCountChange: (delta) =>
+      setTotalParentCount((count) => Math.max(0, count + delta)),
+  })
 
   useEffect(() => {
     setComments((prev) =>
@@ -136,6 +99,9 @@ export function CommentThread({
     initialParentNextCursor,
     initialReplyPagination,
     initialSort,
+    setComments,
+    setUserVotes,
+    setReplyMeta,
   ])
 
   const visibleComments = useMemo(
@@ -179,6 +145,10 @@ export function CommentThread({
     sort,
     parentCursor,
     startTransition,
+    setComments,
+    setUserVotes,
+    setReplyMeta,
+    setErrorMessage,
   ])
 
   const parentSentinelRef = useInfiniteScroll({
@@ -215,128 +185,6 @@ export function CommentThread({
       setParentHasMore(result.hasMore)
       setParentCursor(result.nextCursor)
       setReplyMeta(result.replyPagination)
-    })
-  }
-
-  function handleLoadMoreThread(threadRootId: number) {
-    const meta = replyMeta[threadRootId]
-    if (!meta?.hasMore || loadingThreadFor != null) return
-
-    setLoadingThreadFor(threadRootId)
-    setErrorMessage(null)
-
-    startTransition(async () => {
-      const result = await fetchThreadCommentsPageAction({
-        thread_root_id: threadRootId,
-        cursor: meta.nextCursor ?? undefined,
-      })
-
-      setLoadingThreadFor(null)
-
-      if (!result.ok) {
-        setErrorMessage(result.error)
-        return
-      }
-
-      setComments((prev) => appendThreadComments(prev, threadRootId, result.replies))
-      setUserVotes((prev) => mergeVoteMaps(prev, result.userVotes))
-      setReplyMeta((prev) => ({
-        ...prev,
-        [threadRootId]: { hasMore: result.hasMore, nextCursor: result.nextCursor },
-      }))
-    })
-  }
-
-  function handleVote(commentId: number, value: 1 | -1) {
-    if (!isLoggedIn) {
-      window.location.href = "/login"
-      return
-    }
-
-    const currentVote = userVotes[commentId] ?? null
-    const transition = computeVoteTransition(currentVote, value)
-    const snapshotComments = comments
-    const snapshotVotes = userVotes
-
-    setUserVotes(applyUserVoteToMap(userVotes, commentId, transition.nextVote))
-    setComments(updateVoteInTree(comments, commentId, transition))
-    setErrorMessage(null)
-
-    startTransition(async () => {
-      const result = await submitVote({
-        comment_id: commentId,
-        value: String(value) as "1" | "-1",
-      })
-
-      if (!result.ok) {
-        setComments(snapshotComments)
-        setUserVotes(snapshotVotes)
-        setErrorMessage(result.error)
-      }
-    })
-  }
-
-  function handleDelete(commentId: number) {
-    const snapshotComments = comments
-
-    setComments(deleteCommentInTree(comments, commentId))
-    setErrorMessage(null)
-
-    startTransition(async () => {
-      const result = await deleteComment({ comment_id: commentId })
-      if (!result.ok) {
-        setComments(snapshotComments)
-        setErrorMessage(result.error)
-      }
-    })
-  }
-
-  function handlePostComment(
-    body: string,
-    parentId?: number,
-  ): Promise<{ ok: boolean; error?: string }> {
-    if (!isLoggedIn || !currentUserId) {
-      return Promise.resolve({ ok: false, error: "Sign in to comment." })
-    }
-
-    const pending = buildPendingComment(
-      body,
-      targetType,
-      targetId,
-      currentUserId,
-      parentId,
-    )
-    const tempId = pending.id
-
-    setComments((prev) => addCommentToTree(prev, pending))
-    if (parentId == null) {
-      setTotalParentCount((count) => count + 1)
-    }
-
-    return new Promise((resolve) => {
-      startTransition(async () => {
-        const result = await submitComment({
-          body,
-          target_type: targetType,
-          ...(targetType === "player"
-            ? { player_id: targetId }
-            : { fixture_id: targetId }),
-          ...(parentId != null ? { parent_id: parentId } : {}),
-        })
-
-        if (result.ok) {
-          setComments((prev) => settlePendingComment(prev, tempId, result.comment))
-          resolve({ ok: true })
-          return
-        }
-
-        setComments((prev) => removeCommentById(prev, tempId))
-        if (parentId == null) {
-          setTotalParentCount((count) => Math.max(0, count - 1))
-        }
-        setErrorMessage(result.error)
-        resolve({ ok: false, error: result.error })
-      })
     })
   }
 

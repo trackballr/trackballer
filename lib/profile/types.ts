@@ -1,4 +1,3 @@
-import type { TeamOption } from "@/lib/onboarding/types"
 import type { AvatarSource } from "@/lib/profile/display-avatar"
 
 export type ProfileTeam = {
@@ -31,8 +30,12 @@ export type ProfileStats = {
   upvotesReceived: number
 }
 
+export type RatingKind = "match" | "career"
+
 export type RecentRatingItem = {
-  kind: "match" | "career"
+  kind: RatingKind
+  /** Row id in match_ratings or career_ratings — unique together with kind. */
+  id: number
   playerId: number
   playerName: string
   photoUrl: string | null
@@ -40,6 +43,26 @@ export type RecentRatingItem = {
   ratedAt: string
   /** Set for match ratings — the team the rated player faced. */
   oppositionTeam: ProfileTeam | null
+  fixtureId: number | null
+}
+
+export type RatingHistoryCursor = {
+  ratedAt: string
+  kind: RatingKind
+  id: number
+}
+
+export type RatingHistoryPage = {
+  items: RecentRatingItem[]
+  nextCursor: RatingHistoryCursor | null
+}
+
+/** Thread context shared by player and match comment rows. */
+type RecentCommentThread = {
+  parentId: number | null
+  threadRootId: number | null
+  /** Author of the comment this one replies to; null for top-level comments. */
+  replyTo: { username: string | null; displayName: string } | null
 }
 
 type RecentCommentTeam = {
@@ -58,7 +81,7 @@ export type RecentPlayerCommentItem = {
   playerId: number
   playerName: string
   playerPhotoUrl: string | null
-}
+} & RecentCommentThread
 
 export type RecentMatchCommentItem = {
   targetType: "match"
@@ -69,9 +92,16 @@ export type RecentMatchCommentItem = {
   fixtureId: number
   homeTeam: RecentCommentTeam
   awayTeam: RecentCommentTeam
-}
+} & RecentCommentThread
 
 export type RecentCommentItem = RecentPlayerCommentItem | RecentMatchCommentItem
+
+export type CommentHistoryCursor = { createdAt: string; id: number }
+
+export type CommentHistoryPage = {
+  items: RecentCommentItem[]
+  nextCursor: CommentHistoryCursor | null
+}
 
 export type ProfilePageData = {
   profile: ProfileView
@@ -80,8 +110,4 @@ export type ProfilePageData = {
   recentComments: RecentCommentItem[]
   isOwner: boolean
   viewerUserId: string | null
-  teamOptions: {
-    clubs: TeamOption[]
-    nationalTeams: TeamOption[]
-  }
 }

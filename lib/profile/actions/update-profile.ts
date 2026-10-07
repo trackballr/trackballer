@@ -105,6 +105,7 @@ export async function updateProfile(input: unknown): Promise<UpdateProfileResult
     revalidatePath(`/u/${existing.username}`)
   }
   revalidatePath("/profile")
+  revalidatePath("/settings")
   revalidatePath("/")
   return { ok: true }
 }

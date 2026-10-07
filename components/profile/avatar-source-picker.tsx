@@ -30,7 +30,7 @@ function AvatarOption({
       disabled={disabled}
       onClick={onSelect}
       className={cn(
-        "flex flex-col items-center gap-2 rounded-lg border p-3 transition-colors",
+        "flex w-24 flex-col items-center gap-2 rounded-lg border p-3 transition-colors",
         selected
           ? "border-primary bg-primary/5"
           : "border-border hover:border-muted-foreground/40",
@@ -59,11 +59,8 @@ export function AvatarSourcePicker({
   disabled,
 }: AvatarSourcePickerProps) {
   return (
-    <fieldset className="space-y-2">
-      <legend className="text-sm font-medium">Profile photo</legend>
-      <p className="text-xs text-muted-foreground">
-        Choose which connected account photo to show on your profile and comments.
-      </p>
+    <fieldset>
+      <legend className="sr-only">Profile photo</legend>
       <div className="flex flex-wrap gap-3">
         <AvatarOption
           label="Google"

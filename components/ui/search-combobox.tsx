@@ -23,6 +23,8 @@ type SearchComboboxProps = {
   placeholder?: string
   emptyMessage?: string
   disabled?: boolean
+  /** Keep the label for screen readers only (when a layout labels the row). */
+  hideLabel?: boolean
   className?: string
 }
 
@@ -34,6 +36,7 @@ export function SearchCombobox({
   placeholder = "Search...",
   emptyMessage = "No matches found.",
   disabled = false,
+  hideLabel = false,
   className,
 }: SearchComboboxProps) {
   const inputId = label.replace(/\s+/g, "-").toLowerCase()
@@ -51,7 +54,10 @@ export function SearchCombobox({
       modal={false}
     >
       <div className={cn("flex flex-col gap-1.5", className)}>
-        <label htmlFor={inputId} className="text-sm font-medium text-foreground">
+        <label
+          htmlFor={inputId}
+          className={cn("text-sm font-medium text-foreground", hideLabel && "sr-only")}
+        >
           {label}
         </label>
         <Combobox.InputGroup

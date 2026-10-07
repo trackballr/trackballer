@@ -83,9 +83,6 @@ export function ConnectXButton({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-muted-foreground">
-        Connect your X account to verify your handle and use your X profile photo.
-      </p>
       <Button
         type="button"
         variant="outline"

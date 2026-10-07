@@ -1,44 +1,65 @@
 import Link from "next/link"
 
+import { CommentTime } from "@/components/comment/comment-time"
 import { PlayerAvatar } from "@/components/player-avatar"
 import { CareerRatingChip } from "@/components/rating/career-rating-chip"
 import { RatingChip } from "@/components/rating/rating-chip"
 import { TeamFlag } from "@/components/team-flag"
+import { PanelEmpty, PanelList } from "@/components/ui/panel"
 import type { RecentRatingItem } from "@/lib/profile/types"
 import { tierForScore } from "@/lib/rating/career-tier"
 
-type RecentRatingsListProps = {
-  ratings: RecentRatingItem[]
+export function ratingKey(rating: RecentRatingItem): string {
+  return `${rating.kind}-${rating.id}`
 }
 
-function RecentRatingRow({ rating }: { rating: RecentRatingItem }) {
+/** Match ratings open the match; career ratings open the player. */
+function ratingHref(rating: RecentRatingItem): string {
+  if (rating.kind === "match" && rating.fixtureId != null) {
+    return `/match/${rating.fixtureId}`
+  }
+  return `/player/${rating.playerId}`
+}
+
+export function RatingHistoryRow({ rating }: { rating: RecentRatingItem }) {
   return (
-    <Link
-      href={`/player/${rating.playerId}`}
-      className="flex items-center gap-3 border-b border-border px-4 py-3 transition-colors last:border-b-0 hover:bg-muted/60"
-    >
+    <Link href={ratingHref(rating)} className="group flex items-center gap-3 py-3">
       <PlayerAvatar
         name={rating.playerName}
         photoUrl={rating.photoUrl}
-        size="sm"
+        size="lg"
         className="rounded-full"
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold leading-tight">{rating.playerName}</p>
-        {rating.kind === "match" && rating.oppositionTeam ? (
-          <p className="flex min-w-0 items-center gap-1 truncate text-xs text-muted-foreground">
-            <span className="shrink-0">vs</span>
-            <TeamFlag
-              team={{
-                name: rating.oppositionTeam.name,
-                logo_url: rating.oppositionTeam.logoUrl,
-                code: rating.oppositionTeam.code,
-              }}
-              size="sm"
-            />
-            <span className="truncate">{rating.oppositionTeam.name}</span>
-          </p>
-        ) : null}
+        <p className="truncate text-sm font-semibold leading-tight group-hover:underline">
+          {rating.playerName}
+        </p>
+        <p className="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+          {rating.kind === "match" ? (
+            rating.oppositionTeam ? (
+              <>
+                <span className="shrink-0">vs</span>
+                <TeamFlag
+                  team={{
+                    name: rating.oppositionTeam.name,
+                    logo_url: rating.oppositionTeam.logoUrl,
+                    code: rating.oppositionTeam.code,
+                  }}
+                  size="sm"
+                />
+                <span className="truncate">{rating.oppositionTeam.name}</span>
+              </>
+            ) : (
+              <span className="shrink-0">Match rating</span>
+            )
+          ) : (
+            <span className="shrink-0">Career rating</span>
+          )}
+          <span className="shrink-0">·</span>
+          <span className="shrink-0">
+            <CommentTime dateString={rating.ratedAt} />
+          </span>
+        </p>
       </div>
       {rating.kind === "career" ? (
         <CareerRatingChip
@@ -54,21 +75,16 @@ function RecentRatingRow({ rating }: { rating: RecentRatingItem }) {
   )
 }
 
-export function RecentRatingsList({ ratings }: RecentRatingsListProps) {
+export function RecentRatingsList({ ratings }: { ratings: RecentRatingItem[] }) {
   if (ratings.length === 0) {
-    return (
-      <p className="body-sm text-muted-foreground">No ratings yet.</p>
-    )
+    return <PanelEmpty>No ratings yet.</PanelEmpty>
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <PanelList>
       {ratings.map((rating) => (
-        <RecentRatingRow
-          key={`${rating.kind}-${rating.playerId}-${rating.ratedAt}`}
-          rating={rating}
-        />
+        <RatingHistoryRow key={ratingKey(rating)} rating={rating} />
       ))}
-    </div>
+    </PanelList>
   )
 }

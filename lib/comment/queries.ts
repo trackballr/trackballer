@@ -163,6 +163,24 @@ export async function fetchThreadCommentsPage(
   }
 }
 
+export async function fetchCommentById(
+  supabase: SupabaseClient<Database>,
+  commentId: number,
+): Promise<CommentWithProfile | null> {
+  const { data, error } = await supabase
+    .from("comments")
+    .select(COMMENT_WITH_PROFILE)
+    .eq("id", commentId)
+    .maybeSingle()
+
+  if (error) {
+    console.error("fetchCommentById failed:", error.message)
+    return null
+  }
+
+  return data ? normalizeCommentRow(data) : null
+}
+
 async function fetchThreadPreviewForRoot(
   supabase: SupabaseClient<Database>,
   threadRootId: number,

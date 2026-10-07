@@ -1,61 +1,84 @@
-import { TeamFlag } from "@/components/team-flag"
+import Link from "next/link"
 import { countries } from "country-data-list"
-import type { ProfileView } from "@/lib/profile/types"
+
+import { TeamFlag } from "@/components/team-flag"
+import { buttonVariants } from "@/components/ui/button"
+import { Panel } from "@/components/ui/panel"
+import type { ProfileStats, ProfileView } from "@/lib/profile/types"
 import { socialProfileUrl } from "@/lib/profile/validate-social-handles"
+import { cn } from "@/lib/utils"
 
 function formatMemberSince(iso: string): string {
   try {
     return new Intl.DateTimeFormat("en-GB", {
       month: "short",
       year: "numeric",
+      timeZone: "UTC",
     }).format(new Date(iso))
   } catch {
     return ""
   }
 }
 
-function SocialLink({
-  label,
-  href,
-  verified,
+export function countryNameFor(code: string | null): string | null {
+  if (!code) return null
+  return (
+    countries.all.find((c) => c.alpha2?.toUpperCase() === code.toUpperCase())?.name ??
+    null
+  )
+}
+
+export function ProfileAvatar({
+  profile,
+  className,
 }: {
-  label: string
-  href: string
-  verified?: boolean
+  profile: Pick<ProfileView, "avatarUrl" | "displayName">
+  className?: string
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-sm text-primary underline-offset-4 hover:underline"
-      >
-        {label}
-      </a>
-      {verified ? (
-        <span className="text-xs text-emerald-600 dark:text-emerald-400">
-          Verified
+    <div
+      className={cn(
+        "relative shrink-0 overflow-hidden rounded-full border border-border bg-muted",
+        className,
+      )}
+    >
+      {profile.avatarUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- OAuth avatar hosts vary
+        <img
+          src={profile.avatarUrl}
+          alt=""
+          className="size-full object-cover"
+          referrerPolicy="no-referrer"
+        />
+      ) : (
+        <span className="flex size-full items-center justify-center font-semibold text-muted-foreground">
+          {profile.displayName.slice(0, 2).toUpperCase()}
         </span>
-      ) : null}
+      )}
+    </div>
+  )
+}
+
+function MetaItem({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+      {children}
     </span>
   )
 }
 
 type ProfileHeaderProps = {
   profile: ProfileView
+  stats: ProfileStats
+  isOwner: boolean
 }
 
-export function ProfileHeader({ profile }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, stats, isOwner }: ProfileHeaderProps) {
   const teams = [profile.favouriteClub, profile.favouriteNationalTeam].filter(
     Boolean,
   ) as NonNullable<ProfileView["favouriteClub"]>[]
-
-  const countryLabel = profile.countryCode
-    ? (countries.all.find(
-        (c) => c.alpha2?.toUpperCase() === profile.countryCode?.toUpperCase(),
-      )?.name ?? null)
-    : null
+  const countryLabel = countryNameFor(profile.countryCode)
+  const base = profile.username ? `/u/${profile.username}` : null
 
   const socials: { label: string; href: string; verified?: boolean }[] = []
   if (profile.twitterHandle && profile.twitterVerifiedAt) {
@@ -72,72 +95,104 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
     })
   }
 
+  const statItems = [
+    { label: "Ratings", value: stats.ratingsGiven, href: base && `${base}/ratings` },
+    { label: "Comments", value: stats.commentsCount, href: base && `${base}/comments` },
+    { label: "Upvotes received", value: stats.upvotesReceived, href: null },
+  ]
+
   return (
-    <header className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
-      <div className="relative size-20 shrink-0 overflow-hidden rounded-full border border-border bg-muted">
-        {profile.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- OAuth avatar hosts vary
-          <img
-            src={profile.avatarUrl}
-            alt=""
-            className="size-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <span className="flex size-full items-center justify-center text-lg font-semibold text-muted-foreground">
-            {profile.displayName.slice(0, 2).toUpperCase()}
-          </span>
-        )}
-      </div>
+    <Panel>
+      <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:p-6">
+        <ProfileAvatar profile={profile} className="size-20 text-xl sm:size-24" />
 
-      <div className="mt-4 min-w-0 sm:mt-0">
-        <h1 className="h-display text-2xl">{profile.displayName}</h1>
-        {profile.username ? (
-          <p className="body-sm text-muted-foreground">@{profile.username}</p>
-        ) : null}
-
-        {teams.length > 0 ? (
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
-            {teams.map((team) => (
-              <span
-                key={team.id}
-                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground"
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="h-display truncate">{profile.displayName}</h1>
+              {profile.username ? (
+                <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
+              ) : null}
+            </div>
+            {isOwner ? (
+              <Link
+                href="/settings"
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "sm",
+                  className: "shrink-0",
+                })}
               >
+                Edit profile
+              </Link>
+            ) : null}
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+            {teams.map((team) => (
+              <MetaItem key={team.id}>
                 <TeamFlag
-                  team={{
-                    name: team.name,
-                    logo_url: team.logoUrl,
-                    code: team.code,
-                  }}
+                  team={{ name: team.name, logo_url: team.logoUrl, code: team.code }}
                   size="sm"
                 />
-                {team.name}
-              </span>
+                <span className="font-medium text-foreground">{team.name}</span>
+              </MetaItem>
             ))}
+            {countryLabel ? <MetaItem>{countryLabel}</MetaItem> : null}
+            <MetaItem>Joined {formatMemberSince(profile.memberSince)}</MetaItem>
           </div>
-        ) : null}
 
-        {countryLabel ? (
-          <p className="body-sm mt-1 text-muted-foreground">{countryLabel}</p>
-        ) : null}
-
-        <p className="body-sm mt-1 text-muted-foreground">
-          Member since {formatMemberSince(profile.memberSince)}
-        </p>
-
-        {socials.length > 0 ? (
-          <div className="mt-3 flex flex-wrap justify-center gap-3 sm:justify-start">
-            {socials.map((s) => (
-              <SocialLink
-                key={s.href}
-                label={s.label}
-                href={s.href}
-                verified={s.verified}
-              />
-            ))}
-          </div>
-        ) : null}
+          {socials.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+              {socials.map((s) => (
+                <span key={s.href} className="inline-flex items-center gap-1.5">
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    {s.label}
+                  </a>
+                  {s.verified ? (
+                    <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                      Verified
+                    </span>
+                  ) : null}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
-    </header>
+
+      <div className="grid grid-cols-3 divide-x divide-border border-t border-border">
+        {statItems.map((item) => {
+          const content = (
+            <>
+              <span className="block text-xl font-bold tabular-nums sm:text-2xl">
+                {item.value}
+              </span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                {item.label}
+              </span>
+            </>
+          )
+          return item.href ? (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="px-2 py-4 text-center transition-colors hover:bg-muted/50"
+            >
+              {content}
+            </Link>
+          ) : (
+            <div key={item.label} className="px-2 py-4 text-center">
+              {content}
+            </div>
+          )
+        })}
+      </div>
+    </Panel>
   )
 }

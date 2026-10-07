@@ -1263,6 +1263,24 @@ export type Database = {
           tier: string
         }[]
       }
+      get_user_rating_history: {
+        Args: {
+          p_before_at?: string
+          p_before_id?: number
+          p_before_kind?: string
+          p_kind?: string
+          p_limit?: number
+          p_user_id: string
+        }
+        Returns: {
+          fixture_id: number | null
+          id: number
+          kind: string
+          player_id: number
+          rated_at: string
+          value: number
+        }[]
+      }
       is_admin: { Args: never; Returns: boolean }
       rating_half_step_check: { Args: { p_value: number }; Returns: boolean }
       recompute_player_career_aggregate: {

@@ -1,58 +1,45 @@
-import { ProfileEditForm } from "@/components/profile/profile-edit-form"
 import { ProfileHeader } from "@/components/profile/profile-header"
-import { ProfileSignOutButton } from "@/components/profile/profile-sign-out-button"
-import { ProfileStatsRow } from "@/components/profile/profile-stats"
 import { RecentCommentsList } from "@/components/profile/recent-comments-list"
 import { RecentRatingsList } from "@/components/profile/recent-ratings-list"
+import { Panel, PanelFooterLink, PanelHeader } from "@/components/ui/panel"
 import type { ProfilePageData } from "@/lib/profile/types"
-import { cn } from "@/lib/utils"
 
 type ProfilePageProps = {
   data: ProfilePageData
 }
 
+/** Same layout for your own profile and someone else's — editing lives in /settings. */
 export function ProfilePage({ data }: ProfilePageProps) {
-  const { profile, stats, recentRatings, recentComments, isOwner, viewerUserId, teamOptions } =
-    data
-
-  const topRatings = recentRatings.slice(0, 3)
-  const topComments = recentComments.slice(0, 3)
+  const { profile, stats, recentRatings, recentComments, isOwner } = data
+  const base = profile.username ? `/u/${profile.username}` : null
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <ProfileHeader profile={profile} />
-        {isOwner ? <ProfileSignOutButton /> : null}
-      </div>
-      <ProfileStatsRow stats={stats} />
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+      <ProfileHeader profile={profile} stats={stats} isOwner={isOwner} />
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(260px,300px)] lg:items-start">
-        {isOwner ? (
-          <div className="min-w-0">
-            <ProfileEditForm profile={profile} teamOptions={teamOptions} />
-          </div>
-        ) : null}
-
-        <aside
-          className={cn(
-            "space-y-6 lg:sticky lg:top-[calc(3.5rem+1.5rem)]",
-            !isOwner && "lg:col-start-2",
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <Panel>
+          <PanelHeader title="Recent ratings" />
+          <RecentRatingsList ratings={recentRatings} />
+          {base && recentRatings.length > 0 ? (
+            <PanelFooterLink href={`${base}/ratings`}>All ratings</PanelFooterLink>
+          ) : (
+            <div className="h-2" />
           )}
-        >
-          <section>
-            <h2 className="h3 mb-3">Recent ratings</h2>
-            <RecentRatingsList ratings={topRatings} />
-          </section>
+        </Panel>
 
-          <section>
-            <h2 className="h3 mb-3">Recent comments</h2>
-            <RecentCommentsList
-              comments={topComments}
-              profile={profile}
-              viewerUserId={viewerUserId}
-            />
-          </section>
-        </aside>
+        <Panel>
+          <PanelHeader title="Recent comments" />
+          <RecentCommentsList
+            comments={recentComments}
+            historyHref={base ? `${base}/comments` : null}
+          />
+          {base && recentComments.length > 0 ? (
+            <PanelFooterLink href={`${base}/comments`}>All comments</PanelFooterLink>
+          ) : (
+            <div className="h-2" />
+          )}
+        </Panel>
       </div>
     </div>
   )

@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import {
   enrichParentsWithReplyPreviews,
+  fetchCommentById,
   fetchParentCommentsPage,
   fetchThreadCommentsPage,
   fetchVotesForComments,
@@ -159,3 +160,51 @@ export async function fetchThreadCommentsPageAction(
 
 /** @deprecated Use fetchThreadCommentsPageAction */
 export const fetchReplyCommentsPageAction = fetchThreadCommentsPageAction
+
+const fetchThreadSchema = z.object({
+  thread_root_id: z.number().int().positive(),
+})
+
+export type FetchCommentThreadResult =
+  | {
+      ok: true
+      root: CommentWithProfile
+      userVotes: Record<number, 1 | -1>
+      replyPagination: { hasMore: boolean; nextCursor: ReplyCursor | null }
+    }
+  | { ok: false; error: string }
+
+/** A whole thread opened from outside its page (profile comment history). */
+export async function fetchCommentThreadAction(
+  input: unknown,
+): Promise<FetchCommentThreadResult> {
+  const parsed = fetchThreadSchema.safeParse(input)
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid request." }
+  }
+
+  const supabase = await createClient()
+  const auth = await getServerAuth(supabase)
+
+  const root = await fetchCommentById(supabase, parsed.data.thread_root_id)
+  if (!root) {
+    return { ok: false, error: "This thread is no longer available." }
+  }
+
+  const page = await fetchThreadCommentsPage(supabase, root.id, null)
+  const [withReplies] = pruneDeletedComments([{ ...root, replies: page.replies }])
+  if (!withReplies) {
+    return { ok: false, error: "This thread is no longer available." }
+  }
+
+  const userVotes = await fetchVotesForComments(supabase, auth?.userId ?? null, [
+    withReplies,
+  ])
+
+  return {
+    ok: true,
+    root: withReplies,
+    userVotes,
+    replyPagination: { hasMore: page.hasMore, nextCursor: page.nextCursor },
+  }
+}
