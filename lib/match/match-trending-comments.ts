@@ -80,3 +80,29 @@ export const getMatchTrendingComments = cache(
     return (data ?? []).map((row) => mapRow(row as CommentRow))
   },
 )
+
+/** The viewer's votes on the trending cards, so the upvote button starts in the right state. */
+export async function getMatchTrendingVotes(
+  userId: string | null,
+  commentIds: number[],
+): Promise<Record<number, 1 | -1>> {
+  if (!userId || commentIds.length === 0) return {}
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("comment_votes")
+    .select("comment_id, value")
+    .eq("user_id", userId)
+    .in("comment_id", commentIds)
+
+  if (error) {
+    console.error("getMatchTrendingVotes failed:", error.message)
+    return {}
+  }
+
+  const votes: Record<number, 1 | -1> = {}
+  for (const row of data ?? []) {
+    if (row.value === 1 || row.value === -1) votes[row.comment_id] = row.value
+  }
+  return votes
+}

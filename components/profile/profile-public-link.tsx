@@ -21,10 +21,10 @@ export function ProfilePublicLink({ username }: ProfilePublicLinkProps) {
 
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <code className="min-w-0 flex-1 truncate rounded-md bg-muted px-3 py-2 text-sm">
+      <code className="min-w-0 flex-1 truncate rounded-md bg-muted px-3 py-2.5 text-sm">
         {path}
       </code>
-      <Button type="button" variant="outline" onClick={copyLink} className="shrink-0">
+      <Button type="button" onClick={copyLink} className="h-10 shrink-0 px-4">
         {copied ? "Copied" : "Copy link"}
       </Button>
     </div>

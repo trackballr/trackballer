@@ -83,6 +83,5 @@ export async function disconnectXProfile(): Promise<DisconnectXResult> {
   }
 
   revalidatePath("/profile")
-  revalidatePath("/settings")
   return { ok: true }
 }

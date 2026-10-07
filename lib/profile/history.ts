@@ -256,7 +256,7 @@ export async function fetchCommentHistoryPage(
         home_team:teams!fixtures_home_team_id_fkey(${TEAM_SELECT}),
         away_team:teams!fixtures_away_team_id_fkey(${TEAM_SELECT})
       ),
-      parent:comments!comments_parent_id_fkey(
+      parent:parent_id(
         profile:profiles!comments_user_id_fkey(username, display_name)
       )
     `,

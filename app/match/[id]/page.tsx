@@ -5,7 +5,10 @@ import { getComments } from "@/lib/comment/queries"
 import { getServerAuth } from "@/lib/auth/server-session"
 import { getMatchDetail } from "@/lib/match/detail"
 import { buildMatchTopRatedPayload } from "@/lib/match/match-top-rated"
-import { getMatchTrendingComments } from "@/lib/match/match-trending-comments"
+import {
+  getMatchTrendingComments,
+  getMatchTrendingVotes,
+} from "@/lib/match/match-trending-comments"
 import { createClient } from "@/lib/supabase/server"
 
 type PageProps = {
@@ -37,6 +40,10 @@ export default async function MatchPage({ params }: PageProps) {
     detail.fixture.away_team.id,
   )
   const trendingComments = await getMatchTrendingComments(fixtureId)
+  const trendingVotes = await getMatchTrendingVotes(
+    auth?.userId ?? null,
+    trendingComments.map((comment) => comment.id),
+  )
 
   return (
     <MatchView
@@ -46,6 +53,7 @@ export default async function MatchPage({ params }: PageProps) {
       currentUserId={auth?.userId ?? null}
       topRated={topRated}
       trendingComments={trendingComments}
+      trendingVotes={trendingVotes}
     />
   )
 }

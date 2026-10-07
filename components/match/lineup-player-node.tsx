@@ -6,7 +6,10 @@ import {
   PitchRatingMarker,
   PitchSubOffMarker,
 } from "@/components/match/lineup-player-markers"
+import { Flame } from "lucide-react"
+
 import { PlayerAvatar } from "@/components/player-avatar"
+import { isHotTake } from "@/components/rating/rating-panel"
 import type { MatchLineupPlayer } from "@/lib/match/types"
 import { cn } from "@/lib/utils"
 
@@ -43,10 +46,18 @@ export function LineupPlayerNode({
   avatarSize = "lg",
   className,
 }: LineupPlayerNodeProps) {
+  const rated = player.userRating != null
+  const hot = isHotTake(player.userRating, player.communityAvg)
+  const comparison =
+    rated && player.communityAvg != null
+      ? `You ${player.userRating!.toFixed(1)} · Fans ${player.communityAvg.toFixed(1)}`
+      : undefined
+
   return (
     <button
       type="button"
       disabled={locked}
+      title={comparison}
       onClick={() => onClick?.(player)}
       className={cn(
         "group flex w-full min-w-0 flex-col items-center px-0.5 text-center",
@@ -61,7 +72,8 @@ export function LineupPlayerNode({
           shirtNumber={player.shirtNumber}
           size={avatarSize}
           className={cn(
-            "rounded-full border-2 border-white shadow-[0_1px_3px_rgb(0_0_0/0.18)] transition-transform dark:border-zinc-800",
+            "rounded-full border-2 shadow-[0_1px_3px_rgb(0_0_0/0.18)] transition-transform",
+            rated ? "border-primary" : "border-white dark:border-zinc-800",
             !locked && "group-hover:scale-105",
             avatarSizeClass[avatarSize],
           )}
@@ -91,13 +103,18 @@ export function LineupPlayerNode({
         </span>
       </span>
 
-      <span className="mt-1 max-w-full truncate text-[10px] font-medium leading-tight text-foreground">
-        {player.shirtNumber != null && (
-          <span className="mr-0.5 font-normal tabular-nums text-muted-foreground">
-            {player.shirtNumber}
-          </span>
-        )}
-        {shortName(player.name)}
+      <span className="mt-1 inline-flex max-w-full items-center gap-0.5 text-[10px] font-semibold leading-tight text-white [text-shadow:0_1px_2px_rgb(0_0_0/0.45)]">
+        {hot ? (
+          <Flame className="size-2.5 shrink-0 text-orange-300" aria-label="Hot take" />
+        ) : null}
+        <span className="min-w-0 truncate">
+          {player.shirtNumber != null && (
+            <span className="mr-0.5 font-normal tabular-nums text-white/75">
+              {player.shirtNumber}
+            </span>
+          )}
+          {shortName(player.name)}
+        </span>
       </span>
     </button>
   )

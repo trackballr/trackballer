@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeft, ChevronRight, User } from "lucide-react"
+import { ChevronLeft, ChevronRight, Flame, User } from "lucide-react"
 import Link from "next/link"
 
 import { PlayerAvatar } from "@/components/player-avatar"
@@ -28,6 +28,53 @@ export type RatingPanelProps = {
   isSubmitting?: boolean
   hasNextPlayer?: boolean
   titleId?: string
+}
+
+/** A rating this far from the fans' average earns the hot-take badge. */
+export const HOT_TAKE_GAP = 1.5
+
+export function isHotTake(value: number | null, fansAvg: number | null): boolean {
+  return value != null && fansAvg != null && Math.abs(value - fansAvg) >= HOT_TAKE_GAP
+}
+
+/** Live "you vs the fans" line under the slider value. */
+function FansComparison({ player, value }: { player: MatchLineupPlayer; value: number }) {
+  if (player.communityAvg == null || player.ratingCount === 0) {
+    return (
+      <p className="mt-2 text-center text-xs text-muted-foreground">
+        No fan ratings yet — yours sets the tone.
+      </p>
+    )
+  }
+
+  const hot = isHotTake(value, player.communityAvg)
+  const above = value > player.communityAvg
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+      <span>
+        Fans{" "}
+        <span className="font-semibold tabular-nums text-foreground">
+          {player.communityAvg.toFixed(1)}
+        </span>{" "}
+        · {player.ratingCount} rating{player.ratingCount === 1 ? "" : "s"}
+      </span>
+      {player.userRating != null ? (
+        <span>
+          · You had{" "}
+          <span className="font-semibold tabular-nums text-foreground">
+            {player.userRating.toFixed(1)}
+          </span>
+        </span>
+      ) : null}
+      {hot ? (
+        <span className="inline-flex items-center gap-1 rounded-full bg-orange-500/15 px-2 py-0.5 font-semibold text-orange-700 dark:text-orange-300">
+          <Flame className="size-3" aria-hidden />
+          Hot take · {above ? "above" : "below"} the fans
+        </span>
+      ) : null}
+    </div>
+  )
 }
 
 export function RatingPanel({
@@ -119,6 +166,8 @@ export function RatingPanel({
       <p className="mb-4 text-center text-sm text-muted-foreground">{matchContext}</p>
 
       <p className="text-center font-mono text-4xl font-bold tabular-nums">{value.toFixed(1)}</p>
+
+      <FansComparison player={player} value={value} />
 
       <input
         type="range"

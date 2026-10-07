@@ -17,8 +17,8 @@ type MatchHeroProps = {
   fixture: FixtureWithTeams
   detail: Pick<MatchDetail, "competitionLabel" | "goalScorers" | "redCards">
   heroScore: MatchHeroScore
-  /** Rendered flush with the bottom edge (FotMob-style tabs). */
-  tabBar?: ReactNode
+  /** Rendered flush with the bottom edge (top-comment strip). */
+  footer?: ReactNode
   className?: string
 }
 
@@ -83,12 +83,12 @@ function HeroTeam({
         team={team}
         size="lg"
         variant="crest"
-        className={cn("size-10 md:size-12", side === "home" && "md:order-last")}
+        className={cn("size-10 md:size-11", side === "home" && "md:order-last")}
       />
       <NationalTeamNameLink
         team={team}
         className={cn(
-          "block max-w-full text-center font-display text-sm font-semibold md:text-2xl",
+          "block max-w-full text-center font-display text-sm font-semibold md:text-xl",
           side === "home" ? "md:text-right" : "md:text-left",
         )}
       />
@@ -107,7 +107,7 @@ function HeroScore({
 
   return (
     <div className="flex flex-col items-center px-1 text-center">
-      <p className="font-display text-3xl font-bold leading-none tabular-nums tracking-tight md:text-5xl">
+      <p className="font-display text-3xl font-bold leading-none tabular-nums tracking-tight md:text-4xl">
         {heroScore.isUpcoming && fixture.kickoff_at ? (
           <MatchKickoffClock iso={fixture.kickoff_at} fallback={heroScore.mainScore} />
         ) : (
@@ -140,23 +140,20 @@ function HeroScore({
  * Match header card: competition bar, date + venue, teams and score, scorers,
  * and an optional tab bar pinned to the bottom edge.
  */
-export function MatchHero({ fixture, detail, heroScore, tabBar, className }: MatchHeroProps) {
+export function MatchHero({ fixture, detail, heroScore, footer, className }: MatchHeroProps) {
   const hasScorers =
     detail.goalScorers.home.length > 0 || detail.goalScorers.away.length > 0
 
   return (
-    <Card radius="lg" className={cn("mb-4 overflow-hidden", className)}>
-      {detail.competitionLabel && (
-        <div className="flex items-center justify-center gap-2 border-b border-border px-4 py-3">
-          <MatchTrophyIcon />
-          <p className="truncate text-sm font-semibold text-foreground md:text-base">
-            {detail.competitionLabel}
-          </p>
-        </div>
-      )}
-
-      {(fixture.kickoff_at || fixture.venue) && (
-        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 border-b border-border px-4 py-2.5 text-xs text-muted-foreground">
+    <Card radius="sm" className={cn("overflow-hidden", className)}>
+      {(detail.competitionLabel || fixture.kickoff_at || fixture.venue) && (
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-border px-4 py-2.5 text-xs text-muted-foreground">
+          {detail.competitionLabel && (
+            <span className="inline-flex min-w-0 items-center gap-1.5 font-semibold text-foreground">
+              <MatchTrophyIcon className="size-3.5" />
+              <span className="truncate">{detail.competitionLabel}</span>
+            </span>
+          )}
           {fixture.kickoff_at && <MatchKickoffDateTime iso={fixture.kickoff_at} />}
           {fixture.venue && (
             <span className="inline-flex items-center gap-1.5">
@@ -173,21 +170,21 @@ export function MatchHero({ fixture, detail, heroScore, tabBar, className }: Mat
         </div>
       )}
 
-      <div className="px-3 pt-5 pb-4 md:px-8 md:pt-7 md:pb-5">
+      <div className="px-3 pt-5 pb-4 md:px-6 md:pt-6">
         <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2 md:items-center md:gap-8">
           <HeroTeam team={fixture.home_team} side="home" />
           <HeroScore fixture={fixture} heroScore={heroScore} />
           <HeroTeam team={fixture.away_team} side="away" />
         </div>
 
-        <MatchScorersRow scorers={detail.goalScorers} className="mt-4 md:mt-5" />
+        <MatchScorersRow scorers={detail.goalScorers} className="mt-4" />
         <MatchRedCardsRow
           redCards={detail.redCards}
-          className={hasScorers ? "mt-1.5" : "mt-4 md:mt-5"}
+          className={hasScorers ? "mt-1.5" : "mt-4"}
         />
       </div>
 
-      {tabBar && <div className="px-3 md:px-6">{tabBar}</div>}
+      {footer}
     </Card>
   )
 }

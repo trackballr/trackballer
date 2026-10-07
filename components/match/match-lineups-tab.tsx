@@ -58,14 +58,14 @@ export function MatchLineupsTab({
         />
       </div>
 
-      {/* Desktop: pitch column held to 85% width, Sofascore-style. */}
-      <div className="mx-auto hidden w-[85%] md:block">
+      {/* Tablet and up: horizontal pitch fills its column (60% of the page on desktop). */}
+      <div className="hidden md:block">
         {!detail.hasLineups ? (
           <p className="body-sm text-muted-foreground">
             Lineups are not available yet. Check back closer to kickoff.
           </p>
         ) : (
-          <Card radius="lg" className="overflow-hidden">
+          <Card radius="sm" className="overflow-hidden">
             <MatchLineupFormationHeader
               home={{
                 team: fixture.home_team,
@@ -82,6 +82,7 @@ export function MatchLineupsTab({
               starters={detail.starters}
               ratingsLocked={ratingsLocked}
               onPlayerClick={onPlayerClick}
+              className="lg:aspect-[16/9]"
             />
           </Card>
         )}

@@ -22,13 +22,13 @@ type NavSearchProps = {
 function NavSearchFallback({ variant }: { variant: NavSearchVariant }) {
   if (variant === "menu") {
     return (
-      <div className="h-9 w-full rounded-lg border border-border bg-muted/30" aria-hidden />
+      <div className="h-9 w-full rounded-lg border border-border bg-card" aria-hidden />
     )
   }
 
   return (
     <div
-      className="h-8 w-full max-w-[280px] rounded-lg border border-border bg-muted/30"
+      className="h-8 w-full max-w-[280px] rounded-lg border border-border bg-card"
       aria-hidden
     />
   )
@@ -139,7 +139,7 @@ export function NavSearch({ variant = "header", onResultSelect }: NavSearchProps
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search players…"
-            className={cn("w-full pl-8", isMenu ? "h-9" : "h-8")}
+            className={cn("w-full bg-card pl-8 shadow-none", isMenu ? "h-9" : "h-8")}
             aria-label="Search players"
             aria-expanded={dropdownOpen}
             aria-autocomplete="list"

@@ -31,6 +31,8 @@ interface CommentThreadProps {
   targetId: number
   isLoggedIn: boolean
   currentUserId: string | null
+  /** Tint one comment, e.g. after opening it from a trending card. */
+  highlightId?: number | null
 }
 
 export function CommentThread({
@@ -45,6 +47,7 @@ export function CommentThread({
   targetId,
   isLoggedIn,
   currentUserId,
+  highlightId = null,
 }: CommentThreadProps) {
   const [sort, setSort] = useState<CommentSort>(initialSort)
   const [totalParentCount, setTotalParentCount] = useState(initialTotalParentCount)
@@ -189,7 +192,7 @@ export function CommentThread({
   }
 
   return (
-    <section className="mt-8 space-y-6">
+    <section id="comments-section" className="mt-8 scroll-mt-32 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Comments ({totalParentCount})</h3>
         <div className="flex gap-2">
@@ -246,6 +249,7 @@ export function CommentThread({
                 isLoadingThread={loadingThreadFor === comment.id}
                 isLoggedIn={isLoggedIn}
                 currentUserId={currentUserId}
+                highlightId={highlightId}
                 onVote={handleVote}
                 onDelete={handleDelete}
                 onPostReply={(body, parentId) => handlePostComment(body, parentId)}

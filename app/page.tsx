@@ -44,24 +44,41 @@ export default async function HomePage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <CompetitionStrip strip={strip} />
 
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,22rem)] lg:items-start">
-        <div className="order-2 min-w-0 space-y-8 lg:order-none">
-          <YourTeamToday items={yourTeamToday} />
-          <TrendingPlayers players={trendingPlayers} />
-          <TrendingComments
-            comments={trendingComments}
-            currentUserId={auth?.userId ?? null}
-          />
-          <CareerShuffleStrip
-            isLoggedIn={!!auth}
-            clubs={shuffleClubs}
-            leagueLogos={shuffleLeagueLogos}
-          />
-          <FeaturedCompetitions cards={featuredCompetitions} />
-          <TeamOfTheWeekComingSoon />
+      {/*
+        Phones and tablets: one column in a deliberate order (shuffle near the top,
+        one league of matches at a time). The main column uses display:contents
+        below lg so its sections can interleave with the matches block.
+      */}
+      <div className="mt-8 flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(280px,22rem)] lg:items-start">
+        <div className="contents lg:block lg:min-w-0 lg:space-y-8">
+          <div className="order-1 empty:hidden lg:order-none">
+            <YourTeamToday items={yourTeamToday} />
+          </div>
+          <div className="order-2 lg:order-none">
+            <CareerShuffleStrip
+              isLoggedIn={!!auth}
+              clubs={shuffleClubs}
+              leagueLogos={shuffleLeagueLogos}
+            />
+          </div>
+          <div className="order-3 lg:order-none">
+            <TrendingPlayers players={trendingPlayers} />
+          </div>
+          <div className="order-5 lg:order-none">
+            <TrendingComments
+              comments={trendingComments}
+              currentUserId={auth?.userId ?? null}
+            />
+          </div>
+          <div className="order-6 lg:order-none">
+            <FeaturedCompetitions cards={featuredCompetitions} />
+          </div>
+          <div className="order-7 lg:order-none">
+            <TeamOfTheWeekComingSoon />
+          </div>
         </div>
 
-        <div className="order-1 lg:order-none">
+        <div className="order-4 min-w-0 lg:order-none">
           <HomeLeagueSidebar leagues={leagueMatches} />
         </div>
       </div>

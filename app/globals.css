@@ -98,8 +98,8 @@
     --rating-bad: oklch(0.42 0.14 25);
     --rating-unwatchable: oklch(0.38 0.1 15);
     --rating-provisional: oklch(0.78 0.01 106);
-    --pitch: oklch(0.94 0.045 145);
-    --pitch-line: oklch(0.86 0.07 145);
+    --pitch: oklch(0.55 0.13 142);
+    --pitch-line: oklch(1 0 0 / 32%);
     --pitch-marker: oklch(1 0 0 / 72%);
     --nav-height: 3.5rem;
     --content-padding-x: 1rem;

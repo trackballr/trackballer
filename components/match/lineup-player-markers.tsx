@@ -35,7 +35,7 @@ export function PitchSubOffMarker({ minute }: { minute: number | null }) {
 
   return (
     <span className="relative flex flex-col items-center" aria-label={`Subbed off ${minute}'`}>
-      <span className="absolute bottom-full mb-px text-[9px] font-semibold leading-none tabular-nums text-foreground/80">
+      <span className="absolute bottom-full mb-px text-[9px] font-semibold leading-none tabular-nums text-white [text-shadow:0_1px_2px_rgb(0_0_0/0.45)]">
         {minute}&apos;
       </span>
       <span className={cn(markerShell, "text-red-500")}>

@@ -1,3 +1,4 @@
+import { HeaderHeightSync } from "@/components/header-height-sync"
 import { TopNavAuth } from "@/components/top-nav-auth"
 import { TopNavChrome } from "@/components/top-nav-chrome"
 import { TopNavMobileTabs } from "@/components/top-nav-mobile-tabs"
@@ -19,6 +20,7 @@ export async function TopNav() {
         <TopNavAuth userId={auth?.userId ?? null} />
       </div>
       <TopNavMobileTabs showAdminLink={auth?.isAdmin ?? false} leagues={leagues} />
+      <HeaderHeightSync />
     </header>
   )
 }

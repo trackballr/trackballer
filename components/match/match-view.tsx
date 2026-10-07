@@ -28,6 +28,7 @@ type MatchViewProps = {
   currentUserId?: string | null
   topRated: MatchTopRatedPayload | null
   trendingComments: MatchTrendingCommentCard[]
+  trendingVotes?: Record<number, 1 | -1>
 }
 
 function matchContextLabel(detail: MatchDetail): string {
@@ -58,6 +59,7 @@ export function MatchView({
   currentUserId = null,
   topRated,
   trendingComments,
+  trendingVotes = {},
 }: MatchViewProps) {
   const router = useRouter()
   const [detail, setDetail] = useState(initialDetail)
@@ -197,7 +199,7 @@ export function MatchView({
     hasNextRatingPlayer(detail.rateableQueue, ratingIndex, ratingFlowMode)
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-8 md:max-w-5xl">
+    <div className="mx-auto max-w-lg px-4 pt-6 pb-28 md:max-w-3xl md:pb-10 lg:max-w-6xl">
       <MatchPageTabs
         fixture={fixture}
         detail={detail}
@@ -209,14 +211,16 @@ export function MatchView({
         errorMessage={errorMessage}
         topRated={topRated}
         trendingComments={trendingComments}
+        trendingVotes={trendingVotes}
         onRateAll={handleRateAll}
         onPlayerClick={(player) => openRatingSheet(player)}
-        renderHero={(tabBar) => (
+        renderHero={(footer) => (
           <MatchHero
             fixture={fixture}
             detail={detail}
             heroScore={heroScore}
-            tabBar={tabBar}
+            footer={footer}
+            className="rounded-b-none"
           />
         )}
         afterHero={

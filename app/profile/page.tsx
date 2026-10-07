@@ -4,6 +4,7 @@ import { ProfilePage } from "@/components/profile/profile-page"
 import {
   getProfileById,
   getProfilePageData,
+  getProfileTeamOptions,
 } from "@/lib/profile/queries"
 import { getServerAuth } from "@/lib/auth/server-session"
 import { createClient } from "@/lib/supabase/server"
@@ -25,7 +26,10 @@ export default async function OwnProfilePage() {
     redirect("/login")
   }
 
-  const data = await getProfilePageData(profile, auth.userId, { isOwner: true })
+  const [data, teamOptions] = await Promise.all([
+    getProfilePageData(profile, auth.userId, { isOwner: true }),
+    getProfileTeamOptions(),
+  ])
 
-  return <ProfilePage data={data} />
+  return <ProfilePage data={data} teamOptions={teamOptions} />
 }

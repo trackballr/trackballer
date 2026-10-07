@@ -2,7 +2,6 @@ import Link from "next/link"
 import { countries } from "country-data-list"
 
 import { TeamFlag } from "@/components/team-flag"
-import { buttonVariants } from "@/components/ui/button"
 import { Panel } from "@/components/ui/panel"
 import type { ProfileStats, ProfileView } from "@/lib/profile/types"
 import { socialProfileUrl } from "@/lib/profile/validate-social-handles"
@@ -70,10 +69,9 @@ function MetaItem({ children }: { children: React.ReactNode }) {
 type ProfileHeaderProps = {
   profile: ProfileView
   stats: ProfileStats
-  isOwner: boolean
 }
 
-export function ProfileHeader({ profile, stats, isOwner }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, stats }: ProfileHeaderProps) {
   const teams = [profile.favouriteClub, profile.favouriteNationalTeam].filter(
     Boolean,
   ) as NonNullable<ProfileView["favouriteClub"]>[]
@@ -114,18 +112,6 @@ export function ProfileHeader({ profile, stats, isOwner }: ProfileHeaderProps) {
                 <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
               ) : null}
             </div>
-            {isOwner ? (
-              <Link
-                href="/settings"
-                className={buttonVariants({
-                  variant: "outline",
-                  size: "sm",
-                  className: "shrink-0",
-                })}
-              >
-                Edit profile
-              </Link>
-            ) : null}
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">

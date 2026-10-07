@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { CatalogImage } from "@/components/catalog-image"
+import { HomeLeagueSwitcher } from "@/components/home/home-league-switcher"
 import { MatchRow } from "@/components/match-row"
 import { MatchRowList } from "@/components/match/match-row-list"
 import type { LeagueHomeMatches } from "@/lib/home/league-matches"
@@ -121,11 +122,17 @@ export function HomeLeagueMatches({ leagues, variant = "default" }: HomeLeagueMa
           No fixtures yet — check back once the season is synced.
         </p>
       ) : (
-        <div className={isSidebar ? "space-y-5" : "space-y-8"}>
+        <HomeLeagueSwitcher
+          leagues={visibleLeagues.map((league) => ({
+            id: league.leagueId,
+            name: league.name,
+            logoUrl: league.logoUrl,
+          }))}
+        >
           {visibleLeagues.map((league) => (
             <LeagueBlock key={league.leagueId} league={league} compact={isSidebar} />
           ))}
-        </div>
+        </HomeLeagueSwitcher>
       )}
     </section>
   )
