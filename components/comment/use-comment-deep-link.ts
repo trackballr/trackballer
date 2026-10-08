@@ -28,12 +28,14 @@ export function useCommentDeepLink({
 }: UseCommentDeepLinkOptions) {
   const [hashCommentId, setHashCommentId] = useState<number | null>(null)
   const fetchKeyRef = useRef<string | null>(null)
+  const scrolledIdRef = useRef<number | null>(null)
 
   useEffect(() => {
     function syncHash() {
       const nextId = parseCommentHashFromLocation()
       setHashCommentId(nextId)
       fetchKeyRef.current = null
+      scrolledIdRef.current = null
     }
     syncHash()
     window.addEventListener("hashchange", syncHash)
@@ -44,7 +46,12 @@ export function useCommentDeepLink({
     if (hashCommentId == null) return
 
     if (commentExistsInTree(comments, hashCommentId)) {
-      scrollCommentIntoView(hashCommentId)
+      // Scroll once per link: the list changes on every vote or reply, and those
+      // must not drag the page back to the linked comment.
+      if (scrolledIdRef.current !== hashCommentId) {
+        scrolledIdRef.current = hashCommentId
+        scrollCommentIntoView(hashCommentId)
+      }
       return
     }
 
@@ -66,6 +73,7 @@ export function useCommentDeepLink({
         ...prev,
         [result.root.id]: result.replyPagination,
       }))
+      scrolledIdRef.current = hashCommentId
       scrollCommentIntoView(hashCommentId)
     })
   }, [hashCommentId, comments, target.id, target.type, setComments, setUserVotes, setReplyMeta])

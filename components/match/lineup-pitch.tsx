@@ -25,7 +25,8 @@ function FormationLineColumn({
   onPlayerClick?: (player: MatchLineupPlayer) => void
 }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col items-center justify-evenly gap-1 py-1">
+    // basis-0 + min-w-0: every line gets an equal share however many there are.
+    <div className="flex min-w-0 flex-1 basis-0 flex-col items-center justify-evenly gap-1 py-1">
       {row.players.map((player) => (
         <LineupPlayerNode
           key={`${player.side}-${player.playerId}`}
@@ -81,7 +82,9 @@ function TeamHalfHorizontal({
   return (
     <div
       className={cn(
-        "relative flex min-h-0 flex-1 flex-row items-stretch justify-evenly gap-0.5",
+        // Exactly half the pitch: a side with more lines or longer names must
+        // shrink its columns, never push past the halfway line or the touchline.
+        "relative flex min-h-0 w-1/2 min-w-0 flex-none flex-row items-stretch gap-0.5",
         className,
       )}
     >

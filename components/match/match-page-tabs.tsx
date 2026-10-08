@@ -4,6 +4,7 @@ import Link from "next/link"
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -101,10 +102,10 @@ function useNewCommentsDot(fixtureId: number, count: number) {
     if (readSeen(fixtureId) == null) writeSeen(fixtureId, count)
   }, [fixtureId, count])
 
-  return {
-    hasNew: seen != null && count > Number(seen),
-    markSeen: () => writeSeen(fixtureId, count),
-  }
+  // Stable identity: callers list this in effect dependencies.
+  const markSeen = useCallback(() => writeSeen(fixtureId, count), [fixtureId, count])
+
+  return { hasNew: seen != null && count > Number(seen), markSeen }
 }
 
 type CommentsFocus = { commentId: number | null; compose: boolean; nonce: number }
@@ -151,15 +152,23 @@ export function MatchPageTabs({
     [markSeen],
   )
 
+  // A #comment link opens the Comments tab once on arrival and again only when
+  // the link itself changes. It must not re-run on ordinary updates, or the
+  // Lineups tab could never be opened while the link is still in the address bar.
+  const openCommentsRef = useRef(openComments)
+  useEffect(() => {
+    openCommentsRef.current = openComments
+  }, [openComments])
+
   useEffect(() => {
     function openFromHash() {
       const commentId = parseCommentHashFromLocation()
-      if (commentId != null) openComments(commentId)
+      if (commentId != null) openCommentsRef.current(commentId)
     }
     openFromHash()
     window.addEventListener("hashchange", openFromHash)
     return () => window.removeEventListener("hashchange", openFromHash)
-  }, [openComments])
+  }, [])
 
   // After switching tabs, bring the requested comment (or the composer) into view.
   useEffect(() => {
