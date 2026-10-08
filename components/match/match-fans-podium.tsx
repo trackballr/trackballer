@@ -23,9 +23,27 @@ function podiumPlayers(
 }
 
 const PLACE_STYLES = {
-  1: { avatar: "size-16", block: "h-16", label: "1st" },
-  2: { avatar: "size-12", block: "h-11", label: "2nd" },
-  3: { avatar: "size-12", block: "h-8", label: "3rd" },
+  1: {
+    avatar: "size-16",
+    block: "h-16",
+    label: "1st",
+    ring: "ring-2 ring-amber-400",
+    podium: "bg-amber-400/20 text-amber-700 dark:text-amber-300",
+  },
+  2: {
+    avatar: "size-12",
+    block: "h-11",
+    label: "2nd",
+    ring: "ring-2 ring-zinc-400",
+    podium: "bg-zinc-400/30 text-zinc-600 dark:bg-zinc-400/20 dark:text-zinc-300",
+  },
+  3: {
+    avatar: "size-12",
+    block: "h-8",
+    label: "3rd",
+    ring: "ring-2 ring-[#b87333]",
+    podium: "bg-[#b87333]/20 text-[#8a5a2b] dark:bg-[#b87333]/25 dark:text-[#e2c2a4]",
+  },
 } as const
 
 function PodiumSpot({ player, place }: { player: PodiumPlayer; place: 1 | 2 | 3 }) {
@@ -43,7 +61,7 @@ function PodiumSpot({ player, place }: { player: PodiumPlayer; place: 1 | 2 | 3 
           className={cn(
             "rounded-full border-2 border-card shadow-sm",
             style.avatar,
-            place === 1 && "ring-2 ring-amber-400",
+            style.ring,
           )}
         />
         <span className="absolute -right-1 -bottom-1 rounded-full bg-card p-0.5">
@@ -56,8 +74,8 @@ function PodiumSpot({ player, place }: { player: PodiumPlayer; place: 1 | 2 | 3 
       <RatingChip value={player.communityAvg} size="sm" className="mt-1" />
       <span
         className={cn(
-          "mt-2 flex w-full items-start justify-center rounded-t-md pt-1 text-[11px] font-bold text-muted-foreground",
-          place === 1 ? "bg-amber-400/20 text-amber-700 dark:text-amber-300" : "bg-muted",
+          "mt-2 flex w-full items-start justify-center rounded-t-md pt-1 text-[11px] font-bold",
+          style.podium,
           style.block,
         )}
       >

@@ -1,7 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react"
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react"
+
+import { parseCommentHashFromLocation } from "@/lib/comment/parse-comment-hash"
 
 import { CommentThread } from "@/components/comment/comment-thread"
 import { MatchCommentTicker } from "@/components/match/match-comment-ticker"
@@ -134,10 +142,24 @@ export function MatchPageTabs({
     if (value === "comments") markSeen()
   }
 
-  function openComments(commentId: number | null = null, compose = false) {
-    handleTabChange("comments")
-    setFocus({ commentId, compose, nonce: Date.now() })
-  }
+  const openComments = useCallback(
+    (commentId: number | null = null, compose = false) => {
+      setActiveTab("comments")
+      markSeen()
+      setFocus({ commentId, compose, nonce: Date.now() })
+    },
+    [markSeen],
+  )
+
+  useEffect(() => {
+    function openFromHash() {
+      const commentId = parseCommentHashFromLocation()
+      if (commentId != null) openComments(commentId)
+    }
+    openFromHash()
+    window.addEventListener("hashchange", openFromHash)
+    return () => window.removeEventListener("hashchange", openFromHash)
+  }, [openComments])
 
   // After switching tabs, bring the requested comment (or the composer) into view.
   useEffect(() => {

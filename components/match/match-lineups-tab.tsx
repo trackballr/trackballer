@@ -82,7 +82,6 @@ export function MatchLineupsTab({
               starters={detail.starters}
               ratingsLocked={ratingsLocked}
               onPlayerClick={onPlayerClick}
-              className="lg:aspect-[16/9]"
             />
           </Card>
         )}

@@ -11,6 +11,7 @@ import {
   mergeServerWithPendingComments,
   pruneDeletedComments,
 } from "@/lib/comment/comment-tree"
+import { useCommentDeepLink } from "@/components/comment/use-comment-deep-link"
 import { fetchParentCommentsPageAction } from "@/lib/comment/fetch-comments-page"
 import type {
   CommentSort,
@@ -83,6 +84,16 @@ export function CommentThread({
     onParentCountChange: (delta) =>
       setTotalParentCount((count) => Math.max(0, count + delta)),
   })
+
+  const hashCommentId = useCommentDeepLink({
+    target: { type: targetType, id: targetId },
+    comments,
+    setComments,
+    setUserVotes,
+    setReplyMeta,
+  })
+
+  const effectiveHighlightId = highlightId ?? hashCommentId
 
   useEffect(() => {
     setComments((prev) =>
@@ -249,7 +260,7 @@ export function CommentThread({
                 isLoadingThread={loadingThreadFor === comment.id}
                 isLoggedIn={isLoggedIn}
                 currentUserId={currentUserId}
-                highlightId={highlightId}
+                highlightId={effectiveHighlightId}
                 onVote={handleVote}
                 onDelete={handleDelete}
                 onPostReply={(body, parentId) => handlePostComment(body, parentId)}

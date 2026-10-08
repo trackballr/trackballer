@@ -312,6 +312,18 @@ export function addCommentToTree(
   })
 }
 
+/** Replace a top-level thread with a fuller copy, or append when missing (deep links). */
+export function mergeDeepLinkThreadRoot(
+  existing: CommentDisplay[],
+  incomingRoot: CommentDisplay,
+): CommentDisplay[] {
+  const index = existing.findIndex((root) => root.id === incomingRoot.id)
+  if (index === -1) return appendUniqueParents(existing, [incomingRoot])
+  const next = [...existing]
+  next[index] = incomingRoot
+  return next
+}
+
 export function appendUniqueParents(
   existing: CommentDisplay[],
   incoming: CommentDisplay[],

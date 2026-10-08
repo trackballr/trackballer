@@ -35,7 +35,7 @@ function FormationLineRow({
           player={player}
           locked={locked}
           onClick={onPlayerClick}
-          avatarSize="md"
+          avatarSize={players.length >= 5 ? "sm" : "md"}
         />
       ))}
     </div>

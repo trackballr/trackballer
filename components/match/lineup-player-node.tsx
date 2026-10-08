@@ -25,17 +25,18 @@ function shortName(name: string): string {
   return `${first[0]}. ${last}`
 }
 
-/** Face size on the pitch — 15% under the old 44px / 36px pucks. */
+/** Faces stay small enough that a back five and the keeper still fit on one pitch. */
 const avatarSizeClass = {
-  md: "size-[1.875rem]",
-  lg: "size-[2.375rem]",
+  sm: "size-6",
+  md: "size-7",
+  lg: "size-8",
 } as const
 
 type LineupPlayerNodeProps = {
   player: MatchLineupPlayer
   locked?: boolean
   onClick?: (player: MatchLineupPlayer) => void
-  avatarSize?: "md" | "lg"
+  avatarSize?: "sm" | "md" | "lg"
   className?: string
 }
 
@@ -103,7 +104,12 @@ export function LineupPlayerNode({
         </span>
       </span>
 
-      <span className="mt-1 inline-flex max-w-full items-center gap-0.5 text-[10px] font-semibold leading-tight text-white [text-shadow:0_1px_2px_rgb(0_0_0/0.45)]">
+      <span
+        className={cn(
+          "mt-0.5 inline-flex max-w-full items-center gap-0.5 font-semibold leading-tight text-white [text-shadow:0_1px_2px_rgb(0_0_0/0.45)]",
+          avatarSize === "sm" ? "text-[9px]" : "text-[10px]",
+        )}
+      >
         {hot ? (
           <Flame className="size-2.5 shrink-0 text-orange-300" aria-label="Hot take" />
         ) : null}

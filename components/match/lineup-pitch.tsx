@@ -1,7 +1,7 @@
 "use client"
 
 import { LineupPlayerNode } from "@/components/match/lineup-player-node"
-import { buildFormationRows, type FormationRow } from "@/lib/match/formation"
+import { buildFormationRows, lineupPitchIsCompact, type FormationRow } from "@/lib/match/formation"
 import type { MatchLineupPlayer } from "@/lib/match/types"
 import { cn } from "@/lib/utils"
 
@@ -16,20 +16,23 @@ type LineupPitchProps = {
 function FormationLineColumn({
   row,
   locked,
+  compact,
   onPlayerClick,
 }: {
   row: FormationRow
   locked: boolean
+  compact: boolean
   onPlayerClick?: (player: MatchLineupPlayer) => void
 }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col items-center justify-evenly gap-1.5 py-1">
+    <div className="flex min-w-0 flex-1 flex-col items-center justify-evenly gap-1 py-1">
       {row.players.map((player) => (
         <LineupPlayerNode
           key={`${player.side}-${player.playerId}`}
           player={player}
           locked={locked}
           onClick={onPlayerClick}
+          avatarSize={compact ? "md" : "lg"}
         />
       ))}
     </div>
@@ -65,18 +68,20 @@ function PitchMarkings() {
 function TeamHalfHorizontal({
   rows,
   locked,
+  compact,
   onPlayerClick,
   className,
 }: {
   rows: FormationRow[]
   locked: boolean
+  compact: boolean
   onPlayerClick?: (player: MatchLineupPlayer) => void
   className?: string
 }) {
   return (
     <div
       className={cn(
-        "relative flex min-h-0 flex-1 flex-row items-stretch justify-evenly gap-0.5 px-1",
+        "relative flex min-h-0 flex-1 flex-row items-stretch justify-evenly gap-0.5",
         className,
       )}
     >
@@ -85,6 +90,7 @@ function TeamHalfHorizontal({
           key={row.row}
           row={row}
           locked={locked}
+          compact={compact}
           onPlayerClick={onPlayerClick}
         />
       ))}
@@ -101,12 +107,13 @@ export function LineupPitch({
   const homeRows = buildFormationRows(starters.filter((p) => p.side === "home"))
   const awayRows = buildFormationRows(starters.filter((p) => p.side === "away"))
   const awayRowsHorizontal = [...awayRows].reverse()
+  const compact = lineupPitchIsCompact(homeRows, awayRows)
 
   return (
     <div
       className={cn(
         "relative flex w-full flex-row overflow-hidden bg-[var(--pitch)]",
-        "aspect-[16/10] min-h-[15.25rem]",
+        compact ? "aspect-[3/2] min-h-[20rem]" : "aspect-[16/10] min-h-[17rem]",
         className,
       )}
     >
@@ -115,14 +122,16 @@ export function LineupPitch({
       <TeamHalfHorizontal
         rows={homeRows}
         locked={ratingsLocked}
+        compact={compact}
         onPlayerClick={onPlayerClick}
-        className="pl-2"
+        className="py-2 pr-1 pl-5"
       />
       <TeamHalfHorizontal
         rows={awayRowsHorizontal}
         locked={ratingsLocked}
+        compact={compact}
         onPlayerClick={onPlayerClick}
-        className="pr-2"
+        className="py-2 pr-5 pl-1"
       />
     </div>
   )

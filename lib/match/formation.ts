@@ -22,6 +22,14 @@ export function buildFormationRows(players: MatchLineupPlayer[]): FormationRow[]
     }))
 }
 
+/** A back five or a five-line shape (4-2-3-1) needs smaller faces so the keeper stays on the pitch. */
+export function lineupPitchIsCompact(homeRows: FormationRow[], awayRows: FormationRow[]): boolean {
+  const rows = [...homeRows, ...awayRows]
+  const maxInLine = rows.reduce((max, row) => Math.max(max, row.players.length), 0)
+  const maxLines = Math.max(homeRows.length, awayRows.length)
+  return maxInLine >= 5 || maxLines >= 5
+}
+
 /** Builds a "4-2-3-1" style label from the outfield lines (excludes the keeper line). */
 export function formationLabel(rows: FormationRow[]): string | null {
   const outfield = rows.filter((r) => r.row > 1)

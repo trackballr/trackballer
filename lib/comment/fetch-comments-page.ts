@@ -208,3 +208,102 @@ export async function fetchCommentThreadAction(
     replyPagination: { hasMore: page.hasMore, nextCursor: page.nextCursor },
   }
 }
+
+const fetchDeepLinkSchema = z.object({
+  target_type: z.enum(["player", "match"]),
+  target_id: z.number().int().positive(),
+  comment_id: z.number().int().positive(),
+})
+
+export type FetchCommentDeepLinkResult = FetchCommentThreadResult
+
+const DEEP_LINK_THREAD_PAGE_CAP = 25
+
+async function loadThreadForDeepLink(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  threadRootId: number,
+  commentId: number,
+) {
+  const root = await fetchCommentById(supabase, threadRootId)
+  if (!root || root.is_deleted) {
+    return null
+  }
+
+  if (threadRootId === commentId) {
+    const page = await fetchThreadCommentsPage(supabase, threadRootId, null)
+    return {
+      root: { ...root, replies: page.replies },
+      replyPagination: { hasMore: page.hasMore, nextCursor: page.nextCursor },
+    }
+  }
+
+  const replies: CommentWithProfile[] = []
+  let cursor: ReplyCursor | null = null
+  let hasMore = true
+  let lastPagination = { hasMore: false, nextCursor: null as ReplyCursor | null }
+
+  for (let pageIndex = 0; pageIndex < DEEP_LINK_THREAD_PAGE_CAP && hasMore; pageIndex++) {
+    const page = await fetchThreadCommentsPage(supabase, threadRootId, cursor)
+    replies.push(...page.replies)
+    lastPagination = { hasMore: page.hasMore, nextCursor: page.nextCursor }
+    if (page.replies.some((reply) => reply.id === commentId)) {
+      break
+    }
+    cursor = page.nextCursor
+    hasMore = page.hasMore
+  }
+
+  return {
+    root: { ...root, replies },
+    replyPagination: lastPagination,
+  }
+}
+
+/** Match/player `#comment-{id}` — validate target and load enough thread to show that row. */
+export async function fetchCommentDeepLinkAction(
+  input: unknown,
+): Promise<FetchCommentDeepLinkResult> {
+  const parsed = fetchDeepLinkSchema.safeParse(input)
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid request." }
+  }
+
+  const { target_type, target_id, comment_id } = parsed.data
+  const supabase = await createClient()
+  const auth = await getServerAuth(supabase)
+
+  const comment = await fetchCommentById(supabase, comment_id)
+  if (!comment || comment.is_deleted) {
+    return { ok: false, error: "This comment is no longer available." }
+  }
+
+  if (target_type === "match") {
+    if (comment.fixture_id !== target_id) {
+      return { ok: false, error: "This comment is not on this match." }
+    }
+  } else if (comment.player_id !== target_id) {
+    return { ok: false, error: "This comment is not on this player page." }
+  }
+
+  const threadRootId = comment.thread_root_id ?? comment.id
+  const loaded = await loadThreadForDeepLink(supabase, threadRootId, comment_id)
+  if (!loaded) {
+    return { ok: false, error: "This thread is no longer available." }
+  }
+
+  const [withReplies] = pruneDeletedComments([loaded.root])
+  if (!withReplies) {
+    return { ok: false, error: "This thread is no longer available." }
+  }
+
+  const userVotes = await fetchVotesForComments(supabase, auth?.userId ?? null, [
+    withReplies,
+  ])
+
+  return {
+    ok: true,
+    root: withReplies,
+    userVotes,
+    replyPagination: loaded.replyPagination,
+  }
+}
