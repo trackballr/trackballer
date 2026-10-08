@@ -199,7 +199,7 @@ export function MatchPageTabs({
         <div className="min-w-0">
           {renderHero(ticker)}
 
-          <div className="sticky top-[var(--site-header-h,3.5rem)] z-20 rounded-b-lg border border-t-0 border-border bg-card px-4 md:px-6">
+          <div className="sticky top-[var(--site-header-h,3.5rem)] z-30 rounded-b-lg border border-t-0 border-border bg-card px-4 md:px-6">
             <TabsList
               variant="line"
               className="w-full justify-start gap-6 p-0 group-data-horizontal/tabs:h-auto"

@@ -1,3 +1,4 @@
+import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { CatalogImage } from "@/components/catalog-image"
@@ -8,6 +9,7 @@ import { MatchScorersRow } from "@/components/match/match-scorers-row"
 import { NationalTeamNameLink } from "@/components/national-team-name-link"
 import { TeamFlag } from "@/components/team-flag"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
+import { getLeagueHubHeaderStyle } from "@/lib/league/hub-theme"
 import { matchHeroStatusLabel, type MatchHeroScore } from "@/lib/match/hero-score"
 import type { MatchDetail } from "@/lib/match/types"
 import { Card } from "@/components/ui/card"
@@ -15,7 +17,10 @@ import { cn } from "@/lib/utils"
 
 type MatchHeroProps = {
   fixture: FixtureWithTeams
-  detail: Pick<MatchDetail, "competitionLabel" | "goalScorers" | "redCards">
+  detail: Pick<
+    MatchDetail,
+    "competitionLabel" | "competitionSlug" | "goalScorers" | "redCards"
+  >
   heroScore: MatchHeroScore
   /** Rendered flush with the bottom edge (top-comment strip). */
   footer?: ReactNode
@@ -136,6 +141,34 @@ function HeroScore({
   )
 }
 
+/** Heading strip in the competition's brand colour; links to its hub when there is one. */
+function CompetitionBar({ label, slug }: { label: string; slug: string | null }) {
+  const content = (
+    <>
+      <MatchTrophyIcon className="text-current" />
+      <span className="truncate">{label}</span>
+    </>
+  )
+  const className =
+    "flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold"
+  // No hub (e.g. World Cup) falls back to the site's own brand colour.
+  const style = getLeagueHubHeaderStyle(slug ?? "")
+
+  return slug ? (
+    <Link
+      href={`/league/${slug}`}
+      className={cn(className, "transition-opacity hover:opacity-90")}
+      style={style}
+    >
+      {content}
+    </Link>
+  ) : (
+    <div className={className} style={style}>
+      {content}
+    </div>
+  )
+}
+
 /**
  * Match header card: competition bar, date + venue, teams and score, scorers,
  * and an optional tab bar pinned to the bottom edge.
@@ -146,14 +179,12 @@ export function MatchHero({ fixture, detail, heroScore, footer, className }: Mat
 
   return (
     <Card radius="sm" className={cn("overflow-hidden", className)}>
-      {(detail.competitionLabel || fixture.kickoff_at || fixture.venue) && (
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-border px-4 py-2.5 text-xs text-muted-foreground">
-          {detail.competitionLabel && (
-            <span className="inline-flex min-w-0 items-center gap-1.5 font-semibold text-foreground">
-              <MatchTrophyIcon className="size-3.5" />
-              <span className="truncate">{detail.competitionLabel}</span>
-            </span>
-          )}
+      {detail.competitionLabel && (
+        <CompetitionBar label={detail.competitionLabel} slug={detail.competitionSlug} />
+      )}
+
+      {(fixture.kickoff_at || fixture.venue) && (
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-border px-4 py-2 text-xs text-muted-foreground">
           {fixture.kickoff_at && <MatchKickoffDateTime iso={fixture.kickoff_at} />}
           {fixture.venue && (
             <span className="inline-flex items-center gap-1.5">

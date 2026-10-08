@@ -4,15 +4,12 @@ import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 
 
 import { mergeVoteMaps } from "@/components/comment/use-comment-tree-actions"
 import type { CommentTarget } from "@/components/comment/use-comment-tree-actions"
-import {
-  commentExistsInTree,
-  mergeDeepLinkThreadRoot,
-  type CommentDisplay,
-} from "@/lib/comment/comment-tree"
+import { commentExistsInTree, mergeDeepLinkThreadRoot } from "@/lib/comment/comment-tree"
 import { fetchCommentDeepLinkAction } from "@/lib/comment/fetch-comments-page"
 import type { ReplyPaginationMeta } from "@/lib/comment/pagination"
 import { parseCommentHashFromLocation } from "@/lib/comment/parse-comment-hash"
 import { scrollCommentIntoView } from "@/lib/comment/scroll-to-comment"
+import type { CommentDisplay } from "@/lib/comment/types"
 
 type UseCommentDeepLinkOptions = {
   target: CommentTarget
@@ -55,13 +52,14 @@ export function useCommentDeepLink({
     if (fetchKeyRef.current === fetchKey) return
     fetchKeyRef.current = fetchKey
 
-    let cancelled = false
+    // Guard on the request key rather than cancelling on every re-run: the comment
+    // list can change while this loads, and the answer must still be applied.
     fetchCommentDeepLinkAction({
       target_type: target.type,
       target_id: target.id,
       comment_id: hashCommentId,
     }).then((result) => {
-      if (cancelled || !result.ok) return
+      if (fetchKeyRef.current !== fetchKey || !result.ok) return
       setComments((prev) => mergeDeepLinkThreadRoot(prev, result.root))
       setUserVotes((prev) => mergeVoteMaps(prev, result.userVotes))
       setReplyMeta((prev) => ({
@@ -70,10 +68,6 @@ export function useCommentDeepLink({
       }))
       scrollCommentIntoView(hashCommentId)
     })
-
-    return () => {
-      cancelled = true
-    }
   }, [hashCommentId, comments, target.id, target.type, setComments, setUserVotes, setReplyMeta])
 
   return hashCommentId

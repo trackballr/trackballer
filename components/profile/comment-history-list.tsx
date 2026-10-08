@@ -1,5 +1,6 @@
 "use client"
 
+import { ArrowUpRight, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { useCallback, useEffect, useState, useTransition } from "react"
 
@@ -13,6 +14,7 @@ import {
   CommentHistoryContent,
   commentTargetHref,
 } from "@/components/profile/recent-comments-list"
+import { buttonVariants } from "@/components/ui/button"
 import { Panel, PanelEmpty } from "@/components/ui/panel"
 import { pruneDeletedComments } from "@/lib/comment/comment-tree"
 import {
@@ -127,12 +129,6 @@ function HistoryThread({ comment, ...viewer }: ViewerProps & { comment: RecentCo
       ) : (
         <p className="text-sm text-muted-foreground">{result.error}</p>
       )}
-      <Link
-        href={commentTargetHref(comment)}
-        className="mt-4 inline-block text-xs font-semibold text-primary hover:underline"
-      >
-        Open on {targetName(comment)} →
-      </Link>
     </div>
   )
 }
@@ -223,18 +219,37 @@ export function CommentHistoryList({
                 type="button"
                 onClick={() => toggle(comment.id)}
                 aria-expanded={isOpen}
-                className="block w-full py-4 text-left"
+                className="block w-full pt-4 text-left"
               >
                 <CommentHistoryContent comment={comment} />
-                <span
-                  className={cn(
-                    "mt-2 inline-block text-xs font-semibold",
-                    isOpen ? "text-muted-foreground" : "text-primary",
-                  )}
-                >
-                  {isOpen ? "Hide thread" : "View thread"}
-                </span>
               </button>
+              <div className="flex flex-wrap items-center gap-2 pt-3 pb-4">
+                <button
+                  type="button"
+                  onClick={() => toggle(comment.id)}
+                  className={buttonVariants({
+                    variant: "outline",
+                    size: "sm",
+                    className: "h-8 gap-1.5 bg-card px-3",
+                  })}
+                >
+                  <ChevronDown
+                    className={cn("transition-transform", isOpen && "rotate-180")}
+                    aria-hidden
+                  />
+                  {isOpen ? "Hide thread" : "View thread"}
+                </button>
+                <Link
+                  href={commentTargetHref(comment)}
+                  className={buttonVariants({
+                    size: "sm",
+                    className: "h-8 min-w-0 gap-1.5 px-3",
+                  })}
+                >
+                  <span className="truncate">Open on {targetName(comment)}</span>
+                  <ArrowUpRight className="shrink-0" aria-hidden />
+                </Link>
+              </div>
               {isOpen ? (
                 <HistoryThread
                   comment={comment}

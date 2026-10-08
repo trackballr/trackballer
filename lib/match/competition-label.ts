@@ -1,21 +1,17 @@
 import { formatFixtureRoundLabel } from "@/lib/world-cup/round-label"
 
-/** e.g. "FIFA World Cup · Round 1 2026" */
+/** e.g. "Premier League 2026 · Matchday 4" */
 export function buildCompetitionLabel(
   leagueName: string | null | undefined,
   roundName: string | null | undefined,
   seasonYear: number | null | undefined,
 ): string | null {
-  const parts: string[] = []
-  if (leagueName?.trim()) parts.push(leagueName.trim())
-  if (roundName?.trim()) {
-    parts.push(formatFixtureRoundLabel(roundName.trim()) ?? roundName.trim())
-  }
+  const competition = [leagueName?.trim(), seasonYear != null ? String(seasonYear) : null]
+    .filter(Boolean)
+    .join(" ")
+  const round = roundName?.trim()
+    ? (formatFixtureRoundLabel(roundName.trim()) ?? roundName.trim())
+    : null
 
-  let label = parts.join(" · ")
-  if (seasonYear != null) {
-    label = label ? `${label} ${seasonYear}` : String(seasonYear)
-  }
-
-  return label || null
+  return [competition, round].filter(Boolean).join(" · ") || null
 }

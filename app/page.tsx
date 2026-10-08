@@ -2,6 +2,7 @@ import { CareerShuffleStrip } from "@/components/home/career-shuffle-strip"
 import { CompetitionStrip } from "@/components/home/competition-strip"
 import { FeaturedCompetitions } from "@/components/home/featured-competitions"
 import { HomeLeagueSidebar } from "@/components/home/home-league-sidebar"
+import { TrendingCommentTicker } from "@/components/home/trending-comment-ticker"
 import { TrendingComments } from "@/components/home/trending-comments"
 import { TrendingPlayers } from "@/components/home/trending-players"
 import { YourTeamToday } from "@/components/home/your-team-today"
@@ -45,29 +46,37 @@ export default async function HomePage() {
       <CompetitionStrip strip={strip} />
 
       {/*
-        Phones and tablets: one column in a deliberate order (shuffle near the top,
-        one league of matches at a time). The main column uses display:contents
-        below lg so its sections can interleave with the matches block.
+        Phones and tablets: one column in a deliberate order — trending take,
+        trending players, shuffle, then one league of matches at a time. The main
+        column uses display:contents below lg so its sections can interleave with
+        the matches block. Desktop keeps the two-column layout.
       */}
-      <div className="mt-8 flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(280px,22rem)] lg:items-start">
+      <div className="mt-8 flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(280px,22rem)] lg:items-start lg:gap-8">
         <div className="contents lg:block lg:min-w-0 lg:space-y-8">
           <div className="order-1 empty:hidden lg:order-none">
             <YourTeamToday items={yourTeamToday} />
           </div>
-          <div className="order-2 lg:order-none">
-            <CareerShuffleStrip
-              isLoggedIn={!!auth}
-              clubs={shuffleClubs}
-              leagueLogos={shuffleLeagueLogos}
+          <div className="order-2 empty:hidden lg:hidden">
+            <TrendingCommentTicker
+              comments={trendingComments}
+              currentUserId={auth?.userId ?? null}
             />
           </div>
           <div className="order-3 lg:order-none">
             <TrendingPlayers players={trendingPlayers} />
           </div>
-          <div className="order-5 lg:order-none">
+          {/* Desktop keeps the full list here; smaller screens get the ticker above. */}
+          <div className="hidden lg:block">
             <TrendingComments
               comments={trendingComments}
               currentUserId={auth?.userId ?? null}
+            />
+          </div>
+          <div className="order-4 lg:order-none">
+            <CareerShuffleStrip
+              isLoggedIn={!!auth}
+              clubs={shuffleClubs}
+              leagueLogos={shuffleLeagueLogos}
             />
           </div>
           <div className="order-6 lg:order-none">
@@ -78,7 +87,7 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="order-4 min-w-0 lg:order-none">
+        <div className="order-5 min-w-0 lg:order-none">
           <HomeLeagueSidebar leagues={leagueMatches} />
         </div>
       </div>

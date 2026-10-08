@@ -112,7 +112,8 @@ export function LineupPitch({
   return (
     <div
       className={cn(
-        "relative flex w-full flex-row overflow-hidden bg-[var(--pitch)]",
+        // isolate: player markers use z-index; keep them under the sticky tab bar.
+        "relative isolate flex w-full flex-row overflow-hidden bg-[var(--pitch)]",
         compact ? "aspect-[3/2] min-h-[20rem]" : "aspect-[16/10] min-h-[17rem]",
         className,
       )}

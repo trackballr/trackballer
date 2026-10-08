@@ -72,7 +72,7 @@ export function LineupSingleTeamPitch({
   return (
     <div
       className={cn(
-        "relative flex min-h-[24rem] w-full flex-col justify-evenly gap-y-2.5 overflow-hidden rounded-2xl border border-border bg-[var(--pitch)] px-2 py-3.5",
+        "relative isolate flex min-h-[24rem] w-full flex-col justify-evenly gap-y-2.5 overflow-hidden rounded-2xl border border-border bg-[var(--pitch)] px-2 py-3.5",
         className,
       )}
     >

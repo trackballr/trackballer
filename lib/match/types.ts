@@ -100,6 +100,8 @@ export type PenaltyShootout = {
 export type MatchDetail = {
   fixture: FixtureWithTeams
   competitionLabel: string | null
+  /** /league/[slug] hub for this match's competition; null when it has no hub. */
+  competitionSlug: string | null
   goalScorers: MatchGoalScorers
   redCards: MatchRedCards
   penaltyShootout: PenaltyShootout | null

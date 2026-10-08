@@ -10,6 +10,8 @@ type CareerRingProps = {
   tier: string
   displayScore: number
   className?: string
+  /** Overrides the ring's size classes, e.g. a smaller ring on phones. */
+  ringClassName?: string
   /** Compact size for horizontal profile header. */
   compact?: boolean
   /** Mini is about ⅓ of compact. Quarter is about ¼, for slim sidebar rows. */
@@ -50,6 +52,7 @@ export function CareerRing({
   tier,
   displayScore,
   className,
+  ringClassName,
   compact = false,
   size,
 }: CareerRingProps) {
@@ -63,6 +66,7 @@ export function CareerRing({
         className={cn(
           "relative isolate flex items-center justify-center",
           ringSizeClass[ringSize],
+          ringClassName,
         )}
         style={{ ["--career-ring-color" as string]: `var(${ringVar})` }}
       >

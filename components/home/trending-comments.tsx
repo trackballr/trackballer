@@ -18,12 +18,10 @@ export function TrendingComments({ comments, currentUserId }: TrendingCommentsPr
           No hot takes this week yet.
         </p>
       ) : (
-        // Phones and tablets: swipeable row with the next card peeking; desktop: stacked list.
-        <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:block lg:space-y-3 lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden">
+        <div className="space-y-3">
           {comments.map((comment) => (
             <PlayerCommentPreviewCard
               key={comment.id}
-              className="w-[82%] shrink-0 snap-start md:w-[calc(50%-0.375rem)] lg:w-auto"
               body={comment.body}
               upvoteCount={comment.upvoteCount}
               createdAt={comment.createdAt}

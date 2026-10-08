@@ -1,6 +1,7 @@
 import { cache } from "react"
 
 import { FIXTURE_TEAM_SELECT, mapFixtureRow } from "@/lib/catalog/fixtures"
+import { COMPETITION_HUB_LEAGUES } from "@/lib/catalog/top-leagues"
 import { buildCompetitionLabel } from "@/lib/match/competition-label"
 import { buildFormationRows, formationLabel } from "@/lib/match/formation"
 import { parseGridSlot } from "@/lib/match/lineup-position"
@@ -22,7 +23,7 @@ import { createClient } from "@/lib/supabase/server"
 const MATCH_FIXTURE_SELECT = `${FIXTURE_TEAM_SELECT},
   seasons!fixtures_season_id_fkey (
     year,
-    leagues ( name )
+    leagues ( id, name )
   )`
 
 type LineupRow = {
@@ -130,7 +131,9 @@ export const getMatchDetail = cache(
 
     const events = (eventRows ?? []) as EventRow[]
     const playerNames = await enrichPlayerNames(supabase, playerNameById, events)
-    const { leagueName, seasonYear } = extractSeasonMeta(fixtureRow)
+    const { leagueId, leagueName, seasonYear } = extractSeasonMeta(fixtureRow)
+    const competitionSlug =
+      COMPETITION_HUB_LEAGUES.find((league) => league.id === leagueId)?.slug ?? null
     const competitionLabel = buildCompetitionLabel(
       leagueName,
       fixture.round_name,
@@ -236,6 +239,7 @@ export const getMatchDetail = cache(
     return {
       fixture,
       competitionLabel,
+      competitionSlug,
       goalScorers,
       redCards,
       penaltyShootout,
@@ -253,32 +257,33 @@ export const getMatchDetail = cache(
 )
 
 function extractSeasonMeta(fixtureRow: unknown): {
+  leagueId: number | null
   leagueName: string | null
   seasonYear: number | null
 } {
   if (!fixtureRow || typeof fixtureRow !== "object") {
-    return { leagueName: null, seasonYear: null }
+    return { leagueId: null, leagueName: null, seasonYear: null }
   }
 
   const seasons = (fixtureRow as Record<string, unknown>).seasons
   if (!seasons || typeof seasons !== "object") {
-    return { leagueName: null, seasonYear: null }
+    return { leagueId: null, leagueName: null, seasonYear: null }
   }
 
   const seasonObj = seasons as { year?: number; leagues?: unknown }
   const seasonYear = typeof seasonObj.year === "number" ? seasonObj.year : null
 
-  let leagueName: string | null = null
   const leagues = seasonObj.leagues
-  if (leagues && typeof leagues === "object") {
-    if (Array.isArray(leagues)) {
-      leagueName = (leagues[0] as { name?: string } | undefined)?.name ?? null
-    } else {
-      leagueName = (leagues as { name?: string }).name ?? null
-    }
-  }
+  const league = (Array.isArray(leagues) ? leagues[0] : leagues) as
+    | { id?: number; name?: string }
+    | null
+    | undefined
 
-  return { leagueName, seasonYear }
+  return {
+    leagueId: typeof league?.id === "number" ? league.id : null,
+    leagueName: league?.name ?? null,
+    seasonYear,
+  }
 }
 
 async function enrichPlayerNames(
