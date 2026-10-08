@@ -34,6 +34,8 @@ interface CommentThreadProps {
   currentUserId: string | null
   /** Tint one comment, e.g. after opening it from a trending card. */
   highlightId?: number | null
+  /** Pre-fills the main composer; a new nonce replaces whatever was typed. */
+  composerDraft?: { text: string; nonce: number } | null
 }
 
 export function CommentThread({
@@ -49,6 +51,7 @@ export function CommentThread({
   isLoggedIn,
   currentUserId,
   highlightId = null,
+  composerDraft = null,
 }: CommentThreadProps) {
   const [sort, setSort] = useState<CommentSort>(initialSort)
   const [totalParentCount, setTotalParentCount] = useState(initialTotalParentCount)
@@ -235,6 +238,8 @@ export function CommentThread({
       </div>
 
       <CommentComposer
+        key={composerDraft?.nonce ?? "composer"}
+        initialBody={composerDraft?.text}
         isLoggedIn={isLoggedIn}
         onPost={(body) => handlePostComment(body)}
       />

@@ -1,12 +1,22 @@
+import Link from "next/link"
+
+import { TrendingEmptyState } from "@/components/comment/trending-empty-state"
+import { PlayerAvatar } from "@/components/player-avatar"
 import { PlayerCommentPreviewCard } from "@/components/comment/player-comment-preview-card"
-import type { TrendingCommentCard } from "@/lib/home/types"
+import type { TrendingCommentCard, TrendingPlayerCard } from "@/lib/home/types"
 
 type TrendingCommentsProps = {
   comments: TrendingCommentCard[]
   currentUserId: string | null
+  /** Shown in the empty state as places to post the first take. */
+  suggestedPlayers?: TrendingPlayerCard[]
 }
 
-export function TrendingComments({ comments, currentUserId }: TrendingCommentsProps) {
+export function TrendingComments({
+  comments,
+  currentUserId,
+  suggestedPlayers = [],
+}: TrendingCommentsProps) {
   return (
     <section>
       <div className="mb-3 flex items-baseline justify-between gap-3">
@@ -14,9 +24,34 @@ export function TrendingComments({ comments, currentUserId }: TrendingCommentsPr
       </div>
 
       {comments.length === 0 ? (
-        <p className="body-sm rounded-lg border border-border bg-card p-4 text-muted-foreground">
-          No hot takes this week yet.
-        </p>
+        <TrendingEmptyState
+          className="rounded-lg border border-border bg-card p-5"
+          title="No hot takes this week"
+          description="The most upvoted comments from the last 7 days land here."
+        >
+          {suggestedPlayers.length > 0 ? (
+            <>
+              <p className="text-xs font-medium text-muted-foreground">Start one on</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {suggestedPlayers.map((player) => (
+                  <Link
+                    key={player.id}
+                    href={`/player/${player.id}#comments-section`}
+                    className="inline-flex items-center gap-2 rounded-full border border-border bg-background py-1 pr-3 pl-1 text-xs font-semibold transition-colors hover:bg-muted"
+                  >
+                    <PlayerAvatar
+                      name={player.name}
+                      photoUrl={player.photoUrl}
+                      size="sm"
+                      className="size-6 rounded-full"
+                    />
+                    {player.name}
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : null}
+        </TrendingEmptyState>
       ) : (
         <div className="space-y-3">
           {comments.map((comment) => (

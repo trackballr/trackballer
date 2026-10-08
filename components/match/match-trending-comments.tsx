@@ -6,6 +6,7 @@ import { useState, useTransition } from "react"
 import { CommentAuthorLink } from "@/components/comment/comment-author-link"
 import { CommentFavouriteCrests } from "@/components/comment/comment-favourite-crests"
 import { CommentTime } from "@/components/comment/comment-time"
+import { TrendingEmptyState } from "@/components/comment/trending-empty-state"
 import { Panel, PanelHeader } from "@/components/ui/panel"
 import { computeVoteTransition } from "@/lib/comment/optimistic-vote"
 import { submitVote } from "@/lib/comment/submit-vote"
@@ -170,6 +171,8 @@ type ListProps = {
   currentUserId: string | null
   onOpen: (commentId: number) => void
   onSeeAll: () => void
+  /** Empty state only: open the composer with this text ready. */
+  onPrompt?: (text: string) => void
 }
 
 /** Phones and tablets: swipeable row right under the score card, next card peeking. */
@@ -210,6 +213,9 @@ export function MatchTrendingCarousel({
   )
 }
 
+/** Starters offered when a match has no comments yet. */
+const TAKE_PROMPTS = ["Man of the match", "Biggest letdown", "Turning point"]
+
 /** Desktop sidebar: first thing beside the score card. */
 export function MatchTrendingPanel({
   comments,
@@ -217,21 +223,30 @@ export function MatchTrendingPanel({
   currentUserId,
   onOpen,
   onSeeAll,
+  onPrompt,
 }: ListProps) {
   return (
     <Panel>
       <PanelHeader title="Trending comments" />
       {comments.length === 0 ? (
-        <div className="px-5 pt-1 pb-5">
-          <p className="text-sm text-muted-foreground">No takes on this match yet.</p>
-          <button
-            type="button"
-            onClick={onSeeAll}
-            className="mt-2 text-sm font-semibold text-primary hover:underline"
-          >
-            Be the first →
-          </button>
-        </div>
+        <TrendingEmptyState
+          className="px-5 pt-2 pb-5"
+          title="No takes on this match yet"
+          description="Call it before anyone else does."
+        >
+          <div className="flex flex-wrap gap-2">
+            {TAKE_PROMPTS.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                onClick={() => (onPrompt ? onPrompt(`${prompt}: `) : onSeeAll())}
+                className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-muted"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        </TrendingEmptyState>
       ) : (
         <>
           <div className="mx-5 divide-y divide-border">

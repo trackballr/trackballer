@@ -21,7 +21,7 @@ export function PlayersDirectory({
 }: PlayersDirectoryProps) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-4 lg:py-5">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_minmax(0,1fr)_220px] lg:items-start">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_minmax(0,1fr)_264px] lg:items-start">
         <aside className="hidden lg:block">
           <div className="sticky top-16 rounded-lg border border-border bg-card p-4">
             <PlayersFiltersForm

@@ -78,6 +78,7 @@ export default async function HomePage() {
             <TrendingComments
               comments={trendingComments}
               currentUserId={auth?.userId ?? null}
+              suggestedPlayers={trendingPlayers.slice(0, 4)}
             />
           </div>
           <div className="order-4 lg:order-none">

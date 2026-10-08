@@ -6,11 +6,18 @@ import Link from "next/link"
 interface CommentComposerProps {
   isLoggedIn: boolean
   compact?: boolean
+  /** Text to start with, e.g. a prompt picked from an empty state. */
+  initialBody?: string
   onPost: (body: string) => Promise<{ ok: boolean; error?: string }>
 }
 
-export function CommentComposer({ isLoggedIn, compact = false, onPost }: CommentComposerProps) {
-  const [body, setBody] = useState("")
+export function CommentComposer({
+  isLoggedIn,
+  compact = false,
+  initialBody = "",
+  onPost,
+}: CommentComposerProps) {
+  const [body, setBody] = useState(initialBody)
   const [error, setError] = useState("")
   const [isPending, setIsPending] = useState(false)
 

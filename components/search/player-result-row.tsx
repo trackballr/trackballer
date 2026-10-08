@@ -1,8 +1,8 @@
 import Link from "next/link"
 
-import { PlayerClubCrestBadge } from "@/components/player/player-club-crest-badge"
 import { CareerRing } from "@/components/player/career-ring"
 import { PlayerNationalityFlag } from "@/components/player/player-nationality-flag"
+import { TeamFlag } from "@/components/team-flag"
 import { nationalityToAlpha2 } from "@/lib/country/nationality-alpha2"
 import { positionDisplayLabel } from "@/lib/match/position-label"
 import type { PlayerListItem } from "@/lib/search/types"
@@ -20,10 +20,13 @@ function PlayerMetaLine({ player, dense = false }: { player: PlayerListItem; den
   const positionLabel = positionDisplayLabel(player.position)
   const ageLabel = player.age != null ? String(player.age) : null
   const hasFlag = nationalityToAlpha2(player.nationality) != null
+  // The header dropdown stays flag-only; full rows show the club crest after the flag.
+  const club = dense ? null : player.clubTeam
+  const hasBadges = hasFlag || club != null
   const hasPosition = Boolean(positionLabel)
   const hasAge = Boolean(ageLabel)
 
-  if (!hasFlag && !hasPosition && !hasAge) return null
+  if (!hasBadges && !hasPosition && !hasAge) return null
 
   return (
     <p
@@ -33,15 +36,18 @@ function PlayerMetaLine({ player, dense = false }: { player: PlayerListItem; den
       )}
     >
       {hasFlag ? <PlayerNationalityFlag nationality={player.nationality} /> : null}
+      {club ? (
+        <TeamFlag team={club} size="sm" variant="crest" className="size-4 shrink-0" />
+      ) : null}
       {hasPosition ? (
         <>
-          {hasFlag ? <span aria-hidden>·</span> : null}
+          {hasBadges ? <span aria-hidden>·</span> : null}
           <span className="truncate">{positionLabel}</span>
         </>
       ) : null}
       {hasAge ? (
         <>
-          {hasFlag || hasPosition ? <span aria-hidden>·</span> : null}
+          {hasBadges || hasPosition ? <span aria-hidden>·</span> : null}
           <span className="shrink-0 tabular-nums">{ageLabel}</span>
         </>
       ) : null}
@@ -60,18 +66,14 @@ export function PlayerResultRow({
 }: PlayerResultRowProps) {
   const content = (
     <>
-      <div className="relative shrink-0">
-        <CareerRing
-          name={player.displayName}
-          photoUrl={player.photoUrl}
-          tier={player.tier}
-          displayScore={player.displayScore}
-          size="mini"
-        />
-        {!dense && player.clubTeam ? (
-          <PlayerClubCrestBadge team={player.clubTeam} size="xs" />
-        ) : null}
-      </div>
+      <CareerRing
+        name={player.displayName}
+        photoUrl={player.photoUrl}
+        tier={player.tier}
+        displayScore={player.displayScore}
+        size="mini"
+        className="shrink-0"
+      />
       <div className="min-w-0 flex-1">
         <p className={cn("truncate font-semibold", dense ? "text-xs" : "text-sm")}>
           {player.displayName}

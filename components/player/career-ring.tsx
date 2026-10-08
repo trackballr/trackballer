@@ -12,6 +12,8 @@ type CareerRingProps = {
   className?: string
   /** Overrides the ring's size classes, e.g. a smaller ring on phones. */
   ringClassName?: string
+  /** Drop the score badge under the ring when the score is shown beside it. */
+  hideScore?: boolean
   /** Compact size for horizontal profile header. */
   compact?: boolean
   /** Mini is about ⅓ of compact. Quarter is about ¼, for slim sidebar rows. */
@@ -53,6 +55,7 @@ export function CareerRing({
   displayScore,
   className,
   ringClassName,
+  hideScore = false,
   compact = false,
   size,
 }: CareerRingProps) {
@@ -90,16 +93,18 @@ export function CareerRing({
                 : "size-[calc(100%-4px)] border-0 shadow-none",
           )}
         />
-        <span
-          className={cn(
-            "absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rounded-sm font-mono font-bold leading-none tabular-nums text-white shadow-sm",
-            scoreBadgeClass[ringSize],
-          )}
-          style={{ backgroundColor: `var(${ringVar})` }}
-          aria-label={`Career rating ${scoreLabel}`}
-        >
-          {scoreLabel}
-        </span>
+        {hideScore ? null : (
+          <span
+            className={cn(
+              "absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rounded-sm font-mono font-bold leading-none tabular-nums text-white shadow-sm",
+              scoreBadgeClass[ringSize],
+            )}
+            style={{ backgroundColor: `var(${ringVar})` }}
+            aria-label={`Career rating ${scoreLabel}`}
+          >
+            {scoreLabel}
+          </span>
+        )}
       </div>
     </div>
   )

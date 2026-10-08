@@ -108,7 +108,13 @@ function useNewCommentsDot(fixtureId: number, count: number) {
   return { hasNew: seen != null && count > Number(seen), markSeen }
 }
 
-type CommentsFocus = { commentId: number | null; compose: boolean; nonce: number }
+type CommentsFocus = {
+  commentId: number | null
+  compose: boolean
+  /** Text to drop into the composer, from an empty-state prompt. */
+  draft: string | null
+  nonce: number
+}
 
 export function MatchPageTabs({
   fixture,
@@ -144,10 +150,10 @@ export function MatchPageTabs({
   }
 
   const openComments = useCallback(
-    (commentId: number | null = null, compose = false) => {
+    (commentId: number | null = null, compose = false, draft: string | null = null) => {
       setActiveTab("comments")
       markSeen()
-      setFocus({ commentId, compose, nonce: Date.now() })
+      setFocus({ commentId, compose, draft, nonce: Date.now() })
     },
     [markSeen],
   )
@@ -182,9 +188,12 @@ export function MatchPageTabs({
         block: focus.commentId ? "center" : "start",
       })
       if (focus.compose) {
-        document
-          .querySelector<HTMLTextAreaElement>("#comments-section textarea")
-          ?.focus({ preventScroll: true })
+        const box = document.querySelector<HTMLTextAreaElement>(
+          "#comments-section textarea",
+        )
+        box?.focus({ preventScroll: true })
+        // Caret after any pre-filled prompt, ready to keep typing.
+        box?.setSelectionRange(box.value.length, box.value.length)
       }
     }, 60)
     return () => window.clearTimeout(id)
@@ -298,6 +307,9 @@ export function MatchPageTabs({
                   isLoggedIn={isLoggedIn}
                   currentUserId={currentUserId}
                   highlightId={focus?.commentId ?? null}
+                  composerDraft={
+                    focus?.draft ? { text: focus.draft, nonce: focus.nonce } : null
+                  }
                 />
               )}
             </TabsContent>
@@ -311,6 +323,7 @@ export function MatchPageTabs({
             currentUserId={currentUserId}
             onOpen={(commentId) => openComments(commentId)}
             onSeeAll={() => openComments(null, trendingComments.length === 0)}
+            onPrompt={(text) => openComments(null, true, text)}
           />
           {progressCard}
           {podium}

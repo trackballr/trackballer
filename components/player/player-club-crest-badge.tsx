@@ -11,12 +11,15 @@ type PlayerClubCrestBadgeProps = {
   size?: "sm" | "xs"
   /** Top keeps the crest clear of a score badge under a small ring. */
   corner?: "bottom" | "top"
+  /** Overrides the crest image size, e.g. a larger crest on a name-less ring. */
+  crestClassName?: string
 }
 
 export function PlayerClubCrestBadge({
   team,
   size = "sm",
   corner = "bottom",
+  crestClassName,
 }: PlayerClubCrestBadgeProps) {
   const tiny = size === "xs"
 
@@ -32,7 +35,7 @@ export function PlayerClubCrestBadge({
         team={team}
         size="sm"
         variant="crest"
-        className={tiny ? "size-2.5" : undefined}
+        className={cn(tiny && "size-2.5", crestClassName)}
       />
     </span>
   )
