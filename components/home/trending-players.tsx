@@ -2,15 +2,12 @@ import Link from "next/link"
 
 import { PlayerClubCrestBadge } from "@/components/player/player-club-crest-badge"
 import { CareerRing } from "@/components/player/career-ring"
-import { CareerRatingChip } from "@/components/rating/career-rating-chip"
-import { Panel, PanelFooterLink, PanelHeader } from "@/components/ui/panel"
 import type { TrendingPlayerCard } from "@/lib/home/types"
-import { careerRingTier, careerTierLabel } from "@/lib/rating/career-tier"
-import { cn } from "@/lib/utils"
 
 type TrendingPlayersProps = {
   players: TrendingPlayerCard[]
-  variant?: "default" | "sidebar"
+  /** default: phone/tablet card. strip: desktop row beside Competitions. sidebar: players directory. */
+  variant?: "default" | "sidebar" | "strip"
 }
 
 /** Slim row for the players-directory sidebar. */
@@ -65,83 +62,30 @@ function SwipePlayer({ player }: { player: TrendingPlayerCard }) {
   )
 }
 
-/** Desktop: one ranked row — position, ring, name + club and tier, score. */
-function RankedPlayerRow({
-  player,
-  rank,
-  className,
-}: {
-  player: TrendingPlayerCard
-  rank: number
-  className?: string
-}) {
-  const tierLabel = careerTierLabel(careerRingTier(player.tier, player.displayScore))
-  const meta = [player.clubTeam?.name, tierLabel].filter(Boolean).join(" · ")
+/** Desktop strip beside Competitions: ring, score and club crest — the name is the tooltip. */
+function StripPlayer({ player }: { player: TrendingPlayerCard }) {
+  const label = [player.name, player.clubTeam?.name].filter(Boolean).join(" · ")
 
   return (
     <Link
       href={`/player/${player.id}`}
-      className={cn("group flex items-center gap-3 py-2.5", className)}
+      title={label}
+      aria-label={label}
+      className="relative shrink-0 snap-start transition-transform hover:-translate-y-0.5"
     >
-      <span className="w-5 shrink-0 text-center text-sm font-semibold tabular-nums text-muted-foreground">
-        {rank}
-      </span>
-      <div className="relative shrink-0">
-        <CareerRing
-          name={player.name}
-          photoUrl={player.photoUrl}
-          tier={player.tier}
-          displayScore={player.displayScore}
-          compact
-          ringClassName="size-11"
-          hideScore
-        />
-        {player.clubTeam ? <PlayerClubCrestBadge team={player.clubTeam} size="xs" /> : null}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold leading-tight group-hover:underline">
-          {player.name}
-        </p>
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">{meta}</p>
-      </div>
-      <CareerRatingChip
-        score={player.displayScore}
+      <CareerRing
+        name={player.name}
+        photoUrl={player.photoUrl}
         tier={player.tier}
-        size="md"
-        className="shrink-0 shadow-none"
+        displayScore={player.displayScore}
+        compact
+        // Same 48px as the competition crests it sits beside.
+        ringClassName="size-12"
       />
+      {player.clubTeam ? (
+        <PlayerClubCrestBadge team={player.clubTeam} size="xs" corner="top" />
+      ) : null}
     </Link>
-  )
-}
-
-/** Two columns read top to bottom (1–4, then 5–8); short lists stay in one. */
-function RankedPlayerList({ players }: { players: TrendingPlayerCard[] }) {
-  const twoColumns = players.length >= 5
-  const rowsPerColumn = twoColumns ? Math.ceil(players.length / 2) : players.length
-
-  return (
-    <div
-      className={cn(
-        "relative mx-5 grid grid-flow-col gap-x-10",
-        // Hairline between the two columns.
-        twoColumns &&
-          "before:absolute before:inset-y-2 before:left-1/2 before:w-px before:bg-border",
-      )}
-      style={{
-        gridTemplateRows: `repeat(${rowsPerColumn}, auto)`,
-        gridTemplateColumns: twoColumns ? "repeat(2, minmax(0, 1fr))" : "minmax(0, 1fr)",
-      }}
-    >
-      {players.map((player, index) => (
-        <RankedPlayerRow
-          key={player.id}
-          player={player}
-          rank={index + 1}
-          // Divider above every row except the first in each column.
-          className={index % rowsPerColumn === 0 ? undefined : "border-t border-border"}
-        />
-      ))}
-    </div>
   )
 }
 
@@ -174,41 +118,45 @@ export function TrendingPlayers({ players, variant = "default" }: TrendingPlayer
     )
   }
 
-  return (
-    <>
-      {/* Phones and tablets: one card with a swipe row of rings. */}
-      <section className="overflow-hidden rounded-lg border border-border bg-card pt-3.5 pb-3 lg:hidden">
-        <div className="mb-3 flex items-baseline justify-between gap-3 px-4">
-          <h2 className="font-display text-sm font-semibold">Trending players</h2>
+  if (variant === "strip") {
+    if (players.length === 0) return null
+
+    return (
+      <section aria-label="Trending players" className="min-w-0">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="eyebrow">Trending players</h2>
           <Link href="/players" className="text-xs font-medium text-primary hover:underline">
             See all
           </Link>
         </div>
-        {players.length === 0 ? (
-          <EmptyState className="px-4 pb-1 text-center" />
-        ) : (
-          <div className="flex snap-x scroll-px-4 gap-1.5 overflow-x-auto px-4 pt-0.5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {players.map((player) => (
-              <SwipePlayer key={player.id} player={player} />
-            ))}
-          </div>
-        )}
+        {/* pt/pb leave room for the crest above and the score badge below each ring. */}
+        <div className="flex snap-x gap-4 overflow-x-auto pt-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {players.map((player) => (
+            <StripPlayer key={player.id} player={player} />
+          ))}
+        </div>
       </section>
+    )
+  }
 
-      {/* Desktop: ranked list in one card. */}
-      <Panel className="hidden lg:block">
-        <PanelHeader title="Trending players" />
-        {players.length === 0 ? (
-          <EmptyState className="px-5 pt-1 pb-5" />
-        ) : (
-          <>
-            <RankedPlayerList players={players} />
-            <PanelFooterLink href="/players" className="mt-2">
-              All players
-            </PanelFooterLink>
-          </>
-        )}
-      </Panel>
-    </>
+  // Phones and tablets: one card with a swipe row of rings.
+  return (
+    <section className="overflow-hidden rounded-lg border border-border bg-card pt-3.5 pb-3">
+      <div className="mb-3 flex items-baseline justify-between gap-3 px-4">
+        <h2 className="font-display text-sm font-semibold">Trending players</h2>
+        <Link href="/players" className="text-xs font-medium text-primary hover:underline">
+          See all
+        </Link>
+      </div>
+      {players.length === 0 ? (
+        <EmptyState className="px-4 pb-1 text-center" />
+      ) : (
+        <div className="flex snap-x scroll-px-4 gap-1.5 overflow-x-auto px-4 pt-0.5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {players.map((player) => (
+            <SwipePlayer key={player.id} player={player} />
+          ))}
+        </div>
+      )}
+    </section>
   )
 }

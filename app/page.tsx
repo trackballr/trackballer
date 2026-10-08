@@ -43,7 +43,15 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <CompetitionStrip strip={strip} />
+      {/* Desktop: trending players fill the space beside the competition crests. */}
+      <div className="lg:flex lg:items-start lg:gap-8">
+        <div className="min-w-0 lg:shrink-0">
+          <CompetitionStrip strip={strip} />
+        </div>
+        <div className="hidden min-w-0 flex-1 border-l border-border pl-8 empty:hidden lg:block">
+          <TrendingPlayers players={trendingPlayers} variant="strip" />
+        </div>
+      </div>
 
       {/*
         Phones and tablets: one column in a deliberate order — trending take,
@@ -62,7 +70,7 @@ export default async function HomePage() {
               currentUserId={auth?.userId ?? null}
             />
           </div>
-          <div className="order-3 lg:order-none">
+          <div className="order-3 lg:hidden">
             <TrendingPlayers players={trendingPlayers} />
           </div>
           {/* Desktop keeps the full list here; smaller screens get the ticker above. */}
