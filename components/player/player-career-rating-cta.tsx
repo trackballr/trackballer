@@ -153,8 +153,9 @@ export function PlayerCareerRatingCta({
             size: "sm",
             variant: isHeader ? "outline" : "default",
             className: cn(
+              // Same white pill as "Rate", so it reads as the action on the navy band.
               isHeader &&
-                "shrink-0 border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20",
+                "shrink-0 border-primary-foreground/40 bg-primary-foreground text-primary hover:bg-primary-foreground/90",
             ),
           }),
           className,

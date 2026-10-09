@@ -240,7 +240,7 @@ export function MatchTrendingPanel({
                 key={prompt}
                 type="button"
                 onClick={() => (onPrompt ? onPrompt(`${prompt}: `) : onSeeAll())}
-                className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-muted"
+                className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
               >
                 {prompt}
               </button>

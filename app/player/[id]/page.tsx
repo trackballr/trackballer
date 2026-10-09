@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { CommentThread } from "@/components/comment/comment-thread"
@@ -31,38 +30,23 @@ export default async function PlayerPage({ params }: PageProps) {
   const commentsPage = await getComments("player", playerId, auth?.userId ?? null)
 
   return (
-    <div className="w-full py-8">
-      <p className="eyebrow mb-3 px-4 lg:ml-[5%] lg:px-0">Player</p>
-
-      <div className="px-4 lg:ml-[5%] lg:w-[55%] lg:px-0">
-        <PlayerProfileHero profile={profile} canRateCareer={Boolean(auth)} />
-      </div>
-
-      <div className="mt-6 px-4 lg:ml-[5%] lg:w-[55%] lg:px-0">
-        <PlayerRecentMatches profile={profile} />
-      </div>
-
-      <div className="mt-6 px-4 lg:ml-[5%] lg:w-[55%] lg:px-0">
-        <CommentThread
-          initialComments={commentsPage.comments}
-          initialUserVotes={commentsPage.userVotes}
-          totalParentCount={commentsPage.totalParentCount}
-          initialParentHasMore={commentsPage.parentHasMore}
-          initialParentNextCursor={commentsPage.parentNextCursor}
-          initialReplyPagination={commentsPage.replyPagination}
-          initialSort={commentsPage.initialSort}
-          targetType="player"
-          targetId={playerId}
-          isLoggedIn={Boolean(auth)}
-          currentUserId={auth?.userId ?? null}
-        />
-      </div>
-
-      <p className="body-sm mt-6 px-4 text-left lg:ml-[5%] lg:px-0">
-        <Link href="/world-cup" className="text-primary underline-offset-4 hover:underline">
-          Back to World Cup
-        </Link>
-      </p>
+    // One centred column, like the profile history pages.
+    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+      <PlayerProfileHero profile={profile} canRateCareer={Boolean(auth)} />
+      <PlayerRecentMatches profile={profile} />
+      <CommentThread
+        initialComments={commentsPage.comments}
+        initialUserVotes={commentsPage.userVotes}
+        totalParentCount={commentsPage.totalParentCount}
+        initialParentHasMore={commentsPage.parentHasMore}
+        initialParentNextCursor={commentsPage.parentNextCursor}
+        initialReplyPagination={commentsPage.replyPagination}
+        initialSort={commentsPage.initialSort}
+        targetType="player"
+        targetId={playerId}
+        isLoggedIn={Boolean(auth)}
+        currentUserId={auth?.userId ?? null}
+      />
     </div>
   )
 }

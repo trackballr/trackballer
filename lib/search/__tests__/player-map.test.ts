@@ -50,4 +50,40 @@ describe("mapPlayerBrowseRow", () => {
     expect(item.isProvisional).toBe(true)
     expect(item.tier).toBe("good")
   })
+
+  it("works age out from the date of birth over the stored age", () => {
+    const item = mapPlayerBrowseRow({
+      id: 2,
+      name: "Player 2",
+      firstname: null,
+      lastname: null,
+      photo_url: null,
+      nationality: null,
+      primary_position: null,
+      age: 1,
+      birth_date: "2000-01-01",
+      club_team: null,
+      career: null,
+    })
+
+    expect(item.age).toBeGreaterThan(20)
+  })
+
+  it("falls back to the stored age without a date of birth", () => {
+    const item = mapPlayerBrowseRow({
+      id: 3,
+      name: "Player 3",
+      firstname: null,
+      lastname: null,
+      photo_url: null,
+      nationality: null,
+      primary_position: null,
+      age: 27,
+      birth_date: null,
+      club_team: null,
+      career: null,
+    })
+
+    expect(item.age).toBe(27)
+  })
 })

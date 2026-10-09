@@ -37,13 +37,13 @@ export function TrendingComments({
                   <Link
                     key={player.id}
                     href={`/player/${player.id}#comments-section`}
-                    className="inline-flex items-center gap-2 rounded-full border border-border bg-background py-1 pr-3 pl-1 text-xs font-semibold transition-colors hover:bg-muted"
+                    className="inline-flex items-center gap-2 rounded-full bg-primary py-1 pr-3 pl-1 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
                   >
                     <PlayerAvatar
                       name={player.name}
                       photoUrl={player.photoUrl}
                       size="sm"
-                      className="size-6 rounded-full"
+                      className="size-6 rounded-full ring-1 ring-primary-foreground/30"
                     />
                     {player.name}
                   </Link>

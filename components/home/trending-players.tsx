@@ -71,34 +71,43 @@ function SwipePlayer({ player }: { player: TrendingPlayerCard }) {
 }
 
 /** Desktop strip beside Competitions: ring, score and club crest — the name is the tooltip. */
-function StripPlayer({ player }: { player: TrendingPlayerCard }) {
-  const label = [player.name, player.clubTeam?.name].filter(Boolean).join(" · ")
+function StripPlayer({ player, rank }: { player: TrendingPlayerCard; rank: number }) {
+  const label = [`${rank}. ${player.name}`, player.clubTeam?.name].filter(Boolean).join(" · ")
 
   return (
     <Link
       href={`/player/${player.id}`}
       title={label}
       aria-label={label}
-      className="relative shrink-0 snap-start transition-transform hover:-translate-y-0.5"
+      className="group flex shrink-0 snap-start items-end"
     >
-      <CareerRing
-        name={player.name}
-        photoUrl={player.photoUrl}
-        tier={player.tier}
-        displayScore={player.displayScore}
-        compact
-        // Same 48px as the competition crests it sits beside.
-        ringClassName="size-12"
-      />
-      {player.clubTeam ? (
-        <PlayerClubCrestBadge
-          team={player.clubTeam}
-          size="xs"
-          corner="top"
-          // One and a half times the tiny crest: with no name, the club has to read.
-          crestClassName="size-[0.9375rem]"
+      {/* Big rank numeral in metallic grey that fades out towards its foot. */}
+      <span
+        aria-hidden
+        className="relative z-0 -mr-1 bg-[linear-gradient(180deg,oklch(0.62_0.01_260)_0%,oklch(0.88_0.005_260)_38%,oklch(0.55_0.01_260)_62%,transparent_100%)] bg-clip-text font-display text-[3.25rem] leading-[0.85] font-extrabold tracking-tighter text-transparent tabular-nums select-none"
+      >
+        {rank}
+      </span>
+      <span className="relative z-10 transition-transform group-hover:-translate-y-0.5">
+        <CareerRing
+          name={player.name}
+          photoUrl={player.photoUrl}
+          tier={player.tier}
+          displayScore={player.displayScore}
+          compact
+          // Same 48px as the competition crests it sits beside.
+          ringClassName="size-12"
         />
-      ) : null}
+        {player.clubTeam ? (
+          <PlayerClubCrestBadge
+            team={player.clubTeam}
+            size="xs"
+            corner="top"
+            // One and a half times the tiny crest: with no name, the club has to read.
+            crestClassName="size-[0.9375rem]"
+          />
+        ) : null}
+      </span>
     </Link>
   )
 }
@@ -145,9 +154,9 @@ export function TrendingPlayers({ players, variant = "default" }: TrendingPlayer
           </Link>
         </div>
         {/* pt/pb leave room for the crest above and the score badge below each ring. */}
-        <div className="flex snap-x gap-4 overflow-x-auto pt-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {players.map((player) => (
-            <StripPlayer key={player.id} player={player} />
+        <div className="flex snap-x gap-3 overflow-x-auto pt-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {players.map((player, index) => (
+            <StripPlayer key={player.id} player={player} rank={index + 1} />
           ))}
         </div>
       </section>

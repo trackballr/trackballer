@@ -1,15 +1,21 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
 
-import { Card } from "@/components/ui/card"
 import { CareerRing } from "@/components/player/career-ring"
 import { PlayerCareerRatingCta } from "@/components/player/player-career-rating-cta"
-import { PlayerTierCard } from "@/components/player/player-tier-card"
 import { TeamFlag } from "@/components/team-flag"
+import { Panel } from "@/components/ui/panel"
 import { positionDisplayLabel } from "@/lib/match/position-label"
 import { computeAgeFromBirthDate } from "@/lib/player/age"
 import type { PlayerProfile } from "@/lib/player/types"
-import { formatCareerScore } from "@/lib/rating/career-tier"
+import {
+  PROVISIONAL_CAREER_COPY,
+  careerRingCssVar,
+  careerRingTier,
+  careerTierLabel,
+  formatCareerScore,
+} from "@/lib/rating/career-tier"
+import { cn } from "@/lib/utils"
 
 type PlayerProfileHeroProps = {
   profile: PlayerProfile
@@ -30,11 +36,47 @@ function formatBirthDateLabel(iso: string): string {
   }).format(new Date(iso))
 }
 
-function StatCell({ label, children }: { label: string; children: ReactNode }) {
+/** One cell of the facts strip: value on top, label under it, centred. */
+function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="min-w-0 border-b border-border py-3 last:border-b-0">
-      <p className="text-base font-semibold text-foreground">{children}</p>
-      <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
+    <div className="min-w-0 px-2 py-3.5 text-center">
+      <div className="flex items-center justify-center gap-1.5 truncate text-sm font-semibold sm:text-base">
+        {children}
+      </div>
+      <p className="mt-0.5 truncate text-xs text-muted-foreground">{label}</p>
+    </div>
+  )
+}
+
+/** One rating tile: small label, big number, optional suffix and note. */
+function RatingTile({
+  label,
+  value,
+  suffix,
+  note,
+  accent,
+}: {
+  label: string
+  value: string
+  suffix?: string
+  note?: ReactNode
+  accent?: string
+}) {
+  return (
+    <div className="min-w-0 rounded-lg bg-muted/60 px-3 py-3 sm:px-4 sm:py-3.5">
+      <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-xs">{label}</p>
+      <p className="mt-1 flex items-baseline gap-1">
+        <span
+          className="font-display text-2xl leading-none font-bold tabular-nums sm:text-3xl"
+          style={accent ? { color: accent } : undefined}
+        >
+          {value}
+        </span>
+        {suffix ? (
+          <span className="text-[11px] text-muted-foreground sm:text-xs">{suffix}</span>
+        ) : null}
+      </p>
+      {note ? <p className="mt-1.5 truncate text-xs font-semibold">{note}</p> : null}
     </div>
   )
 }
@@ -44,30 +86,65 @@ export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroP
   const displayAge =
     (profile.birthDate ? computeAgeFromBirthDate(profile.birthDate) : null) ??
     profile.age
+  const ringTier = careerRingTier(profile.career.tier, profile.career.displayScore)
+  const tierColor = `var(${careerRingCssVar(profile.career.tier, profile.career.displayScore)})`
+
+  const facts: { label: string; value: ReactNode }[] = []
+  if (displayAge != null) {
+    facts.push({
+      label: profile.birthDate ? formatBirthDateLabel(profile.birthDate) : "Age",
+      value: `${displayAge} years`,
+    })
+  } else if (profile.birthDate) {
+    facts.push({ label: "Date of birth", value: formatBirthDateLabel(profile.birthDate) })
+  }
+  if (positionLabel) facts.push({ label: "Position", value: positionLabel })
+  if (profile.nationalTeam || profile.nationality) {
+    facts.push({
+      label: "Country",
+      value: profile.nationalTeam ? (
+        <>
+          <TeamFlag team={profile.nationalTeam} size="sm" />
+          <Link href={`/country/${profile.nationalTeam.id}`} className="truncate hover:underline">
+            {profile.nationalTeam.name}
+          </Link>
+        </>
+      ) : (
+        <span className="truncate">{profile.nationality}</span>
+      ),
+    })
+  }
 
   return (
-    <Card className="overflow-hidden">
-      <div className="flex items-center gap-3 bg-primary px-4 py-4 text-primary-foreground sm:gap-4">
+    <Panel>
+      <div className="relative flex items-center gap-4 overflow-hidden bg-primary px-5 py-5 text-primary-foreground sm:gap-5 sm:px-6">
+        {/* Soft light from the top-left, as on the competition tiles. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_120%_at_0%_0%,rgb(255_255_255/0.14),transparent_60%)]"
+        />
         <CareerRing
           name={profile.displayName}
           photoUrl={profile.photoUrl}
           tier={profile.career.tier}
           displayScore={profile.career.displayScore}
           compact
+          className="relative shrink-0"
+          ringClassName="sm:size-20"
         />
-        <div className="min-w-0 flex-1 text-left">
-          <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">
+        <div className="relative min-w-0 flex-1">
+          <h1 className="line-clamp-2 font-display text-lg leading-tight font-bold sm:text-2xl">
             {profile.displayName}
           </h1>
           {profile.clubTeam ? (
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-primary-foreground/90">
-              <TeamFlag team={profile.clubTeam} size="sm" />
+            <p className="mt-1.5 flex min-w-0 items-center gap-1.5 text-sm text-primary-foreground/85">
+              <TeamFlag team={profile.clubTeam} size="sm" variant="crest" />
               <span className="truncate">{profile.clubTeam.name}</span>
             </p>
           ) : null}
           {canRateCareer && profile.userCareerRating != null ? (
-            <p className="mt-1 text-xs text-primary-foreground/75">
-              You rated their career: {formatCareerScore(profile.userCareerRating)}
+            <p className="mt-1 text-xs text-primary-foreground/70">
+              You rated their career {formatCareerScore(profile.userCareerRating)}
             </p>
           ) : null}
         </div>
@@ -77,62 +154,53 @@ export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroP
           canRate={canRateCareer}
           initialValue={profile.userCareerRating}
           layout="header"
+          className="relative"
         />
       </div>
 
-      <div className="px-4 text-left">
-        <div className="grid grid-cols-1 gap-x-6 sm:grid-cols-3">
-          {displayAge != null ? (
-            <StatCell label={profile.birthDate ? formatBirthDateLabel(profile.birthDate) : "Age"}>
-              {displayAge} years
-            </StatCell>
-          ) : profile.birthDate ? (
-            <StatCell label="Date of birth">{formatBirthDateLabel(profile.birthDate)}</StatCell>
-          ) : null}
-          {positionLabel ? <StatCell label="Position">{positionLabel}</StatCell> : null}
-          {(profile.nationalTeam || profile.nationality) ? (
-            <StatCell label="Country">
-              <span className="inline-flex items-center gap-1.5">
-                {profile.nationalTeam ? <TeamFlag team={profile.nationalTeam} size="sm" /> : null}
-                {profile.nationalTeam ? (
-                  <Link
-                    href={`/country/${profile.nationalTeam.id}`}
-                    className="hover:underline"
-                  >
-                    {profile.nationalTeam.name}
-                  </Link>
-                ) : (
-                  <span>{profile.nationality}</span>
-                )}
-              </span>
-            </StatCell>
-          ) : null}
+      {facts.length > 0 ? (
+        <div
+          className={cn(
+            "grid divide-x divide-border border-b border-border",
+            facts.length === 3 ? "grid-cols-3" : facts.length === 2 ? "grid-cols-2" : "grid-cols-1",
+          )}
+        >
+          {facts.map((fact) => (
+            <Fact key={fact.label} label={fact.label}>
+              {fact.value}
+            </Fact>
+          ))}
         </div>
-      </div>
+      ) : null}
 
-      <div className="border-t border-border px-4 pb-4">
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <PlayerTierCard career={profile.career} className="border-0 bg-muted/20 shadow-none" />
-          <div className="flex flex-col justify-between gap-3 px-1 py-2">
-            <div className="min-w-[12rem]">
-              <p className="text-[11px] font-semibold tracking-wide text-primary uppercase">
-                Recent form (last 5 matches)
-              </p>
-              <p className="mt-0.5 font-mono text-3xl font-bold tabular-nums">
-                {formatOneDecimal(profile.form.last5Avg)}
-              </p>
-            </div>
-            <div className="min-w-[8rem]">
-              <p className="text-[11px] font-semibold tracking-wide text-primary uppercase">
-                WC Form
-              </p>
-              <p className="mt-0.5 font-mono text-3xl font-bold tabular-nums">
-                {formatOneDecimal(profile.tournament.avgRating)}
-              </p>
-            </div>
-          </div>
+      <div className="p-5 sm:p-6">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <RatingTile
+            label="Career rating"
+            value={formatCareerScore(profile.career.displayScore)}
+            accent={tierColor}
+            note={<span style={{ color: tierColor }}>{careerTierLabel(ringTier)}</span>}
+          />
+          <RatingTile
+            label="Last 5 form"
+            value={formatOneDecimal(profile.form.last5Avg)}
+            suffix={profile.form.last5Avg != null ? "/ 10" : undefined}
+          />
+          <RatingTile
+            label="WC form"
+            value={formatOneDecimal(profile.tournament.avgRating)}
+            suffix={profile.tournament.avgRating != null ? "/ 10" : undefined}
+          />
         </div>
+        {profile.career.isProvisional ? (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {PROVISIONAL_CAREER_COPY}{" "}
+            <Link href="/how-ratings-work" className="font-medium text-primary hover:underline">
+              How ratings work
+            </Link>
+          </p>
+        ) : null}
       </div>
-    </Card>
+    </Panel>
   )
 }

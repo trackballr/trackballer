@@ -1,5 +1,6 @@
 import { cache } from "react"
 
+import { latestBirthDateForAge } from "@/lib/player/age"
 import { createClient } from "@/lib/supabase/server"
 
 import { fetchPlayerIdsMatchingName } from "./player-name-query"
@@ -16,6 +17,7 @@ const PLAYER_BROWSE_SELECT = `
   nationality,
   primary_position,
   age,
+  birth_date,
   club_team:teams!players_club_team_id_fkey(name, logo_url, code),
   career:player_career_aggregates(display_score, tier, is_provisional)
 `
@@ -51,11 +53,15 @@ function applyBrowseFilters(
   if (filters.clubId != null) {
     q = q.eq("club_team_id", filters.clubId)
   }
+  // Age by date of birth (the stored age column goes stale after birthdays);
+  // the stored age only decides for players with no date of birth.
   if (filters.ageMin != null) {
-    q = q.gte("age", filters.ageMin)
+    const bornBy = latestBirthDateForAge(filters.ageMin)
+    q = q.or(`birth_date.lte.${bornBy},and(birth_date.is.null,age.gte.${filters.ageMin})`)
   }
   if (filters.ageMax != null) {
-    q = q.lte("age", filters.ageMax)
+    const bornAfter = latestBirthDateForAge(filters.ageMax + 1)
+    q = q.or(`birth_date.gt.${bornAfter},and(birth_date.is.null,age.lte.${filters.ageMax})`)
   }
 
   return q

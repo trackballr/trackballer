@@ -16,6 +16,7 @@ const PLAYER_SEARCH_SELECT = `
   nationality,
   primary_position,
   age,
+  birth_date,
   club_team:teams!players_club_team_id_fkey(name, logo_url, code),
   career:player_career_aggregates(display_score, tier, is_provisional)
 `

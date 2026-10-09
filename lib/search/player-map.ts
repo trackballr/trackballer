@@ -1,3 +1,4 @@
+import { computeAgeFromBirthDate } from "@/lib/player/age"
 import { formatPlayerDisplayName } from "@/lib/player/display-name"
 
 import type { PlayerListItem } from "./types"
@@ -10,7 +11,9 @@ export type PlayerBrowseRow = {
   photo_url: string | null
   nationality: string | null
   primary_position: string | null
+  /** Stored age from the last profile sync; stale after a birthday. */
   age: number | null
+  birth_date?: string | null
   club_team: { name: string; logo_url: string | null; code: string | null } | null
   career:
     | {
@@ -41,7 +44,9 @@ export function mapPlayerBrowseRow(row: PlayerBrowseRow): PlayerListItem {
     photoUrl: row.photo_url,
     nationality: row.nationality,
     position: row.primary_position,
-    age: row.age,
+    // Work age out from the date of birth like the player page; the stored
+    // column only fills in when the date is missing.
+    age: (row.birth_date ? computeAgeFromBirthDate(row.birth_date) : null) ?? row.age,
     tier: career?.tier ?? "provisional",
     displayScore: career ? Number(career.display_score) : 50,
     isProvisional: career?.is_provisional ?? true,
