@@ -59,6 +59,7 @@ export default async function UserRatingsPage({ params, searchParams }: PageProp
       <RatingHistoryList
         key={kind ?? "all"}
         userId={profile.id}
+        username={profile.username}
         kind={kind}
         initialPage={firstPage}
       />

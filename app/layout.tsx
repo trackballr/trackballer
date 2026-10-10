@@ -5,6 +5,7 @@ import NextTopLoader from "nextjs-toploader"
 
 import "./globals.css"
 import { AppShell } from "@/components/app-shell"
+import { getSiteUrl } from "@/lib/site-url"
 import { cn } from "@/lib/utils"
 
 const figtree = Figtree({
@@ -23,6 +24,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata = {
+  // Makes link-preview pictures (share cards) resolve to full addresses.
+  metadataBase: new URL(getSiteUrl()),
   title: "Trackballr",
   description: "Your hub to track your favorite players and teams",
 }

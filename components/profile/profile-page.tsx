@@ -20,7 +20,7 @@ export function ProfilePage({ data, teamOptions }: ProfilePageProps) {
   const ratingsPanel = (
     <Panel>
       <PanelHeader title="Recent ratings" />
-      <RecentRatingsList ratings={recentRatings} />
+      <RecentRatingsList ratings={recentRatings} username={profile.username} />
       {base && recentRatings.length > 0 ? (
         <PanelFooterLink href={`${base}/ratings`}>All ratings</PanelFooterLink>
       ) : (

@@ -33,11 +33,18 @@ function groupByMonth(items: RecentRatingItem[]) {
 
 type RatingHistoryListProps = {
   userId: string
+  /** For share-card links on career rows. */
+  username: string | null
   kind: RatingKind | null
   initialPage: RatingHistoryPage
 }
 
-export function RatingHistoryList({ userId, kind, initialPage }: RatingHistoryListProps) {
+export function RatingHistoryList({
+  userId,
+  username,
+  kind,
+  initialPage,
+}: RatingHistoryListProps) {
   const [items, setItems] = useState(initialPage.items)
   const [cursor, setCursor] = useState<RatingHistoryCursor | null>(initialPage.nextCursor)
   const [isLoading, setIsLoading] = useState(false)
@@ -91,7 +98,7 @@ export function RatingHistoryList({ userId, kind, initialPage }: RatingHistoryLi
           </h2>
           <PanelList>
             {group.items.map((rating) => (
-              <RatingHistoryRow key={ratingKey(rating)} rating={rating} />
+              <RatingHistoryRow key={ratingKey(rating)} rating={rating} username={username} />
             ))}
           </PanelList>
         </section>

@@ -29,10 +29,25 @@ export default async function PlayerPage({ params }: PageProps) {
 
   const commentsPage = await getComments("player", playerId, auth?.userId ?? null)
 
+  // For the signed-in viewer's own share link (after rating, or beside an existing rating).
+  let viewerUsername: string | null = null
+  if (auth) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", auth.userId)
+      .maybeSingle()
+    viewerUsername = data?.username ?? null
+  }
+
   return (
     // One centred column, like the profile history pages.
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-      <PlayerProfileHero profile={profile} canRateCareer={Boolean(auth)} />
+      <PlayerProfileHero
+        profile={profile}
+        canRateCareer={Boolean(auth)}
+        viewerUsername={viewerUsername}
+      />
       <PlayerRecentMatches profile={profile} />
       <CommentThread
         initialComments={commentsPage.comments}

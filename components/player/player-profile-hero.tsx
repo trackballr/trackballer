@@ -1,3 +1,4 @@
+import { Share2 } from "lucide-react"
 import type { ReactNode } from "react"
 import Link from "next/link"
 
@@ -15,11 +16,14 @@ import {
   careerTierLabel,
   formatCareerScore,
 } from "@/lib/rating/career-tier"
+import { careerSharePath } from "@/lib/share/share-links"
 import { cn } from "@/lib/utils"
 
 type PlayerProfileHeroProps = {
   profile: PlayerProfile
   canRateCareer: boolean
+  /** Signed-in viewer's username — lets them share their own rating of this player. */
+  viewerUsername?: string | null
 }
 
 function formatOneDecimal(value: number | null): string {
@@ -81,7 +85,11 @@ function RatingTile({
   )
 }
 
-export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroProps) {
+export function PlayerProfileHero({
+  profile,
+  canRateCareer,
+  viewerUsername = null,
+}: PlayerProfileHeroProps) {
   const positionLabel = positionDisplayLabel(profile.primaryPosition)
   const displayAge =
     (profile.birthDate ? computeAgeFromBirthDate(profile.birthDate) : null) ??
@@ -143,8 +151,17 @@ export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroP
             </p>
           ) : null}
           {canRateCareer && profile.userCareerRating != null ? (
-            <p className="mt-1 text-xs text-primary-foreground/70">
-              You rated their career {formatCareerScore(profile.userCareerRating)}
+            <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-primary-foreground/70">
+              <span>You rated their career {formatCareerScore(profile.userCareerRating)}</span>
+              {viewerUsername ? (
+                <Link
+                  href={careerSharePath(viewerUsername, profile.id)}
+                  className="inline-flex items-center gap-1 rounded-full bg-primary-foreground/15 px-2.5 py-1 font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/25"
+                >
+                  <Share2 className="size-3" aria-hidden />
+                  Share
+                </Link>
+              ) : null}
             </p>
           ) : null}
         </div>
@@ -155,6 +172,15 @@ export function PlayerProfileHero({ profile, canRateCareer }: PlayerProfileHeroP
           initialValue={profile.userCareerRating}
           layout="header"
           className="relative"
+          share={
+            viewerUsername
+              ? {
+                  username: viewerUsername,
+                  publicScore: profile.career.displayScore,
+                  isProvisional: profile.career.isProvisional,
+                }
+              : null
+          }
         />
       </div>
 

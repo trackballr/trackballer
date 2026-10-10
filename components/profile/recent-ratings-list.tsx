@@ -1,3 +1,4 @@
+import { Share2 } from "lucide-react"
 import Link from "next/link"
 
 import { CommentTime } from "@/components/comment/comment-time"
@@ -8,6 +9,7 @@ import { TeamFlag } from "@/components/team-flag"
 import { PanelEmpty, PanelList } from "@/components/ui/panel"
 import type { RecentRatingItem } from "@/lib/profile/types"
 import { tierForScore } from "@/lib/rating/career-tier"
+import { careerSharePath } from "@/lib/share/share-links"
 
 export function ratingKey(rating: RecentRatingItem): string {
   return `${rating.kind}-${rating.id}`
@@ -21,9 +23,39 @@ function ratingHref(rating: RecentRatingItem): string {
   return `/player/${rating.playerId}`
 }
 
-export function RatingHistoryRow({ rating }: { rating: RecentRatingItem }) {
+type RatingHistoryRowProps = {
+  rating: RecentRatingItem
+  /** Whose ratings these are — career rows link to that person's share card. */
+  username?: string | null
+}
+
+export function RatingHistoryRow({ rating, username = null }: RatingHistoryRowProps) {
+  const shareHref =
+    username && rating.kind === "career" ? careerSharePath(username, rating.playerId) : null
+
   return (
-    <Link href={ratingHref(rating)} className="group flex items-center gap-3 py-3">
+    <div className="flex items-center gap-1">
+      <RatingRowLink rating={rating} />
+      {shareHref ? (
+        <Link
+          href={shareHref}
+          aria-label={`Share card for ${rating.playerName}`}
+          title="Share card"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <Share2 className="size-4" aria-hidden />
+        </Link>
+      ) : null}
+    </div>
+  )
+}
+
+function RatingRowLink({ rating }: { rating: RecentRatingItem }) {
+  return (
+    <Link
+      href={ratingHref(rating)}
+      className="group flex min-w-0 flex-1 items-center gap-3 py-3"
+    >
       <PlayerAvatar
         name={rating.playerName}
         photoUrl={rating.photoUrl}
@@ -75,7 +107,13 @@ export function RatingHistoryRow({ rating }: { rating: RecentRatingItem }) {
   )
 }
 
-export function RecentRatingsList({ ratings }: { ratings: RecentRatingItem[] }) {
+export function RecentRatingsList({
+  ratings,
+  username = null,
+}: {
+  ratings: RecentRatingItem[]
+  username?: string | null
+}) {
   if (ratings.length === 0) {
     return <PanelEmpty>No ratings yet.</PanelEmpty>
   }
@@ -83,7 +121,7 @@ export function RecentRatingsList({ ratings }: { ratings: RecentRatingItem[] }) 
   return (
     <PanelList>
       {ratings.map((rating) => (
-        <RatingHistoryRow key={ratingKey(rating)} rating={rating} />
+        <RatingHistoryRow key={ratingKey(rating)} rating={rating} username={username} />
       ))}
     </PanelList>
   )

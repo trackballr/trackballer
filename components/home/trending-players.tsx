@@ -81,10 +81,14 @@ function StripPlayer({ player, rank }: { player: TrendingPlayerCard; rank: numbe
       aria-label={label}
       className="group flex shrink-0 snap-start items-end"
     >
-      {/* Big rank numeral in metallic grey that fades out towards its foot. */}
+      {/*
+        Big rank numeral: flat metallic grey that fades out towards its foot.
+        On load each one slides in from the right, one after another.
+      */}
       <span
         aria-hidden
-        className="relative z-0 -mr-1 bg-[linear-gradient(180deg,oklch(0.62_0.01_260)_0%,oklch(0.88_0.005_260)_38%,oklch(0.55_0.01_260)_62%,transparent_100%)] bg-clip-text font-display text-[3.25rem] leading-[0.85] font-extrabold tracking-tighter text-transparent tabular-nums select-none"
+        style={{ animationDelay: `${(rank - 1) * 70}ms` }}
+        className="relative z-0 -mr-1.5 inline-block animate-in bg-[linear-gradient(180deg,oklch(0.66_0.01_260)_0%,oklch(0.66_0.01_260)_50%,transparent_100%)] bg-clip-text font-display text-[3.25rem] leading-[0.85] font-extrabold tracking-tighter text-transparent tabular-nums duration-500 ease-out select-none fade-in fill-mode-both slide-in-from-right-6 motion-reduce:animate-none"
       >
         {rank}
       </span>
@@ -154,7 +158,8 @@ export function TrendingPlayers({ players, variant = "default" }: TrendingPlayer
           </Link>
         </div>
         {/* pt/pb leave room for the crest above and the score badge below each ring. */}
-        <div className="flex snap-x gap-3 overflow-x-auto pt-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* pr keeps the last club crest, which sits just outside its ring, from being clipped. */}
+        <div className="flex snap-x gap-3 overflow-x-auto pt-1 pr-1.5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {players.map((player, index) => (
             <StripPlayer key={player.id} player={player} rank={index + 1} />
           ))}
