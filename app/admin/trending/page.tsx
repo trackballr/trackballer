@@ -6,11 +6,10 @@ export default async function AdminTrendingPage() {
   const pins = await listTrendingPins()
 
   return (
-    <AdminShell>
-      <p className="body-sm mb-6 text-muted-foreground">
-        Pinned players appear first on the home page. When empty, home falls back to
-        recent comment activity.
-      </p>
+    <AdminShell
+      title="Trending players"
+      description="These players show on the home page in this order, with their rank number."
+    >
       <TrendingPinEditor initialPins={pins} />
     </AdminShell>
   )

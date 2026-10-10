@@ -1,17 +1,19 @@
+import { ChevronRight, MessageSquare, Pin, Settings2, Users } from "lucide-react"
 import Link from "next/link"
-import { MessageSquare, Pin, Settings2, Users } from "lucide-react"
+
+import { Panel } from "@/components/ui/panel"
 
 const tiles = [
   {
     href: "/admin/trending",
     title: "Trending players",
-    description: "Pin and order players on the home page.",
+    description: "Pin players on the home page and drag them into order.",
     icon: Pin,
   },
   {
     href: "/admin/team-of-the-stage",
     title: "Team of the Week",
-    description: "Pick a competition, then a matchday XI.",
+    description: "Pick a competition and matchday, then build the XI on the pitch.",
     icon: Users,
   },
   {
@@ -23,28 +25,38 @@ const tiles = [
   {
     href: "/admin/data",
     title: "Fix data",
-    description: "Correct player names and photos after sync errors.",
+    description: "Correct player names, clubs, positions and photos after sync errors.",
     icon: Settings2,
   },
 ] as const
 
 export function AdminHub() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {tiles.map((tile) => {
-        const Icon = tile.icon
-        return (
-          <Link
-            key={tile.href}
-            href={tile.href}
-            className="flex flex-col gap-2 rounded-lg border border-border bg-card p-5 transition-colors hover:bg-muted/40"
-          >
-            <Icon className="size-5 text-primary" aria-hidden />
-            <span className="font-semibold">{tile.title}</span>
-            <span className="text-sm text-muted-foreground">{tile.description}</span>
-          </Link>
-        )
-      })}
-    </div>
+    <Panel>
+      <div className="mx-5 divide-y divide-border">
+        {tiles.map((tile) => {
+          const Icon = tile.icon
+          return (
+            <Link key={tile.href} href={tile.href} className="group flex items-center gap-4 py-4">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <Icon className="size-5" aria-hidden />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold group-hover:underline">
+                  {tile.title}
+                </span>
+                <span className="mt-0.5 block text-sm text-muted-foreground">
+                  {tile.description}
+                </span>
+              </span>
+              <ChevronRight
+                className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                aria-hidden
+              />
+            </Link>
+          )
+        })}
+      </div>
+    </Panel>
   )
 }

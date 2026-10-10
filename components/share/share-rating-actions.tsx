@@ -110,7 +110,7 @@ export function ShareRatingActions({
   }
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn("space-y-2.5", className)}>
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={shareOnX} className="h-10 gap-2 px-4">
           <XIcon className="size-3.5" />
@@ -154,10 +154,11 @@ export function ShareRatingActions({
         </a>
       </div>
 
+      {/* Always present so screen readers hear updates; empty takes no room. */}
       <p
         role="status"
         className={cn(
-          "flex min-h-5 items-center gap-1.5 text-xs",
+          "flex items-center gap-1.5 text-xs empty:hidden",
           notice?.kind === "error" ? "text-destructive" : "text-muted-foreground",
         )}
       >

@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation"
 
 import { ShareRatingActions } from "@/components/share/share-rating-actions"
 import { buttonVariants } from "@/components/ui/button"
-import { Panel, PanelBody, PanelHeader } from "@/components/ui/panel"
+import { Panel } from "@/components/ui/panel"
 import { getServerAuth } from "@/lib/auth/server-session"
 import { formatCareerScore } from "@/lib/rating/career-tier"
 import { CAREER_CARD_SIZE } from "@/lib/share/career-card-image"
@@ -76,64 +76,84 @@ export default async function CareerRatingSharePage({ params }: PageProps) {
   const rating = formatCareerScore(share.rating)
   const publicScore = formatCareerScore(share.publicScore)
 
-  return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-      <Panel>
-        {/* eslint-disable-next-line @next/next/no-img-element -- our own generated card */}
-        <img
-          src={cardPath}
-          alt={`${share.player.name}: rated ${rating} by @${share.user.username}; ${share.isProvisional ? "base rating" : "fans"} ${publicScore}.`}
-          width={CAREER_CARD_SIZE.width}
-          height={CAREER_CARD_SIZE.height}
-          className="block aspect-[1200/630] w-full bg-primary"
-        />
-        <div className="p-5 sm:p-6">
-          <h1 className="font-display text-xl leading-tight font-bold sm:text-2xl">
-            {isOwner ? "You" : `@${share.user.username}`} rated {share.player.name} {rating}
-          </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            {careerGapLabel(share.rating, share.publicScore, share.isProvisional)} (
-            {publicScore}).{isOwner ? "" : " Where do you have them?"}
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              href={`/player/${share.player.id}`}
-              className={buttonVariants({ className: "h-11 px-5 text-sm" })}
-            >
-              {isOwner ? "Change your rating" : "What's your rating?"}
-            </Link>
-            <Link
-              href={isOwner ? "/profile" : `/u/${share.user.username}`}
-              className={buttonVariants({
-                variant: "outline",
-                className: "h-11 bg-card px-5 text-sm",
-              })}
-            >
-              {isOwner ? "Your profile" : `@${share.user.username}'s profile`}
-            </Link>
-          </div>
-        </div>
-      </Panel>
+  const shareActions = (
+    <ShareRatingActions
+      sharePath={sharePath}
+      cardPath={cardPath}
+      text={careerShareText({
+        playerName: share.player.name,
+        rating: share.rating,
+        publicScore: share.publicScore,
+        isProvisional: share.isProvisional,
+        byUsername: isOwner ? null : share.user.username,
+      })}
+    />
+  )
 
-      <Panel>
-        <PanelHeader
-          title={isOwner ? "Share your take" : "Share this card"}
-          description="Post the link and the card shows as its preview, or take the picture itself."
-        />
-        <PanelBody className="pt-3 pb-4">
-          <ShareRatingActions
-            sharePath={sharePath}
-            cardPath={cardPath}
-            text={careerShareText({
-              playerName: share.player.name,
-              rating: share.rating,
-              publicScore: share.publicScore,
-              isProvisional: share.isProvisional,
-              byUsername: isOwner ? null : share.user.username,
-            })}
+  const pageLinks = (
+    <div className="flex flex-wrap gap-2">
+      <Link
+        href={`/player/${share.player.id}`}
+        className={buttonVariants({
+          // The owner came here to share, so sharing leads; visitors are asked to rate.
+          variant: isOwner ? "outline" : "default",
+          className: isOwner ? "h-10 bg-card px-4 text-sm" : "h-10 px-4 text-sm",
+        })}
+      >
+        {isOwner ? "Change your rating" : "What's your rating?"}
+      </Link>
+      <Link
+        href={isOwner ? "/profile" : `/u/${share.user.username}`}
+        className={buttonVariants({ variant: "outline", className: "h-10 bg-card px-4 text-sm" })}
+      >
+        {isOwner ? "Your profile" : `@${share.user.username}'s profile`}
+      </Link>
+    </div>
+  )
+
+  return (
+    // Laptops: card on the left, everything to do with it on the right, so the
+    // share buttons are on screen without scrolling. Smaller screens stack, with
+    // the actions straight under the card.
+    <div className="mx-auto max-w-6xl px-4 py-6 lg:py-8">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start lg:gap-6">
+        <Panel>
+          {/* eslint-disable-next-line @next/next/no-img-element -- our own generated card */}
+          <img
+            src={cardPath}
+            alt={`${share.player.name}: rated ${rating} by @${share.user.username}; ${share.isProvisional ? "base rating" : "fans"} ${publicScore}.`}
+            width={CAREER_CARD_SIZE.width}
+            height={CAREER_CARD_SIZE.height}
+            className="block aspect-[1200/630] w-full bg-primary"
           />
-        </PanelBody>
-      </Panel>
+        </Panel>
+
+        <Panel>
+          <div className="p-5">
+            <h1 className="font-display text-xl leading-tight font-bold">
+              {isOwner ? "You" : `@${share.user.username}`} rated {share.player.name} {rating}
+            </h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {careerGapLabel(share.rating, share.publicScore, share.isProvisional)} (
+              {publicScore}).{isOwner ? "" : " Where do you have them?"}
+            </p>
+
+            {isOwner ? null : <div className="mt-4">{pageLinks}</div>}
+
+            <div className="mt-5 border-t border-border pt-4">
+              <h2 className="text-sm font-semibold">
+                {isOwner ? "Share your take" : "Share this card"}
+              </h2>
+              <p className="mt-0.5 mb-3 text-xs text-muted-foreground">
+                Post the link and the card shows as its preview, or take the picture itself.
+              </p>
+              {shareActions}
+            </div>
+
+            {isOwner ? <div className="mt-2 border-t border-border pt-4">{pageLinks}</div> : null}
+          </div>
+        </Panel>
+      </div>
     </div>
   )
 }

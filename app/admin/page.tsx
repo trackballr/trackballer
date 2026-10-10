@@ -3,11 +3,10 @@ import { AdminShell } from "@/components/admin/admin-shell"
 
 export default function AdminPage() {
   return (
-    <AdminShell>
-      <p className="body-sm mb-6 text-muted-foreground">
-        Editorial tools for home and World Cup. Catalog sync stays under API routes with
-        SYNC_ADMIN_SECRET.
-      </p>
+    <AdminShell
+      title="Admin"
+      description="Editorial tools for the home page, Team of the Week and comments. Catalog sync runs separately through the sync routes."
+    >
       <AdminHub />
     </AdminShell>
   )

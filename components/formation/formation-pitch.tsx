@@ -1,12 +1,11 @@
-"use client"
+import Link from "next/link"
+import type { CSSProperties, ReactNode } from "react"
 
 import { CatalogImage } from "@/components/catalog-image"
-import Link from "next/link"
-
 import {
   getFormationTemplate,
-  getSlotPosition,
   type FormationId,
+  type PitchSlot,
 } from "@/lib/admin/formation-slots"
 import { cn } from "@/lib/utils"
 
@@ -17,198 +16,169 @@ export type FormationSlotView = {
   photoUrl: string | null
 }
 
-type FormationPitchProps = {
-  formation: FormationId
-  assignments: Record<string, FormationSlotView | undefined>
-  /** Edit mode: tap slots. Display mode: link to player pages when playerId set. */
-  mode?: "edit" | "display"
-  activeSlot?: string | null
-  onSlotClick?: (slotKey: string) => void
+const lineClass = "pointer-events-none absolute border-[var(--pitch-line)]"
+
+/** Portrait pitch in the match-page green, with markings. Slots go in as children. */
+export function FormationPitchFrame({
+  children,
+  className,
+}: {
+  children: ReactNode
   className?: string
-}
-
-function PitchSurface({
-  formation,
-  assignments,
-  mode,
-  activeSlot,
-  onSlotClick,
-  orientation,
-}: FormationPitchProps & { orientation: "vertical" | "horizontal" }) {
-  const template = getFormationTemplate(formation)
-
+}) {
   return (
-    <>
-      {orientation === "vertical" ? (
-        <>
-          {/* Outer boundary */}
-          <div
-            className="pointer-events-none absolute inset-3 rounded-lg border border-primary/30"
-            aria-hidden
-          />
-          {/* Halfway line */}
-          <div
-            className="pointer-events-none absolute inset-x-3 top-1/2 h-px -translate-y-1/2 bg-primary/30"
-            aria-hidden
-          />
-          {/* Centre circle + spot */}
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/30"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/40"
-            aria-hidden
-          />
-          {/* Top penalty box + goal area */}
-          <div
-            className="pointer-events-none absolute left-1/2 top-3 h-[14%] w-2/5 -translate-x-1/2 rounded-b-md border border-t-0 border-primary/30"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute left-1/2 top-3 h-[6%] w-1/5 -translate-x-1/2 rounded-b-sm border border-t-0 border-primary/30"
-            aria-hidden
-          />
-          {/* Bottom penalty box + goal area */}
-          <div
-            className="pointer-events-none absolute bottom-3 left-1/2 h-[14%] w-2/5 -translate-x-1/2 rounded-t-md border border-b-0 border-primary/30"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute bottom-3 left-1/2 h-[6%] w-1/5 -translate-x-1/2 rounded-t-sm border border-b-0 border-primary/30"
-            aria-hidden
-          />
-        </>
-      ) : (
-        <>
-          <div className="absolute inset-y-4 left-1/2 w-px bg-border/80" aria-hidden />
-          <div
-            className="absolute left-1/2 top-1/2 size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/80"
-            aria-hidden
-          />
-        </>
+    <div
+      role="group"
+      aria-label="Formation pitch"
+      className={cn(
+        // isolate: pucks use z-index while dragging; keep that inside the pitch.
+        "relative isolate mx-auto aspect-[3/4] w-full max-w-md overflow-hidden rounded-lg bg-[var(--pitch)]",
+        className,
       )}
-
-      {template.slots.map((slot) => {
-        const assigned = assignments[slot.key]
-        const isActive = activeSlot === slot.key
-        const pos = getSlotPosition(slot, orientation)
-
-        const puck = (
-          <>
-            {assigned?.photoUrl ? (
-              <CatalogImage
-                src={assigned.photoUrl}
-                alt=""
-                width={44}
-                height={44}
-                className="absolute inset-0 size-full rounded-full object-cover"
-              />
-            ) : (
-              <span>{slot.label}</span>
-            )}
-          </>
-        )
-
-        const puckClass = cn(
-          "relative flex size-11 shrink-0 items-center justify-center rounded-full border-2 bg-card text-[0.6rem] font-bold transition-colors",
-          mode === "edit" && isActive
-            ? "border-primary ring-2 ring-primary/30"
-            : "border-border",
-          assigned ? "text-foreground" : "text-muted-foreground",
-          mode === "display" && assigned?.playerId && "hover:border-primary",
-        )
-
-        const label = assigned?.catalogName ? (
-          <span className="mt-1 max-w-[4.5rem] truncate text-center text-[0.6rem] font-semibold leading-tight">
-            {assigned.catalogName}
-          </span>
-        ) : null
-
-        const positionStyle = { top: `${pos.top}%`, left: `${pos.left}%` }
-
-        if (mode === "display" && assigned?.playerId) {
-          return (
-            <div
-              key={`${orientation}-${slot.key}`}
-              className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-              style={positionStyle}
-            >
-              <Link
-                href={`/player/${assigned.playerId}`}
-                className={puckClass}
-                aria-label={assigned.displayName}
-              >
-                {puck}
-              </Link>
-              {label}
-            </div>
-          )
-        }
-
-        if (mode === "edit" && onSlotClick) {
-          return (
-            <div
-              key={`${orientation}-${slot.key}`}
-              className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-              style={positionStyle}
-            >
-              <button
-                type="button"
-                onClick={() => onSlotClick(slot.key)}
-                className={puckClass}
-                aria-label={`${slot.label}${assigned ? `: ${assigned.displayName}` : ", empty"}`}
-              >
-                {puck}
-              </button>
-              {label}
-            </div>
-          )
-        }
-
-        return (
-          <div
-            key={`${orientation}-${slot.key}`}
-            className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-            style={positionStyle}
-          >
-            <div className={puckClass}>{puck}</div>
-            {label}
-          </div>
-        )
-      })}
-    </>
+    >
+      <div aria-hidden>
+        {/* Outer boundary */}
+        <div className={cn(lineClass, "inset-3 rounded-md border")} />
+        {/* Halfway line, centre circle and spot */}
+        <div className="pointer-events-none absolute inset-x-3 top-1/2 h-px -translate-y-1/2 bg-[var(--pitch-line)]" />
+        <div
+          className={cn(
+            lineClass,
+            "top-1/2 left-1/2 size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border",
+          )}
+        />
+        <div className="pointer-events-none absolute top-1/2 left-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--pitch-line)]" />
+        {/* Top penalty box and goal area */}
+        <div
+          className={cn(
+            lineClass,
+            "top-3 left-1/2 h-[14%] w-2/5 -translate-x-1/2 rounded-b-sm border border-t-0",
+          )}
+        />
+        <div
+          className={cn(
+            lineClass,
+            "top-3 left-1/2 h-[6%] w-1/5 -translate-x-1/2 rounded-b-sm border border-t-0",
+          )}
+        />
+        {/* Bottom penalty box and goal area */}
+        <div
+          className={cn(
+            lineClass,
+            "bottom-3 left-1/2 h-[14%] w-2/5 -translate-x-1/2 rounded-t-sm border border-b-0",
+          )}
+        />
+        <div
+          className={cn(
+            lineClass,
+            "bottom-3 left-1/2 h-[6%] w-1/5 -translate-x-1/2 rounded-t-sm border border-b-0",
+          )}
+        />
+      </div>
+      {children}
+    </div>
   )
 }
 
-export function FormationPitch({
-  formation,
-  assignments,
-  mode = "display",
-  activeSlot = null,
-  onSlotClick,
+/** Where a slot sits on the portrait pitch. */
+export function slotPositionStyle(slot: PitchSlot): CSSProperties {
+  return { top: `${slot.top}%`, left: `${slot.left}%` }
+}
+
+export const formationSlotClass =
+  "absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+
+type FormationPuckProps = {
+  slotLabel: string
+  assigned: FormationSlotView | undefined
+  /** Selected for filling from search (editor). */
+  active?: boolean
+  /** Another puck is being dragged over this one (editor). */
+  dropTarget?: boolean
+  className?: string
+}
+
+/** The round face (or empty position marker) on the pitch. */
+export function FormationPuck({
+  slotLabel,
+  assigned,
+  active = false,
+  dropTarget = false,
   className,
-}: FormationPitchProps) {
-  const pitchClass =
-    "relative overflow-hidden rounded-lg border border-border bg-[linear-gradient(180deg,color-mix(in_oklch,var(--primary)_12%,transparent),color-mix(in_oklch,var(--muted)_40%,transparent))]"
+}: FormationPuckProps) {
+  return (
+    <span
+      className={cn(
+        "relative flex size-11 shrink-0 items-center justify-center rounded-full text-[0.6rem] font-bold transition-[box-shadow,scale]",
+        assigned
+          ? "border-2 border-white bg-white shadow-[0_1px_3px_rgb(0_0_0/0.25)]"
+          : "border-2 border-dashed border-white/60 bg-white/10 text-white",
+        active && "ring-2 ring-white ring-offset-2 ring-offset-[var(--pitch)]",
+        dropTarget && "scale-110 ring-4 ring-white/70",
+        className,
+      )}
+    >
+      {assigned?.photoUrl ? (
+        <CatalogImage
+          src={assigned.photoUrl}
+          alt=""
+          width={44}
+          height={44}
+          className="absolute inset-0 size-full rounded-full object-cover"
+        />
+      ) : assigned ? (
+        <span className="text-foreground">{slotLabel}</span>
+      ) : (
+        <span>{slotLabel}</span>
+      )}
+    </span>
+  )
+}
+
+/** Player name under a puck — white on the green, like match lineups. */
+export function FormationPuckName({ name }: { name: string }) {
+  return (
+    <span className="mt-1 max-w-[4.75rem] truncate text-center text-[0.625rem] leading-tight font-semibold text-white [text-shadow:0_1px_2px_rgb(0_0_0/0.45)]">
+      {name}
+    </span>
+  )
+}
+
+type FormationPitchProps = {
+  formation: FormationId
+  assignments: Record<string, FormationSlotView | undefined>
+  className?: string
+}
+
+/** Read-only team on a pitch; faces link to player pages. */
+export function FormationPitch({ formation, assignments, className }: FormationPitchProps) {
+  const template = getFormationTemplate(formation)
 
   return (
     <div className={cn("w-full", className)}>
-      {/* Vertical (portrait) pitch on every breakpoint */}
-      <div
-        className={cn(pitchClass, "mx-auto aspect-[3/4] w-full max-w-md")}
-        role="group"
-        aria-label="Formation pitch"
-      >
-        <PitchSurface
-          formation={formation}
-          assignments={assignments}
-          mode={mode}
-          activeSlot={activeSlot}
-          onSlotClick={onSlotClick}
-          orientation="vertical"
-        />
-      </div>
+      <FormationPitchFrame>
+        {template.slots.map((slot) => {
+          const assigned = assignments[slot.key]
+          const puck = <FormationPuck slotLabel={slot.label} assigned={assigned} />
+
+          return (
+            <div key={slot.key} className={formationSlotClass} style={slotPositionStyle(slot)}>
+              {assigned?.playerId ? (
+                <Link
+                  href={`/player/${assigned.playerId}`}
+                  aria-label={assigned.displayName}
+                  className="rounded-full transition-transform hover:scale-105"
+                >
+                  {puck}
+                </Link>
+              ) : (
+                puck
+              )}
+              {assigned?.catalogName ? <FormationPuckName name={assigned.catalogName} /> : null}
+            </div>
+          )
+        })}
+      </FormationPitchFrame>
     </div>
   )
 }

@@ -6,7 +6,11 @@ export default async function AdminTeamOfTheWeekPage() {
   const cards = await getTotwCompetitionCards()
 
   return (
-    <AdminShell wide>
+    <AdminShell
+      wide
+      title="Team of the Week"
+      description="Pick a competition, then choose a matchday XI to publish."
+    >
       <TotwCompetitionGrid cards={cards} />
     </AdminShell>
   )

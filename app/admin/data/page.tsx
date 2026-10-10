@@ -6,12 +6,10 @@ export default async function AdminDataPage() {
   const { clubs } = await getBrowseFilterOptions()
 
   return (
-    <AdminShell>
-      <p className="body-sm mb-6 text-muted-foreground">
-        Correct player names, club, position, overall rating, and photo URLs when API sync
-        got them wrong. Changes write through the server secret key, not your browser
-        session.
-      </p>
+    <AdminShell
+      title="Fix data"
+      description="Correct a player's name, club, position, overall rating or photo when the sync got it wrong."
+    >
       <CatalogFixForm clubOptions={clubs} positions={[...browsePositions]} />
     </AdminShell>
   )

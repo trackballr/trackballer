@@ -50,7 +50,7 @@ export function TeamOfTheStageStrip({
         ) : null}
       </div>
 
-      <FormationPitch formation={team.formation} assignments={displayAssignments} mode="display" />
+      <FormationPitch formation={team.formation} assignments={displayAssignments} />
     </section>
   )
 }

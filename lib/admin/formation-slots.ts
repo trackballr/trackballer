@@ -319,3 +319,42 @@ export function countFilledSlots(
 ): number {
   return slotKeys.filter((key) => assignments[key] != null).length
 }
+
+/**
+ * Drag one slot onto another: the two players trade places. Dragging onto an
+ * empty slot just moves the player there.
+ */
+export function swapSlotAssignments<T>(
+  assignments: Record<string, T | undefined>,
+  fromKey: string,
+  toKey: string,
+): Record<string, T | undefined> {
+  if (fromKey === toKey) return assignments
+  const moving = assignments[fromKey]
+  if (moving == null) return assignments
+
+  return { ...assignments, [fromKey]: assignments[toKey], [toKey]: moving }
+}
+
+/**
+ * Keep the picked players when the formation changes: each one moves to the
+ * slot in the same order in the new shape (keeper stays in goal, back line stays
+ * at the back). Drag to tidy up afterwards.
+ */
+export function carryAssignmentsToFormation<T>(
+  assignments: Record<string, T | undefined>,
+  from: FormationId,
+  to: FormationId,
+): Record<string, T | undefined> {
+  const fromKeys = formationSlotKeys(from)
+  const toKeys = formationSlotKeys(to)
+  const next: Record<string, T | undefined> = {}
+
+  fromKeys.forEach((key, index) => {
+    const targetKey = toKeys[index]
+    const assigned = assignments[key]
+    if (targetKey && assigned != null) next[targetKey] = assigned
+  })
+
+  return next
+}

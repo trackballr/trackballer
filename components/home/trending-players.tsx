@@ -88,7 +88,7 @@ function StripPlayer({ player, rank }: { player: TrendingPlayerCard; rank: numbe
       <span
         aria-hidden
         style={{ animationDelay: `${(rank - 1) * 70}ms` }}
-        className="relative z-0 -mr-1.5 inline-block animate-in bg-[linear-gradient(180deg,oklch(0.66_0.01_260)_0%,oklch(0.66_0.01_260)_50%,transparent_100%)] bg-clip-text font-display text-[3.25rem] leading-[0.85] font-extrabold tracking-tighter text-transparent tabular-nums duration-500 ease-out select-none fade-in fill-mode-both slide-in-from-right-6 motion-reduce:animate-none"
+        className="relative z-0 -mr-1.5 inline-block animate-in bg-[linear-gradient(180deg,oklch(0.46_0.012_260)_0%,oklch(0.46_0.012_260)_45%,transparent_100%)] bg-clip-text font-display text-[3.25rem] leading-[0.85] font-extrabold tracking-tighter text-transparent tabular-nums duration-500 ease-out select-none fade-in fill-mode-both slide-in-from-right-6 motion-reduce:animate-none"
       >
         {rank}
       </span>

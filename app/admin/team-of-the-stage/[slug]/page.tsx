@@ -1,8 +1,8 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { AdminShell } from "@/components/admin/admin-shell"
 import { TotwEditor } from "@/components/admin/totw-editor"
+import { Panel, PanelEmpty } from "@/components/ui/panel"
 import { LEAGUE_TOTW_COPY } from "@/lib/admin/totw-copy"
 import { getFeaturedTotwId, getAdminTeamsByRound } from "@/lib/admin/totw-queries"
 import { getT5SeasonYear } from "@/lib/catalog/config"
@@ -33,24 +33,20 @@ export default async function AdminTeamOfTheWeekLeaguePage({ params }: PageProps
     : [[], null]
 
   return (
-    <AdminShell wide>
-      <div className="mb-6 space-y-2">
-        <Link
-          href="/admin/team-of-the-stage"
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          ← Featured Competitions
-        </Link>
-        <h1 className="h-display">{hub.name}</h1>
-        <p className="body-sm text-muted-foreground">
-          {season ? `${hub.name} ${seasonYear}` : "Season not synced yet"}
-        </p>
-      </div>
-
+    <AdminShell
+      wide
+      title={hub.name}
+      description={
+        season ? `Team of the Week · ${seasonYear} season` : "Season not synced yet"
+      }
+      back={{ href: "/admin/team-of-the-stage", label: "All competitions" }}
+    >
       {!season ? (
-        <p className="text-sm text-muted-foreground">
-          No {seasonYear} season found for this league. Run fixture bootstrap first.
-        </p>
+        <Panel>
+          <PanelEmpty>
+            No {seasonYear} season found for this league. Run fixture bootstrap first.
+          </PanelEmpty>
+        </Panel>
       ) : (
         <TotwEditor
           seasonId={season.id}

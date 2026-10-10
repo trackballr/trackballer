@@ -6,11 +6,10 @@ export default async function AdminCommentsPage() {
   const comments = await listRecentCommentsForAdmin()
 
   return (
-    <AdminShell>
-      <p className="body-sm mb-6 text-muted-foreground">
-        Recent comments across player and match pages. Deleting is soft-delete. Ban
-        blocks new comments.
-      </p>
+    <AdminShell
+      title="Comments"
+      description="Recent comments across player and match pages. Deleting hides the comment but keeps its replies. Banning stops that account from posting."
+    >
       <CommentModList comments={comments} />
     </AdminShell>
   )

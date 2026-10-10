@@ -13,7 +13,7 @@ type FeaturedCompetitionsProps = {
  * One tile per hub league in its brand colour — the same colours as the league
  * page banner and the match heading, so a league looks the same everywhere.
  */
-function CompetitionTile({ card }: { card: CompetitionHubCard }) {
+export function CompetitionTile({ card }: { card: CompetitionHubCard }) {
   return (
     <Link
       href={card.href}

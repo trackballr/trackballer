@@ -117,7 +117,7 @@ export function PlayerCareerRatingCta({
             <div
               role="dialog"
               aria-labelledby="career-rating-title"
-              className="w-full max-w-md rounded-t-2xl border border-border bg-card p-5 text-foreground shadow-lg sm:rounded-2xl"
+              className="max-h-[calc(100svh-2rem)] w-full max-w-md overflow-y-auto rounded-t-2xl border border-border bg-card p-5 text-foreground shadow-lg sm:rounded-2xl"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted" />
