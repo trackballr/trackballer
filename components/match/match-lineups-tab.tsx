@@ -9,6 +9,7 @@ import {
 } from "@/components/match/match-bench-sections"
 import { Card } from "@/components/ui/card"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
+import type { PitchSide } from "@/lib/match/lineup-position"
 import { teamCommunityAvg } from "@/lib/match/team-match-rating"
 import type { MatchCoach, MatchLineupPlayer } from "@/lib/match/types"
 
@@ -25,6 +26,8 @@ type MatchLineupsTabProps = {
   }
   canRate: boolean
   ratingsLocked: boolean
+  lineupSide: PitchSide
+  onLineupSide: (side: PitchSide) => void
   onPlayerClick: (player: MatchLineupPlayer) => void
 }
 
@@ -33,6 +36,8 @@ export function MatchLineupsTab({
   detail,
   canRate,
   ratingsLocked,
+  lineupSide,
+  onLineupSide,
   onPlayerClick,
 }: MatchLineupsTabProps) {
   const sideAvg = (side: "home" | "away") =>
@@ -54,6 +59,8 @@ export function MatchLineupsTab({
           hasLineups={detail.hasLineups}
           ratingsLocked={ratingsLocked}
           canRate={canRate}
+          selectedSide={lineupSide}
+          onSelectSide={onLineupSide}
           onPlayerClick={onPlayerClick}
         />
       </div>

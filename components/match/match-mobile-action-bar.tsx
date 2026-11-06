@@ -5,28 +5,68 @@ import Link from "next/link"
 
 import type { RatingProgressState } from "@/components/match/match-rating-progress"
 import { buttonVariants } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import type { PitchSide } from "@/lib/match/lineup-position"
 
 type MatchMobileActionBarProps = {
   state: RatingProgressState
+  /** Team currently on the phone lineup. */
+  lineupSide: PitchSide
   commentCount: number
   hasNewComments: boolean
-  onRate: () => void
+  onRateTeam: (side: PitchSide) => void
   onComments: () => void
 }
 
+function CommentsButton({
+  commentCount,
+  hasNewComments,
+  onComments,
+}: {
+  commentCount: number
+  hasNewComments: boolean
+  onComments: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onComments}
+      aria-label={`Comments (${commentCount})`}
+      className="relative flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 text-sm font-semibold"
+    >
+      <MessageCircle className="size-4" aria-hidden />
+      <span className="tabular-nums">{commentCount}</span>
+      {hasNewComments ? (
+        <span
+          className="absolute -top-1 -right-1 size-2.5 rounded-full bg-primary ring-2 ring-background"
+          aria-hidden
+        />
+      ) : null}
+    </button>
+  )
+}
+
 /**
- * Phones only: rating progress and a jump to comments, pinned above the home
- * indicator. Hidden once every player is rated.
+ * Phones only: rate the team on screen, plus a jump to comments.
+ * Sits above the home indicator.
  */
 export function MatchMobileActionBar({
   state,
+  lineupSide,
   commentCount,
   hasNewComments,
-  onRate,
+  onRateTeam,
   onComments,
 }: MatchMobileActionBarProps) {
-  if (state.kind === "done" || state.kind === "empty") return null
+  if (state.kind === "empty") return null
+
+  const team = state.kind === "teams" ? state.teams.find((row) => row.side === lineupSide) : null
+  const comments = (
+    <CommentsButton
+      commentCount={commentCount}
+      hasNewComments={hasNewComments}
+      onComments={onComments}
+    />
+  )
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] backdrop-blur-md md:hidden">
@@ -40,41 +80,30 @@ export function MatchMobileActionBar({
             <Lock className="size-4" aria-hidden />
             Ratings open at FT
           </span>
-        ) : (
+        ) : team && team.rated < team.total ? (
           <button
             type="button"
-            onClick={onRate}
+            onClick={() => onRateTeam(team.side)}
             className="relative flex h-11 flex-1 items-center justify-between gap-3 overflow-hidden rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground"
           >
             <span
               className="absolute inset-y-0 left-0 bg-black/10 transition-[width] duration-500"
-              style={{ width: `${(state.rated / state.total) * 100}%` }}
+              style={{ width: `${(team.rated / team.total) * 100}%` }}
               aria-hidden
             />
-            <span className="relative">
-              {state.rated === 0 ? "Rate players" : "Continue rating"}
+            <span className="relative truncate">
+              {team.rated === 0 ? `Rate ${team.team.name}` : `Continue ${team.team.name}`}
             </span>
-            <span className="relative tabular-nums">
-              {state.rated}/{state.total}
+            <span className="relative shrink-0 tabular-nums">
+              {team.rated}/{team.total}
             </span>
           </button>
+        ) : (
+          <span className="flex h-11 flex-1 items-center justify-center rounded-lg bg-muted text-sm font-medium text-muted-foreground">
+            {team ? `${team.team.name} rated` : "Nothing to rate"}
+          </span>
         )}
-
-        <button
-          type="button"
-          onClick={onComments}
-          aria-label={`Comments (${commentCount})`}
-          className="relative flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 text-sm font-semibold"
-        >
-          <MessageCircle className="size-4" aria-hidden />
-          <span className="tabular-nums">{commentCount}</span>
-          {hasNewComments ? (
-            <span
-              className={cn("absolute -top-1 -right-1 size-2.5 rounded-full bg-primary ring-2 ring-background")}
-              aria-hidden
-            />
-          ) : null}
-        </button>
+        {comments}
       </div>
     </div>
   )

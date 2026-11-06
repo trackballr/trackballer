@@ -1,6 +1,8 @@
+import type { PitchSide } from "@/lib/match/lineup-position"
 import type { MatchLineupPlayer } from "@/lib/match/types"
 
-export type RatingFlowMode = "single" | "rateAll"
+/** single = one player, then close. team = walk that side only. */
+export type RatingFlowMode = "single" | "team"
 
 /** Sort key for GK → DEF → MID → FWD; unknown positions last. */
 export function positionBandOrder(position: string | null): number {
@@ -52,21 +54,33 @@ export function firstUnratedIndex(queue: MatchLineupPlayer[]): number | null {
   return index >= 0 ? index : null
 }
 
+/** Players the open sheet should walk. Team keeps the existing home/away order. */
+export function playersForRatingFlow(
+  queue: MatchLineupPlayer[],
+  mode: RatingFlowMode,
+  options: { side?: PitchSide | null; playerId?: number | null },
+): MatchLineupPlayer[] {
+  if (mode === "team" && options.side) {
+    return queue.filter((player) => player.side === options.side)
+  }
+  if (mode === "single" && options.playerId != null) {
+    const player = queue.find((row) => row.playerId === options.playerId)
+    return player ? [player] : []
+  }
+  return []
+}
+
 /**
  * After saving a rating, pick the next sheet index or null to close.
- * single = next in queue; rateAll = next unrated after current index.
+ * single closes. team skips anyone on this side who is already rated.
  */
 export function nextRatingIndex(
   queue: MatchLineupPlayer[],
   from: number,
   mode: RatingFlowMode,
 ): number | null {
+  if (mode === "single") return null
   if (from < 0 || from >= queue.length) return null
-
-  if (mode === "single") {
-    const next = from + 1
-    return next < queue.length ? next : null
-  }
 
   for (let i = from + 1; i < queue.length; i++) {
     if (queue[i].userRating == null) return i

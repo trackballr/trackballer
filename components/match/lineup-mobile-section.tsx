@@ -1,7 +1,5 @@
 "use client"
 
-import { useState } from "react"
-
 import { LineupSingleTeamPitch } from "@/components/match/lineup-single-team-pitch"
 import { LineupTeamSummary } from "@/components/match/lineup-team-summary"
 import { LineupTeamSwitcher } from "@/components/match/lineup-team-switcher"
@@ -24,6 +22,8 @@ type LineupMobileSectionProps = {
   hasLineups: boolean
   ratingsLocked: boolean
   canRate: boolean
+  selectedSide: PitchSide
+  onSelectSide: (side: PitchSide) => void
   onPlayerClick?: (player: MatchLineupPlayer) => void
 }
 
@@ -81,9 +81,10 @@ export function LineupMobileSection({
   hasLineups,
   ratingsLocked,
   canRate,
+  selectedSide,
+  onSelectSide,
   onPlayerClick,
 }: LineupMobileSectionProps) {
-  const [selectedSide, setSelectedSide] = useState<PitchSide>("home")
 
   if (!hasLineups) {
     return (
@@ -107,7 +108,7 @@ export function LineupMobileSection({
         homeTeam={fixture.home_team}
         awayTeam={fixture.away_team}
         selected={selectedSide}
-        onSelect={setSelectedSide}
+        onSelect={onSelectSide}
       />
 
       <LineupSingleTeamPitch

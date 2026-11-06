@@ -5,6 +5,7 @@ import {
   firstUnratedIndex,
   hasNextRatingPlayer,
   nextRatingIndex,
+  playersForRatingFlow,
   sortRateableQueue,
 } from "@/lib/match/rating-queue-order"
 import type { MatchLineupPlayer } from "@/lib/match/types"
@@ -104,16 +105,35 @@ describe("nextRatingIndex", () => {
     player({ playerId: 4, userRating: null }),
   ]
 
-  it("single mode advances linearly", () => {
-    expect(nextRatingIndex(queue, 0, "single")).toBe(1)
-    expect(nextRatingIndex(queue, 2, "single")).toBe(3)
-    expect(nextRatingIndex(queue, 3, "single")).toBeNull()
+  it("single mode closes after the player you opened", () => {
+    expect(nextRatingIndex(queue, 0, "single")).toBeNull()
+    expect(nextRatingIndex(queue, 1, "single")).toBeNull()
   })
 
-  it("rateAll mode skips already-rated players", () => {
-    expect(nextRatingIndex(queue, 0, "rateAll")).toBe(1)
-    expect(nextRatingIndex(queue, 1, "rateAll")).toBe(3)
-    expect(nextRatingIndex(queue, 3, "rateAll")).toBeNull()
+  it("team mode skips already-rated players on that side", () => {
+    expect(nextRatingIndex(queue, 0, "team")).toBe(1)
+    expect(nextRatingIndex(queue, 1, "team")).toBe(3)
+    expect(nextRatingIndex(queue, 3, "team")).toBeNull()
+  })
+})
+
+describe("playersForRatingFlow", () => {
+  it("keeps one side, in queue order", () => {
+    const queue = [
+      player({ playerId: 1, side: "home" }),
+      player({ playerId: 2, side: "away", teamId: 2 }),
+      player({ playerId: 3, side: "home" }),
+    ]
+    expect(playersForRatingFlow(queue, "team", { side: "home" }).map((p) => p.playerId)).toEqual([
+      1, 3,
+    ])
+  })
+
+  it("returns only the tapped player", () => {
+    const queue = [player({ playerId: 1 }), player({ playerId: 2 })]
+    expect(playersForRatingFlow(queue, "single", { playerId: 2 }).map((p) => p.playerId)).toEqual([
+      2,
+    ])
   })
 })
 
@@ -131,7 +151,8 @@ describe("firstUnratedIndex", () => {
 describe("hasNextRatingPlayer", () => {
   it("reflects whether submit should offer another player", () => {
     const queue = [player({ playerId: 1 }), player({ playerId: 2 })]
-    expect(hasNextRatingPlayer(queue, 0, "single")).toBe(true)
-    expect(hasNextRatingPlayer(queue, 1, "single")).toBe(false)
+    expect(hasNextRatingPlayer(queue, 0, "single")).toBe(false)
+    expect(hasNextRatingPlayer(queue, 0, "team")).toBe(true)
+    expect(hasNextRatingPlayer(queue, 1, "team")).toBe(false)
   })
 })

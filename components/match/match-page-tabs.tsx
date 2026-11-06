@@ -29,6 +29,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { CommentsPageData } from "@/lib/comment/queries"
 import type { FixtureWithTeams } from "@/lib/catalog/types"
+import type { PitchSide } from "@/lib/match/lineup-position"
 import type { MatchTopRatedPayload } from "@/lib/match/match-top-rated"
 import type { MatchTrendingCommentCard } from "@/lib/match/match-trending-comments"
 import type { MatchDetail, MatchLineupPlayer } from "@/lib/match/types"
@@ -45,7 +46,7 @@ type MatchPageTabsProps = {
   topRated: MatchTopRatedPayload | null
   trendingComments: MatchTrendingCommentCard[]
   trendingVotes: Record<number, 1 | -1>
-  onRateAll: () => void
+  onRateTeam: (side: PitchSide) => void
   onPlayerClick: (player: MatchLineupPlayer) => void
   /** Match header; receives the top-comment strip for its bottom edge. */
   renderHero: (footer: ReactNode) => ReactNode
@@ -128,12 +129,13 @@ export function MatchPageTabs({
   topRated,
   trendingComments,
   trendingVotes,
-  onRateAll,
+  onRateTeam,
   onPlayerClick,
   renderHero,
   afterHero,
 }: MatchPageTabsProps) {
   const [activeTab, setActiveTab] = useState("lineups")
+  const [lineupSide, setLineupSide] = useState<PitchSide>("home")
   const [focus, setFocus] = useState<CommentsFocus | null>(null)
   const commentCount = commentsPage?.totalParentCount ?? 0
   const votes = useTrendingVotes(trendingComments, trendingVotes, isLoggedIn)
@@ -141,6 +143,8 @@ export function MatchPageTabs({
     detail.rateableQueue,
     isLoggedIn,
     detail.ratingsUnlocked,
+    fixture.home_team,
+    fixture.away_team,
   )
   const { hasNew, markSeen } = useNewCommentsDot(fixture.id, commentCount)
 
@@ -209,7 +213,7 @@ export function MatchPageTabs({
   )
 
   const podium = <MatchFansPodium payload={topRated} fixture={fixture} />
-  const progressCard = <MatchRatingProgress state={progress} onContinue={onRateAll} />
+  const progressCard = <MatchRatingProgress state={progress} onRateTeam={onRateTeam} />
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full gap-0">
@@ -267,6 +271,8 @@ export function MatchPageTabs({
                 detail={detail}
                 canRate={canRate}
                 ratingsLocked={ratingsLocked}
+                lineupSide={lineupSide}
+                onLineupSide={setLineupSide}
                 onPlayerClick={onPlayerClick}
               />
 
@@ -332,9 +338,10 @@ export function MatchPageTabs({
 
       <MatchMobileActionBar
         state={progress}
+        lineupSide={lineupSide}
         commentCount={commentCount}
         hasNewComments={hasNew}
-        onRate={onRateAll}
+        onRateTeam={onRateTeam}
         onComments={() => openComments()}
       />
     </Tabs>

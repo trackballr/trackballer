@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState, useTransition } from "react"
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 
 import { MatchHero } from "@/components/match/match-hero"
 import { MatchPageTabs } from "@/components/match/match-page-tabs"
@@ -12,10 +12,12 @@ import type { CommentsPageData } from "@/lib/comment/queries"
 import type { MatchTopRatedPayload } from "@/lib/match/match-top-rated"
 import type { MatchTrendingCommentCard } from "@/lib/match/match-trending-comments"
 import type { MatchDetail, MatchLineupPlayer } from "@/lib/match/types"
+import type { PitchSide } from "@/lib/match/lineup-position"
 import {
   firstUnratedIndex,
   hasNextRatingPlayer,
   nextRatingIndex,
+  playersForRatingFlow,
   type RatingFlowMode,
 } from "@/lib/match/rating-queue-order"
 import { submitMatchRating } from "@/lib/rating/submit-match-rating"
@@ -65,6 +67,8 @@ export function MatchView({
   const [detail, setDetail] = useState(initialDetail)
   const [ratingIndex, setRatingIndex] = useState<number | null>(null)
   const [ratingFlowMode, setRatingFlowMode] = useState<RatingFlowMode | null>(null)
+  const [ratingSide, setRatingSide] = useState<PitchSide | null>(null)
+  const [singlePlayerId, setSinglePlayerId] = useState<number | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -77,11 +81,23 @@ export function MatchView({
   const contextLabel = matchContextLabel(detail)
   const canRate = isLoggedIn && detail.ratingsUnlocked
   const ratingsLocked = !canRate
-  const ratingOpen = ratingIndex != null && detail.rateableQueue[ratingIndex] != null
+  const sessionQueue = useMemo(
+    () =>
+      ratingFlowMode
+        ? playersForRatingFlow(detail.rateableQueue, ratingFlowMode, {
+            side: ratingSide,
+            playerId: singlePlayerId,
+          })
+        : [],
+    [detail.rateableQueue, ratingFlowMode, ratingSide, singlePlayerId],
+  )
+  const ratingOpen = ratingIndex != null && sessionQueue[ratingIndex] != null
 
   const closeRatingSheet = useCallback(() => {
     setRatingIndex(null)
     setRatingFlowMode(null)
+    setRatingSide(null)
+    setSinglePlayerId(null)
   }, [])
 
   const openRatingSheet = useCallback(
@@ -109,18 +125,23 @@ export function MatchView({
 
       setErrorMessage(null)
       setRatingFlowMode("single")
-      setRatingIndex(index)
+      setRatingSide(null)
+      setSinglePlayerId(player.playerId)
+      setRatingIndex(0)
     },
     [canRate, detail.rateableQueue, detail.ratingsUnlocked, isLoggedIn],
   )
 
-  function handleRateAll() {
-    if (detail.rateableQueue.length === 0) {
-      setErrorMessage("No rateable players for this match yet.")
+  function handleRateTeam(side: PitchSide) {
+    const queue = playersForRatingFlow(detail.rateableQueue, "team", { side })
+    if (queue.length === 0) {
+      setErrorMessage("No players to rate for this team yet.")
       return
     }
-    setRatingFlowMode("rateAll")
-    setRatingIndex(firstUnratedIndex(detail.rateableQueue) ?? 0)
+    setRatingFlowMode("team")
+    setRatingSide(side)
+    setSinglePlayerId(null)
+    setRatingIndex(firstUnratedIndex(queue) ?? 0)
     setErrorMessage(null)
   }
 
@@ -149,7 +170,7 @@ export function MatchView({
   function handleSubmit(value: number) {
     if (ratingIndex == null) return
 
-    const player = detail.rateableQueue[ratingIndex]
+    const player = sessionQueue[ratingIndex]
     if (!player) return
 
     const snapshotIndex = ratingIndex
@@ -184,7 +205,11 @@ export function MatchView({
         userRating: value,
         communityAvg: nextAvg,
       })
-      const nextIndex = nextRatingIndex(updatedQueue, snapshotIndex, flowMode)
+      const updatedSession = playersForRatingFlow(updatedQueue, flowMode, {
+        side: ratingSide,
+        playerId: player.playerId,
+      })
+      const nextIndex = nextRatingIndex(updatedSession, snapshotIndex, flowMode)
       if (nextIndex != null) {
         setRatingIndex(nextIndex)
       } else {
@@ -196,7 +221,7 @@ export function MatchView({
   const hasNextPlayer =
     ratingIndex != null &&
     ratingFlowMode != null &&
-    hasNextRatingPlayer(detail.rateableQueue, ratingIndex, ratingFlowMode)
+    hasNextRatingPlayer(sessionQueue, ratingIndex, ratingFlowMode)
 
   return (
     <div className="mx-auto max-w-lg px-4 pt-6 pb-28 md:max-w-3xl md:pb-10 lg:max-w-6xl">
@@ -212,7 +237,7 @@ export function MatchView({
         topRated={topRated}
         trendingComments={trendingComments}
         trendingVotes={trendingVotes}
-        onRateAll={handleRateAll}
+        onRateTeam={handleRateTeam}
         onPlayerClick={(player) => openRatingSheet(player)}
         renderHero={(footer) => (
           <MatchHero
@@ -232,7 +257,7 @@ export function MatchView({
 
       <MatchRatingUI
         open={ratingOpen}
-        players={detail.rateableQueue}
+        players={sessionQueue}
         activeIndex={ratingIndex ?? 0}
         matchContext={contextLabel}
         homeTeam={fixture.home_team}
