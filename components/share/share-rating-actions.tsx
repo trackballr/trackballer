@@ -80,9 +80,9 @@ export function ShareRatingActions({
       await navigator.clipboard.write([
         new ClipboardItem({ "image/png": fetchCard(cardPath) }),
       ])
-      flash({ kind: "ok", text: "Image copied — paste it into your post" })
+      flash({ kind: "ok", text: "Image copied - paste it into your post" })
     } catch {
-      flash({ kind: "error", text: "Could not copy the image — try Download" })
+      flash({ kind: "error", text: "Could not copy the image - try Download" })
     } finally {
       setBusy(null)
     }

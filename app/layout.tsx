@@ -28,6 +28,17 @@ export const metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: "Trackballr",
   description: "Your hub to track your favorite players and teams",
+  openGraph: {
+    title: "Trackballr",
+    description: "Your hub to track your favorite players and teams",
+    images: [{ url: "/opengraph-image.jpg", type: "image/jpeg" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Trackballr",
+    description: "Your hub to track your favorite players and teams",
+    images: [{ url: "/twitter-image.jpg" }],
+  },
 }
 
 export default function RootLayout({

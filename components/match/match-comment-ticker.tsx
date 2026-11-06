@@ -54,7 +54,7 @@ export function MatchCommentTicker({
       >
         <Flame className="size-4 shrink-0 text-orange-500" aria-hidden />
         <span className="min-w-0 flex-1 truncate text-muted-foreground">
-          No takes yet — be the first
+          No takes yet - be the first
         </span>
         <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
       </button>

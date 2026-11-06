@@ -19,6 +19,6 @@ export function isValidCareerRatingValue(value: number): boolean {
 
 /** Display string for aggregate chips (e.g. 8.17). */
 export function formatMatchAggregate(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value)) return "—"
+  if (value == null || Number.isNaN(value)) return "-"
   return value.toFixed(2)
 }

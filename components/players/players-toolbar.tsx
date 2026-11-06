@@ -11,7 +11,7 @@ type PlayersToolbarProps = {
 
 export function PlayersToolbar({ filters, options, resultCount }: PlayersToolbarProps) {
   const countLabel =
-    resultCount == null ? "— players" : `${resultCount} player${resultCount === 1 ? "" : "s"}`
+    resultCount == null ? "- players" : `${resultCount} player${resultCount === 1 ? "" : "s"}`
 
   return (
     <div className="flex flex-wrap items-center gap-2">

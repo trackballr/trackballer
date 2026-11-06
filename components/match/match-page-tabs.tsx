@@ -20,6 +20,7 @@ import { MatchMobileActionBar } from "@/components/match/match-mobile-action-bar
 import {
   MatchRatingProgress,
   ratingProgressState,
+  type MatchShareLink,
 } from "@/components/match/match-rating-progress"
 import {
   MatchTrendingCarousel,
@@ -48,6 +49,7 @@ type MatchPageTabsProps = {
   trendingVotes: Record<number, 1 | -1>
   onRateTeam: (side: PitchSide) => void
   onPlayerClick: (player: MatchLineupPlayer) => void
+  share?: MatchShareLink | null
   /** Match header; receives the top-comment strip for its bottom edge. */
   renderHero: (footer: ReactNode) => ReactNode
   /** Shown between the tab bar and the tab content (e.g. penalty shootout). */
@@ -131,6 +133,7 @@ export function MatchPageTabs({
   trendingVotes,
   onRateTeam,
   onPlayerClick,
+  share = null,
   renderHero,
   afterHero,
 }: MatchPageTabsProps) {
@@ -213,7 +216,9 @@ export function MatchPageTabs({
   )
 
   const podium = <MatchFansPodium payload={topRated} fixture={fixture} />
-  const progressCard = <MatchRatingProgress state={progress} onRateTeam={onRateTeam} />
+  const progressCard = (
+    <MatchRatingProgress state={progress} onRateTeam={onRateTeam} share={share} />
+  )
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full gap-0">
@@ -342,6 +347,7 @@ export function MatchPageTabs({
         commentCount={commentCount}
         hasNewComments={hasNew}
         onRateTeam={onRateTeam}
+        share={share}
         onComments={() => openComments()}
       />
     </Tabs>

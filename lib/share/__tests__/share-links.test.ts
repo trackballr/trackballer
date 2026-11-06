@@ -6,6 +6,9 @@ import {
   careerSharePath,
   careerShareText,
   isCareerHotTake,
+  matchShareCardPath,
+  matchSharePath,
+  matchShareText,
   xShareUrl,
 } from "@/lib/share/share-links"
 
@@ -55,5 +58,34 @@ describe("career share links", () => {
     expect(new URL(url).searchParams.get("url")).toBe(
       "https://www.trackballr.com/u/chai_7/rated/874",
     )
+  })
+})
+
+describe("match share links", () => {
+  it("builds the team card path", () => {
+    expect(matchSharePath("chai_7", 10, 33)).toBe("/u/chai_7/match/10/33")
+    expect(matchShareCardPath("chai_7", 10, 33, 12)).toBe("/u/chai_7/match/10/33/card?v=12")
+  })
+
+  it("mentions the leader until the whole team is rated", () => {
+    expect(
+      matchShareText({
+        teamName: "Man City",
+        opponentName: "Fulham",
+        topName: "Erling Haaland",
+        topRating: 8.5,
+        complete: false,
+      }),
+    ).toBe("My Man City vs Fulham ratings. Erling Haaland leads on 8.5.")
+    expect(
+      matchShareText({
+        teamName: "Man City",
+        opponentName: "Fulham",
+        topName: "Erling Haaland",
+        topRating: 8,
+        complete: true,
+        byUsername: "chai_7",
+      }),
+    ).toBe("@chai_7's Man City vs Fulham ratings are in. Full team on Trackballr.")
   })
 })

@@ -29,7 +29,7 @@ export function PlasticFanDialog({
         <DialogHeader>
           <DialogTitle>Changing allegiance?</DialogTitle>
           <DialogDescription>
-            Switching your favourite club is a bold move. No lockout — we just
+            Switching your favourite club is a bold move. No lockout - we just
             need you to own it before we update your profile.
           </DialogDescription>
         </DialogHeader>

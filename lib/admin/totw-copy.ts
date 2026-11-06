@@ -24,7 +24,7 @@ export const LEAGUE_TOTW_COPY: TotwEditorCopy = {
   emptyRoundsMessage:
     "No matchdays in the catalog yet. Run fixture bootstrap for this league first.",
   selectRoundError: "Select a matchday first.",
-  loadedRoundMessage: "Loaded saved lineup for this matchday — edit and publish to update.",
+  loadedRoundMessage: "Loaded saved lineup for this matchday - edit and publish to update.",
   publishSuccessNew: "Published. Use “Show on league page” when this matchday should go live.",
   publishSuccessUpdate:
     "Saved. Use “Show on league page” when this matchday should go live.",

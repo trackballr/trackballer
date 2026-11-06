@@ -49,7 +49,7 @@ describe("tierForScore", () => {
 describe("formatCareerScore", () => {
   it("formats as integer OVR", () => {
     expect(formatCareerScore(82)).toBe("82")
-    expect(formatCareerScore(null)).toBe("—")
+    expect(formatCareerScore(null)).toBe("-")
   })
 })
 

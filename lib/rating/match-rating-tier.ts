@@ -32,3 +32,18 @@ const TIER_CHIP_CLASS: Record<MatchRatingTier, string> = {
 export function matchRatingTierChipClass(value: number | null | undefined): string {
   return TIER_CHIP_CLASS[getMatchRatingTier(value)]
 }
+
+/** Same bands as hex, for the share picture (it cannot read Tailwind classes). */
+const TIER_HEX: Record<MatchRatingTier, { bg: string; fg: string }> = {
+  empty: { bg: "#ffffff", fg: "#121f4f" },
+  maroon: { bg: "#450a0a", fg: "#ffffff" },
+  red: { bg: "#ef4444", fg: "#ffffff" },
+  orange: { bg: "#f97316", fg: "#ffffff" },
+  yellow: { bg: "#facc15", fg: "#422006" },
+  green: { bg: "#10b981", fg: "#ffffff" },
+  blue: { bg: "#0ea5e9", fg: "#ffffff" },
+}
+
+export function matchRatingTierHex(value: number | null | undefined): { bg: string; fg: string } {
+  return TIER_HEX[getMatchRatingTier(value)]
+}

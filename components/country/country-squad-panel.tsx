@@ -66,7 +66,7 @@ function SquadPagination({
 export function CountrySquadPanel({ teamId, pageParams, result }: CountrySquadPanelProps) {
   const countLabel =
     result.total == null
-      ? "— players"
+      ? "- players"
       : `${result.total} player${result.total === 1 ? "" : "s"}`
 
   return (

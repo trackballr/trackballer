@@ -33,6 +33,6 @@ describe("isValidRatingValue", () => {
 describe("formatMatchAggregate", () => {
   it("formats decimals and handles missing", () => {
     expect(formatMatchAggregate(8.166)).toBe("8.17")
-    expect(formatMatchAggregate(null)).toBe("—")
+    expect(formatMatchAggregate(null)).toBe("-")
   })
 })

@@ -42,7 +42,7 @@ function FansComparison({ player, value }: { player: MatchLineupPlayer; value: n
   if (player.communityAvg == null || player.ratingCount === 0) {
     return (
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        No fan ratings yet — yours sets the tone.
+        No fan ratings yet - yours sets the tone.
       </p>
     )
   }

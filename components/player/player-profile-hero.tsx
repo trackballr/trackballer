@@ -27,7 +27,7 @@ type PlayerProfileHeroProps = {
 }
 
 function formatOneDecimal(value: number | null): string {
-  if (value == null || Number.isNaN(value)) return "—"
+  if (value == null || Number.isNaN(value)) return "-"
   return value.toFixed(1)
 }
 
@@ -200,7 +200,7 @@ export function PlayerProfileHero({
       ) : null}
 
       <div className="p-5 sm:p-6">
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <RatingTile
             label="Career rating"
             value={formatCareerScore(profile.career.displayScore)}
@@ -211,11 +211,6 @@ export function PlayerProfileHero({
             label="Last 5 form"
             value={formatOneDecimal(profile.form.last5Avg)}
             suffix={profile.form.last5Avg != null ? "/ 10" : undefined}
-          />
-          <RatingTile
-            label="WC form"
-            value={formatOneDecimal(profile.tournament.avgRating)}
-            suffix={profile.tournament.avgRating != null ? "/ 10" : undefined}
           />
         </div>
         {profile.career.isProvisional ? (

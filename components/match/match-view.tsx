@@ -21,6 +21,7 @@ import {
   type RatingFlowMode,
 } from "@/lib/match/rating-queue-order"
 import { submitMatchRating } from "@/lib/rating/submit-match-rating"
+import type { MatchShareLink } from "@/components/match/match-rating-progress"
 import { formatFixtureRoundLabel } from "@/lib/world-cup/round-label"
 
 type MatchViewProps = {
@@ -31,6 +32,7 @@ type MatchViewProps = {
   topRated: MatchTopRatedPayload | null
   trendingComments: MatchTrendingCommentCard[]
   trendingVotes?: Record<number, 1 | -1>
+  viewerUsername?: string | null
 }
 
 function matchContextLabel(detail: MatchDetail): string {
@@ -62,6 +64,7 @@ export function MatchView({
   topRated,
   trendingComments,
   trendingVotes = {},
+  viewerUsername = null,
 }: MatchViewProps) {
   const router = useRouter()
   const [detail, setDetail] = useState(initialDetail)
@@ -239,6 +242,11 @@ export function MatchView({
         trendingVotes={trendingVotes}
         onRateTeam={handleRateTeam}
         onPlayerClick={(player) => openRatingSheet(player)}
+        share={
+          viewerUsername
+            ? ({ username: viewerUsername, fixtureId: fixture.id } satisfies MatchShareLink)
+            : null
+        }
         renderHero={(footer) => (
           <MatchHero
             fixture={fixture}

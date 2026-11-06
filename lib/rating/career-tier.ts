@@ -99,7 +99,7 @@ export function careerBlend(
 
 /** Integer OVR on the career ring card. */
 export function formatCareerScore(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value)) return "—"
+  if (value == null || Number.isNaN(value)) return "-"
   return String(Math.round(value))
 }
 

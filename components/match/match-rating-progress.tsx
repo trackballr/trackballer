@@ -10,6 +10,13 @@ import type { TeamSummary } from "@/lib/catalog/types"
 import type { PitchSide } from "@/lib/match/lineup-position"
 import { teamRatingRows, type TeamRatingCounts } from "@/lib/match/team-rating-progress"
 import type { MatchLineupPlayer } from "@/lib/match/types"
+import { MATCH_SHARE_UNLOCK } from "@/lib/share/match-share-model"
+import { matchSharePath } from "@/lib/share/share-links"
+
+export type MatchShareLink = {
+  username: string
+  fixtureId: number
+}
 
 export type RatingProgressState =
   | { kind: "signed-out" }
@@ -64,11 +71,17 @@ function rateLabel(team: TeamSummary, rated: number) {
 function TeamRateBlock({
   row,
   onRateTeam,
+  share,
 }: {
   row: TeamRatingCounts
   onRateTeam: (side: PitchSide) => void
+  share: MatchShareLink | null
 }) {
   const done = row.rated >= row.total
+  const shareHref =
+    share && row.rated >= MATCH_SHARE_UNLOCK
+      ? matchSharePath(share.username, share.fixtureId, row.team.id)
+      : null
 
   return (
     <div className="flex flex-col gap-2">
@@ -97,6 +110,14 @@ function TeamRateBlock({
           {rateLabel(row.team, row.rated)}
         </Button>
       )}
+      {shareHref ? (
+        <Link
+          href={shareHref}
+          className={buttonVariants({ variant: "outline", className: "h-9 w-full" })}
+        >
+          Share
+        </Link>
+      ) : null}
     </div>
   )
 }
@@ -104,9 +125,15 @@ function TeamRateBlock({
 type MatchRatingProgressProps = {
   state: RatingProgressState
   onRateTeam: (side: PitchSide) => void
+  /** Set once the viewer has a username, so Share can point at their card. */
+  share?: MatchShareLink | null
 }
 
-export function MatchRatingProgress({ state, onRateTeam }: MatchRatingProgressProps) {
+export function MatchRatingProgress({
+  state,
+  onRateTeam,
+  share = null,
+}: MatchRatingProgressProps) {
   if (state.kind === "empty") return null
 
   return (
@@ -129,7 +156,7 @@ export function MatchRatingProgress({ state, onRateTeam }: MatchRatingProgressPr
           </p>
         ) : (
           state.teams.map((row) => (
-            <TeamRateBlock key={row.side} row={row} onRateTeam={onRateTeam} />
+            <TeamRateBlock key={row.side} row={row} onRateTeam={onRateTeam} share={share} />
           ))
         )}
       </div>

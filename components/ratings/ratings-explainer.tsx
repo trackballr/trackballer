@@ -20,7 +20,7 @@ export function RatingsExplainer() {
         <p className="eyebrow mb-2">Guide</p>
         <h1 className="h-display mb-3">How ratings work</h1>
         <p className="body-sm text-muted-foreground">
-          Penaltyboxd has two ways to score players — a career rating (like FIFA overall)
+          Penaltyboxd has two ways to score players - a career rating (like FIFA overall)
           and a match rating (how they played in one game).
         </p>
       </header>
@@ -29,7 +29,7 @@ export function RatingsExplainer() {
         <h2 className="h3">Career rating (1–100)</h2>
         <p className="body-sm text-muted-foreground">
           Every player has an overall career score shown as a coloured ring on their
-          profile. Higher is better — think FIFA-style OVR.
+          profile. Higher is better - think FIFA-style OVR.
         </p>
         <ul className="body-sm list-disc space-y-2 pl-5 text-muted-foreground">
           <li>
@@ -43,7 +43,7 @@ export function RatingsExplainer() {
           </li>
           <li>
             <strong className="text-foreground">Tier colours:</strong> the ring colour
-            reflects the score band — from Elite down to Unwatchable.
+            reflects the score band - from Elite down to Unwatchable.
           </li>
         </ul>
         <div className="overflow-hidden rounded-lg border border-border">
@@ -70,11 +70,11 @@ export function RatingsExplainer() {
         <h2 className="h3">Match rating (1–10)</h2>
         <p className="body-sm text-muted-foreground">
           After a match finishes, signed-in fans can rate how each player performed in
-          that game — half-step scores from 1 to 10. Ratings unlock once the match is
+          that game - half-step scores from 1 to 10. Ratings unlock once the match is
           complete and lineups are synced.
         </p>
         <p className="body-sm text-muted-foreground">
-          Match scores use colour tiers similar to FotMob — poor, average, good, and
+          Match scores use colour tiers similar to FotMob - poor, average, good, and
           standout performances are easy to spot at a glance.
         </p>
       </section>

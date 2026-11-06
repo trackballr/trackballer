@@ -13,7 +13,7 @@ describe("mapPlayerBrowseRow", () => {
       nationality: "England",
       primary_position: "FWD",
       age: 31,
-      club_team: { name: "Bayern Munich" },
+      club_team: { name: "Bayern Munich", logo_url: null, code: "BAY" },
       career: {
         display_score: 87,
         tier: "world_class",

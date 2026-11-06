@@ -54,3 +54,37 @@ export function xShareUrl(text: string, url: string): string {
   const params = new URLSearchParams({ text, url })
   return `https://x.com/intent/post?${params.toString()}`
 }
+
+/** Public page for one user's ratings of one team in one match. */
+export function matchSharePath(username: string, fixtureId: number, teamId: number): string {
+  return `/u/${encodeURIComponent(username)}/match/${fixtureId}/${teamId}`
+}
+
+export function matchShareCardPath(
+  username: string,
+  fixtureId: number,
+  teamId: number,
+  version?: string | number | null,
+): string {
+  const path = `${matchSharePath(username, fixtureId, teamId)}/card`
+  return version != null ? `${path}?v=${encodeURIComponent(String(version))}` : path
+}
+
+export function matchShareText(input: {
+  teamName: string
+  opponentName: string
+  topName: string
+  topRating: number
+  complete: boolean
+  byUsername?: string | null
+}): string {
+  const mine = input.byUsername ? `@${input.byUsername}'s` : "My"
+  const fixture = `${input.teamName} vs ${input.opponentName}`
+  if (input.complete) {
+    return `${mine} ${fixture} ratings are in. Full team on Trackballr.`
+  }
+  const score = Number.isInteger(input.topRating)
+    ? String(input.topRating)
+    : input.topRating.toFixed(1)
+  return `${mine} ${fixture} ratings. ${input.topName} leads on ${score}.`
+}

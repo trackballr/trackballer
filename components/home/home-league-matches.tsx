@@ -119,7 +119,7 @@ export function HomeLeagueMatches({ leagues, variant = "default" }: HomeLeagueMa
 
       {visibleLeagues.length === 0 ? (
         <p className="body-sm rounded-lg border border-border bg-card p-4 text-muted-foreground">
-          No fixtures yet — check back once the season is synced.
+          No fixtures yet - check back once the season is synced.
         </p>
       ) : (
         <HomeLeagueSwitcher

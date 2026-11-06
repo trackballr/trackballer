@@ -31,6 +31,16 @@ export default async function MatchPage({ params }: PageProps) {
   const supabase = await createClient()
   const auth = await getServerAuth(supabase)
 
+  let viewerUsername: string | null = null
+  if (auth) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", auth.userId)
+      .maybeSingle()
+    viewerUsername = data?.username ?? null
+  }
+
   const commentsPage = await getComments("match", fixtureId, auth?.userId ?? null)
 
   const topRated = buildMatchTopRatedPayload(
@@ -54,6 +64,7 @@ export default async function MatchPage({ params }: PageProps) {
       topRated={topRated}
       trendingComments={trendingComments}
       trendingVotes={trendingVotes}
+      viewerUsername={viewerUsername}
     />
   )
 }

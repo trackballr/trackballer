@@ -15,7 +15,7 @@ export function StepFavourites({ draft, options, onChange }: StepFavouritesProps
       <div>
         <h2 className="h3 mb-1">Favourites</h2>
         <p className="body-sm text-muted-foreground">
-          Pick a club and national team if you like — both are optional for now.
+          Pick a club and national team if you like - both are optional for now.
         </p>
       </div>
 

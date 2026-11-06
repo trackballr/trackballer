@@ -3,9 +3,11 @@
 import { Lock, MessageCircle } from "lucide-react"
 import Link from "next/link"
 
-import type { RatingProgressState } from "@/components/match/match-rating-progress"
+import type { MatchShareLink, RatingProgressState } from "@/components/match/match-rating-progress"
 import { buttonVariants } from "@/components/ui/button"
 import type { PitchSide } from "@/lib/match/lineup-position"
+import { MATCH_SHARE_UNLOCK } from "@/lib/share/match-share-model"
+import { matchSharePath } from "@/lib/share/share-links"
 
 type MatchMobileActionBarProps = {
   state: RatingProgressState
@@ -14,6 +16,7 @@ type MatchMobileActionBarProps = {
   commentCount: number
   hasNewComments: boolean
   onRateTeam: (side: PitchSide) => void
+  share?: MatchShareLink | null
   onComments: () => void
 }
 
@@ -55,11 +58,16 @@ export function MatchMobileActionBar({
   commentCount,
   hasNewComments,
   onRateTeam,
+  share = null,
   onComments,
 }: MatchMobileActionBarProps) {
   if (state.kind === "empty") return null
 
   const team = state.kind === "teams" ? state.teams.find((row) => row.side === lineupSide) : null
+  const shareHref =
+    share && team && team.rated >= MATCH_SHARE_UNLOCK
+      ? matchSharePath(share.username, share.fixtureId, team.team.id)
+      : null
   const comments = (
     <CommentsButton
       commentCount={commentCount}
@@ -98,11 +106,26 @@ export function MatchMobileActionBar({
               {team.rated}/{team.total}
             </span>
           </button>
+        ) : shareHref ? (
+          <Link href={shareHref} className={buttonVariants({ className: "h-11 flex-1 text-sm" })}>
+            Share {team?.team.name ?? "ratings"}
+          </Link>
         ) : (
           <span className="flex h-11 flex-1 items-center justify-center rounded-lg bg-muted text-sm font-medium text-muted-foreground">
             {team ? `${team.team.name} rated` : "Nothing to rate"}
           </span>
         )}
+        {shareHref && team && team.rated < team.total ? (
+          <Link
+            href={shareHref}
+            className={buttonVariants({
+              variant: "outline",
+              className: "h-11 shrink-0 bg-card px-3 text-sm",
+            })}
+          >
+            Share
+          </Link>
+        ) : null}
         {comments}
       </div>
     </div>

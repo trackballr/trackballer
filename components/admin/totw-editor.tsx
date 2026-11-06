@@ -149,7 +149,7 @@ export function TotwEditor({
     setActiveSlot(null)
     setMessage(
       hadPlayers
-        ? "Formation changed — players kept. Drag to move anyone who is out of place."
+        ? "Formation changed - players kept. Drag to move anyone who is out of place."
         : null,
     )
   }
@@ -342,7 +342,7 @@ export function TotwEditor({
               onMove={moveSlot}
               onSlotClick={(key) => {
                 setActiveSlot(key)
-                setMessage(`Selected ${slotLabel(key)} — pick a player from search.`)
+                setMessage(`Selected ${slotLabel(key)} - pick a player from search.`)
               }}
             />
           </PanelBody>

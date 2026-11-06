@@ -239,7 +239,7 @@ export function SettingsForm({ profile, teamOptions }: SettingsFormProps) {
 
           <SettingsRow
             label="Instagram"
-            description="Not verified — only add a handle you own."
+            description="Not verified - only add a handle you own."
             htmlFor="settings-instagram"
           >
             <Input

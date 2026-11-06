@@ -1,7 +1,7 @@
 /** Stable date label for SSR — fixed locale/timezone so server and browser match. */
 export function formatCommentDate(dateString: string): string {
   const date = new Date(dateString)
-  if (Number.isNaN(date.getTime())) return "—"
+  if (Number.isNaN(date.getTime())) return "-"
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
@@ -14,7 +14,7 @@ export function formatCommentDate(dateString: string): string {
 /** Relative label for recent comments; falls back to formatCommentDate after 7 days. */
 export function getCommentTimeSince(dateString: string, nowMs = Date.now()): string {
   const date = new Date(dateString)
-  if (Number.isNaN(date.getTime())) return "—"
+  if (Number.isNaN(date.getTime())) return "-"
 
   const seconds = Math.floor((nowMs - date.getTime()) / 1000)
 
