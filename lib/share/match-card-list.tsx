@@ -3,49 +3,66 @@ import { shareCardName, type MatchShare, type MatchSharePlayer } from "@/lib/sha
 import { ShareFace, ShareScoreChip } from "@/lib/share/match-card-parts"
 
 type Photos = Map<number, string | null>
+type ChipSize = "md" | "sm"
+
+type RowScale = {
+  face: number
+  name: number
+  rank: number
+  rankWidth: number
+  chip: ChipSize
+}
+
+/** Shorter lists use bigger rows. The rows then share the leftover height. */
+function rowScale(count: number): RowScale {
+  if (count <= 5) return { face: 88, name: 32, rank: 64, rankWidth: 84, chip: "md" }
+  if (count <= 7) return { face: 72, name: 28, rank: 52, rankWidth: 72, chip: "md" }
+  return { face: 60, name: 24, rank: 44, rankWidth: 60, chip: "sm" }
+}
 
 function RankRow({
   player,
   rank,
   photo,
-  featured,
+  scale,
+  fill,
 }: {
   player: MatchSharePlayer
   rank: number
   photo: string | null
-  featured: boolean
+  scale: RowScale
+  fill: boolean
 }) {
-  const face = featured ? 76 : 52
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
         width: "100%",
-        marginBottom: featured ? 14 : 8,
+        flex: fill ? 1 : undefined,
       }}
     >
       <div
         style={{
           display: "flex",
-          width: featured ? 72 : 44,
+          width: scale.rankWidth,
           fontFamily: "Outfit",
           fontWeight: 800,
-          fontSize: featured ? 56 : 32,
+          fontSize: scale.rank,
           lineHeight: 0.9,
           color: "rgba(255,255,255,0.28)",
         }}
       >
         {rank}
       </div>
-      <ShareFace name={player.name} photo={photo} size={face} />
+      <ShareFace name={player.name} photo={photo} size={scale.face} />
       <div style={{ display: "flex", flexDirection: "column", flex: 1, marginLeft: 16 }}>
         <div
           style={{
             display: "flex",
             fontFamily: "Outfit",
             fontWeight: 700,
-            fontSize: featured ? 28 : 20,
+            fontSize: scale.name,
             lineHeight: 1.1,
           }}
         >
@@ -56,7 +73,7 @@ function RankRow({
             style={{
               display: "flex",
               marginTop: 4,
-              fontSize: featured ? 16 : 14,
+              fontSize: Math.max(14, scale.name - 12),
               color: CARD_COLORS.whiteFaint,
             }}
           >
@@ -64,48 +81,27 @@ function RankRow({
           </div>
         ) : null}
       </div>
-      {player.rating != null ? <ShareScoreChip rating={player.rating} size={featured ? "md" : "sm"} /> : null}
+      {player.rating != null ? <ShareScoreChip rating={player.rating} size={scale.chip} /> : null}
     </div>
   )
 }
 
-function Column({
-  players,
-  startRank,
-  photos,
-}: {
-  players: MatchSharePlayer[]
-  startRank: number
-  photos: Photos
-}) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-      {players.map((player, index) => (
-        <RankRow
-          key={player.id}
-          player={player}
-          rank={startRank + index}
-          photo={photos.get(player.id) ?? null}
-          featured={false}
-        />
-      ))}
-    </div>
-  )
-}
-
-/** Highest score at the top. Top three stay full width; a long tail splits in two. */
+/** Highest score at the top. Five to nine names fill the card; a longer list splits. */
 export function MatchCardList({ share, photos }: { share: MatchShare; photos: Photos }) {
-  const featured = share.ranked.slice(0, 3)
-  const rest = share.ranked.slice(3)
-  const split = rest.length > 5
+  const count = share.ranked.length
+  const scale = rowScale(count)
+  const split = count > 9
+  const featured = split ? share.ranked.slice(0, 3) : share.ranked
+  const rest = split ? share.ranked.slice(3) : []
   const mid = Math.ceil(rest.length / 2)
+  const tailScale = rowScale(12)
 
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
       <div
         style={{
           display: "flex",
-          marginBottom: 18,
+          marginBottom: 8,
           fontSize: 18,
           fontWeight: 600,
           color: CARD_COLORS.whiteFaint,
@@ -113,32 +109,44 @@ export function MatchCardList({ share, photos }: { share: MatchShare; photos: Ph
       >
         {share.ratedCount} rated
       </div>
-      {featured.map((player, index) => (
-        <RankRow
-          key={player.id}
-          player={player}
-          rank={index + 1}
-          photo={photos.get(player.id) ?? null}
-          featured
-        />
-      ))}
-      {split ? (
-        <div style={{ display: "flex", marginTop: 8 }}>
-          <Column players={rest.slice(0, mid)} startRank={4} photos={photos} />
-          <div style={{ display: "flex", width: 28 }} />
-          <Column players={rest.slice(mid)} startRank={4 + mid} photos={photos} />
-        </div>
-      ) : (
-        rest.map((player, index) => (
+      <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+        {featured.map((player, index) => (
           <RankRow
             key={player.id}
             player={player}
-            rank={index + 4}
+            rank={index + 1}
             photo={photos.get(player.id) ?? null}
-            featured={false}
+            scale={split ? rowScale(6) : scale}
+            fill={!split}
           />
-        ))
-      )}
+        ))}
+      </div>
+      {split ? (
+        <div style={{ display: "flex", marginTop: 8 }}>
+          {[rest.slice(0, mid), rest.slice(mid)].map((column, columnIndex) => (
+            <div
+              key={columnIndex}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                flex: 1,
+                marginLeft: columnIndex === 1 ? 28 : 0,
+              }}
+            >
+              {column.map((player, index) => (
+                <RankRow
+                  key={player.id}
+                  player={player}
+                  rank={4 + columnIndex * mid + index}
+                  photo={photos.get(player.id) ?? null}
+                  scale={tailScale}
+                  fill={false}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   )
 }

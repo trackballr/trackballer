@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, Lock } from "lucide-react"
+import { Check, Lock, Share2 } from "lucide-react"
 import Link from "next/link"
 
 import { TeamFlag } from "@/components/team-flag"
@@ -113,9 +113,11 @@ function TeamRateBlock({
       {shareHref ? (
         <Link
           href={shareHref}
-          className={buttonVariants({ variant: "outline", className: "h-9 w-full" })}
+          className={buttonVariants({ variant: "outline", className: "h-9 w-full gap-2" })}
         >
-          Share
+          <Share2 className="size-4 shrink-0" aria-hidden />
+          <TeamFlag team={row.team} size="sm" variant="crest" />
+          <span className="truncate">Share {row.team.name}</span>
         </Link>
       ) : null}
     </div>

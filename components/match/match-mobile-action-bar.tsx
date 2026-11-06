@@ -1,9 +1,10 @@
 "use client"
 
-import { Lock, MessageCircle } from "lucide-react"
+import { Lock, MessageCircle, Share2 } from "lucide-react"
 import Link from "next/link"
 
 import type { MatchShareLink, RatingProgressState } from "@/components/match/match-rating-progress"
+import { TeamFlag } from "@/components/team-flag"
 import { buttonVariants } from "@/components/ui/button"
 import type { PitchSide } from "@/lib/match/lineup-position"
 import { MATCH_SHARE_UNLOCK } from "@/lib/share/match-share-model"
@@ -107,8 +108,13 @@ export function MatchMobileActionBar({
             </span>
           </button>
         ) : shareHref ? (
-          <Link href={shareHref} className={buttonVariants({ className: "h-11 flex-1 text-sm" })}>
-            Share {team?.team.name ?? "ratings"}
+          <Link
+            href={shareHref}
+            className={buttonVariants({ className: "h-11 flex-1 gap-2 text-sm" })}
+          >
+            <Share2 className="size-4 shrink-0" aria-hidden />
+            {team ? <TeamFlag team={team.team} size="sm" variant="crest" /> : null}
+            <span className="truncate">Share {team?.team.name ?? "ratings"}</span>
           </Link>
         ) : (
           <span className="flex h-11 flex-1 items-center justify-center rounded-lg bg-muted text-sm font-medium text-muted-foreground">
@@ -120,9 +126,11 @@ export function MatchMobileActionBar({
             href={shareHref}
             className={buttonVariants({
               variant: "outline",
-              className: "h-11 shrink-0 bg-card px-3 text-sm",
+              className: "h-11 shrink-0 gap-1.5 bg-card px-3 text-sm",
             })}
           >
+            <Share2 className="size-4 shrink-0" aria-hidden />
+            {team ? <TeamFlag team={team.team} size="sm" variant="crest" /> : null}
             Share
           </Link>
         ) : null}

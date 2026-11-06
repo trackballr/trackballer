@@ -82,13 +82,11 @@ export function ShareScoreChip({
 
 export function MatchCardHeader({
   crest,
-  logo,
   teamName,
   opponentName,
   roundLabel,
 }: {
   crest: string | null
-  logo: string
   teamName: string
   opponentName: string
   roundLabel: string | null
@@ -140,8 +138,59 @@ export function MatchCardHeader({
           {vs}
         </div>
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element -- picture renderer, not a page */}
-      <img src={logo} alt="" width={56} height={56} style={{ objectFit: "contain" }} />
+    </div>
+  )
+}
+
+/** Black mark sits on a white chip so it reads on the navy card, next to the name. */
+export function MatchCardBrand({ logo }: { logo: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        marginTop: 20,
+        paddingTop: 18,
+        borderTop: `1px solid ${CARD_COLORS.hairline}`,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          width: 56,
+          height: 56,
+          borderRadius: 12,
+          backgroundColor: CARD_COLORS.white,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- picture renderer, not a page */}
+        <img src={logo} alt="" width={44} height={44} style={{ objectFit: "contain" }} />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", marginLeft: 14 }}>
+        <div
+          style={{
+            display: "flex",
+            fontFamily: "Outfit",
+            fontWeight: 800,
+            fontSize: 28,
+            lineHeight: 1,
+          }}
+        >
+          Trackballr
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 4,
+            fontSize: 16,
+            color: CARD_COLORS.whiteSoft,
+          }}
+        >
+          Rate every player. Every match.
+        </div>
+      </div>
     </div>
   )
 }

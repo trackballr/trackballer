@@ -3,7 +3,6 @@ import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
 import { ShareRatingActions } from "@/components/share/share-rating-actions"
-import { buttonVariants } from "@/components/ui/button"
 import { Panel } from "@/components/ui/panel"
 import { getServerAuth } from "@/lib/auth/server-session"
 import { MATCH_CARD_SIZE } from "@/lib/share/match-card-image"
@@ -140,7 +139,7 @@ export default async function MatchRatingSharePage({ params }: PageProps) {
             <div className="mt-4 border-t border-border pt-4">
               <Link
                 href={`/match/${share.fixtureId}`}
-                className={buttonVariants({ variant: "outline", className: "h-10 bg-card px-4 text-sm" })}
+                className="text-sm font-semibold underline underline-offset-4"
               >
                 Open the match
               </Link>

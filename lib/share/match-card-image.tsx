@@ -6,7 +6,7 @@ import { ImageResponse } from "next/og"
 import type { MatchShare } from "@/lib/share/match-share-model"
 import { MatchCardList } from "@/lib/share/match-card-list"
 import { MatchCardPitch } from "@/lib/share/match-card-pitch"
-import { MatchCardHeader } from "@/lib/share/match-card-parts"
+import { MatchCardBrand, MatchCardHeader } from "@/lib/share/match-card-parts"
 import { CARD_COLORS } from "@/lib/share/card-theme"
 
 export const MATCH_CARD_SIZE = { width: 1080, height: 1350 } as const
@@ -98,12 +98,12 @@ export async function renderMatchCard(share: MatchShare): Promise<ImageResponse>
     >
       <MatchCardHeader
         crest={crest}
-        logo={logo}
         teamName={share.team.name}
         opponentName={share.opponentName}
         roundLabel={share.roundLabel}
       />
       {body}
+      <MatchCardBrand logo={logo} />
     </div>,
     {
       ...MATCH_CARD_SIZE,
