@@ -54,7 +54,7 @@ export function LeagueRoundNav({
     <div className="space-y-3 px-3 pt-4 pb-3 sm:px-4">
       <h2 className="h3">Matches</h2>
 
-      <div className="flex w-full flex-wrap items-center justify-between gap-3">
+      <div className="flex w-full flex-col items-center gap-3">
         <Tabs
           value={view}
           onValueChange={(nextView) => goToView(nextView as FixtureView)}

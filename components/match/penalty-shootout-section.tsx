@@ -1,5 +1,6 @@
 import { Check, X } from "lucide-react"
 
+import { personName } from "@/lib/match/person-name"
 import type { PenaltyKick, PenaltyShootout } from "@/lib/match/types"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -53,9 +54,10 @@ function KickSummaryRow({
 }
 
 function shortName(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  if (parts.length <= 1) return name
-  const last = parts[parts.length - 1] ?? name
+  const clean = personName(name.trim())
+  const parts = clean.split(/\s+/)
+  if (parts.length <= 1) return clean
+  const last = parts[parts.length - 1] ?? clean
   const first = parts[0]
   if (!first) return last
   return `${first[0]}. ${last}`

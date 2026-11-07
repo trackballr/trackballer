@@ -42,7 +42,7 @@ export function LineupTeamSwitcher({
             className={cn(
               "flex flex-1 items-center justify-center rounded-full px-3 py-2 transition-colors",
               isActive
-                ? "bg-background shadow-sm"
+                ? "bg-neutral-200 shadow-sm"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >

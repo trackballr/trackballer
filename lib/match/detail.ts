@@ -5,6 +5,7 @@ import { COMPETITION_HUB_LEAGUES } from "@/lib/catalog/top-leagues"
 import { buildCompetitionLabel } from "@/lib/match/competition-label"
 import { buildFormationRows, formationLabel } from "@/lib/match/formation"
 import { parseGridSlot } from "@/lib/match/lineup-position"
+import { personName } from "@/lib/match/person-name"
 import { sortRateableQueue } from "@/lib/match/rating-queue-order"
 import { buildCardCountsMap } from "@/lib/match/card-counts"
 import { buildGoalAssistCountsMap } from "@/lib/match/goal-assist-counts"
@@ -125,7 +126,7 @@ export const getMatchDetail = cache(
     for (const row of lineupRows ?? []) {
       const lineupRow = row as LineupRow
       if (lineupRow.players) {
-        playerNameById.set(lineupRow.player_id, lineupRow.players.name)
+        playerNameById.set(lineupRow.player_id, personName(lineupRow.players.name))
       }
     }
 
@@ -307,7 +308,7 @@ async function enrichPlayerNames(
     .in("id", [...missing])
 
   for (const row of data ?? []) {
-    merged.set(row.id, row.name)
+    merged.set(row.id, personName(row.name))
   }
 
   return merged
@@ -330,7 +331,7 @@ function mapCoaches(
     coaches.push({
       side,
       teamId: row.team_id,
-      name: row.name,
+      name: personName(row.name),
       photoUrl: row.photo_url,
     })
   }
@@ -392,7 +393,7 @@ function mapLineupPlayer(
 
   return {
     playerId: row.player_id,
-    name: player.name,
+    name: personName(player.name),
     photoUrl: player.photo_url,
     shirtNumber: row.shirt_number,
     side,

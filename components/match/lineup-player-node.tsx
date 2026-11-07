@@ -10,6 +10,7 @@ import { Flame } from "lucide-react"
 
 import { PlayerAvatar } from "@/components/player-avatar"
 import { isHotTake } from "@/components/rating/rating-panel"
+import { personName } from "@/lib/match/person-name"
 import type { MatchLineupPlayer } from "@/lib/match/types"
 import { cn } from "@/lib/utils"
 
@@ -17,9 +18,10 @@ const ASSIST_ICON = "/american-football-black-shoe-svgrepo-com.svg"
 const GOAL_ICON = "/football-svgrepo-com.svg"
 
 function shortName(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  if (parts.length <= 1) return name
-  const last = parts[parts.length - 1] ?? name
+  const clean = personName(name.trim())
+  const parts = clean.split(/\s+/)
+  if (parts.length <= 1) return clean
+  const last = parts[parts.length - 1] ?? clean
   const first = parts[0]
   if (!first) return last
   return `${first[0]}. ${last}`
